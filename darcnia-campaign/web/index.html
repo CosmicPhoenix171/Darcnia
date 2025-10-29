@@ -7,11 +7,41 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h1>🏛️ Darcnia Campaign</h1>
+            <p class="login-subtitle">Enter your character's name to access the world of Solspire</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="characterName">Character Name</label>
+                    <input type="text" id="characterName" placeholder="e.g., Nyra Vex" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn-login">Enter Campaign</button>
+            </form>
+            
+            <div class="login-info">
+                <p>💡 <strong>Tip:</strong> Enter your character's name exactly as it appears in the campaign.</p>
+                <p class="dm-note">DMs: Enter "DM" or "Dungeon Master" for full access</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (hidden until login) -->
+    <div class="container" id="mainApp" style="display: none;">
         <!-- Header -->
         <header>
-            <h1>🏛️ Darcnia Campaign Reference</h1>
-            <p class="subtitle">Solspire - The City of Guilds</p>
+            <div class="header-top">
+                <div>
+                    <h1>🏛️ Darcnia Campaign Reference</h1>
+                    <p class="subtitle">Solspire - The City of Guilds</p>
+                </div>
+                <div class="user-info">
+                    <span class="character-badge" id="characterBadge"></span>
+                    <button id="logoutBtn" class="btn-logout" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
             
             <!-- Search Bar -->
             <div class="search-container">
@@ -22,6 +52,9 @@
             <!-- Theme Toggle -->
             <button id="themeToggle" class="theme-toggle">🌙</button>
         </header>
+
+        <!-- Character Info Banner -->
+        <div id="characterInfo" class="character-info-banner"></div>
 
         <!-- Navigation Tabs -->
         <nav class="tabs">

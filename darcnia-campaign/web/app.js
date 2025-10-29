@@ -13,12 +13,48 @@ const CONFIG = {
     }
 };
 
+// ===== Character Database =====
+const characterDatabase = {
+    'nyra vex': {
+        name: 'Nyra Vex',
+        race: 'Human',
+        class: 'Rogue',
+        guild: 'Guild Crystalia',
+        relationships: ['Eldon Thorne', 'Lyra Windfern'],
+        knownLocations: ['Guild Crystalia Hall', 'Heart Plaza', 'Hearthstone Inn'],
+        knownGuilds: ['Guild Crystalia', 'The Crimson Vanguard', "Merchants' Concord", 'City Watch'],
+        completedQuests: ['Missing Cat'],
+        activeQuests: ['Shadows in the Basement'],
+        knownSecrets: [],
+        accessLevel: 'player',
+        discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note']
+    },
+    'dm': {
+        name: 'Dungeon Master',
+        accessLevel: 'dm',
+        knownGuilds: 'all',
+        knownLocations: 'all',
+        knownSecrets: 'all',
+        discoveredHandouts: 'all'
+    },
+    'dungeon master': {
+        name: 'Dungeon Master',
+        accessLevel: 'dm',
+        knownGuilds: 'all',
+        knownLocations: 'all',
+        knownSecrets: 'all',
+        discoveredHandouts: 'all'
+    }
+};
+
 // ===== State Management =====
 const state = {
     currentTab: 'overview',
     theme: 'dark',
     content: {},
-    searchIndex: []
+    searchIndex: [],
+    currentCharacter: null,
+    accessLevel: 'guest'
 };
 
 // ===== Data Structure =====
@@ -639,10 +675,7 @@ const contentData = {
 
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    loadContent('overview');
-    setupEventListeners();
-    buildSearchIndex();
+    initializeLogin();
 });
 
 function initializeApp() {
@@ -652,6 +685,18 @@ function initializeApp() {
     
     // Update theme toggle icon
     updateThemeIcon();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Build search index
+    buildSearchIndex();
+    
+    // Load initial content
+    loadContent('overview');
+    
+    // Log success
+    logSuccess();
 }
 
 // ===== Theme Management =====
@@ -696,6 +741,9 @@ function setupEventListeners() {
     document.getElementById('searchModal').addEventListener('click', (e) => {
         if (e.target.id === 'searchModal') closeModal();
     });
+    
+    // Logout button
+    document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
 // ===== Tab Switching =====
@@ -754,27 +802,47 @@ function loadContent(tab) {
 // ===== Rendering Functions =====
 function renderGuilds() {
     let html = '<h2>🏛️ Guilds of Solspire</h2>';
-    html += '<p>Eleven major factions control the city. Click any guild to learn more.</p>';
+    
+    const character = state.currentCharacter;
+    const isDM = character.accessLevel === 'dm';
+    
+    // Filter guilds based on character knowledge
+    let visibleGuilds = contentData.guilds;
+    if (!isDM && character.knownGuilds !== 'all') {
+        visibleGuilds = contentData.guilds.filter(guild => 
+            character.knownGuilds?.includes(guild.name) || guild.id === 'guild-crystalia'
+        );
+        
+        html += `<p>You know about ${visibleGuilds.length} guild(s) in Solspire. Explore the city to discover more!</p>`;
+    } else {
+        html += '<p>Eleven major factions control the city. Click any guild to learn more.</p>';
+    }
     
     // Group guilds by type
-    const adventuring = contentData.guilds.filter(g => 
+    const adventuring = visibleGuilds.filter(g => 
         ['guild-crystalia', 'crimson-vanguard', 'stormcallers-covenant', 'gilded-compass'].includes(g.id)
     );
-    const support = contentData.guilds.filter(g => 
+    const support = visibleGuilds.filter(g => 
         ['hearthkeepers', 'iron-covenant', 'silent-vigil'].includes(g.id)
     );
-    const power = contentData.guilds.filter(g => 
+    const power = visibleGuilds.filter(g => 
         ['merchants-concord', 'arkwright-circle', 'shadowweave', 'city-watch'].includes(g.id)
     );
     
-    html += '<h3>Adventuring Guilds</h3>';
-    html += adventuring.map(g => renderGuildCard(g)).join('');
+    if (adventuring.length > 0) {
+        html += '<h3>Adventuring Guilds</h3>';
+        html += adventuring.map(g => renderGuildCard(g)).join('');
+    }
     
-    html += '<h3>Support Guilds</h3>';
-    html += support.map(g => renderGuildCard(g)).join('');
+    if (support.length > 0) {
+        html += '<h3>Support Guilds</h3>';
+        html += support.map(g => renderGuildCard(g)).join('');
+    }
     
-    html += '<h3>Power Factions</h3>';
-    html += power.map(g => renderGuildCard(g)).join('');
+    if (power.length > 0) {
+        html += '<h3>Power Factions</h3>';
+        html += power.map(g => renderGuildCard(g)).join('');
+    }
     
     return html;
 }
@@ -941,8 +1009,28 @@ function renderQuests() {
 
 function renderHandouts() {
     let html = '<h2>📄 Player Handouts</h2>';
-    html += '<p>Documents and information you\'ve discovered.</p>';
-    html += contentData.handouts.map(handout => `
+    
+    const character = state.currentCharacter;
+    const isDM = character.accessLevel === 'dm';
+    
+    // Filter handouts based on character discoveries
+    let visibleHandouts = contentData.handouts;
+    if (!isDM && character.discoveredHandouts !== 'all') {
+        visibleHandouts = contentData.handouts.filter(handout =>
+            character.discoveredHandouts?.includes(handout.name)
+        );
+        
+        if (visibleHandouts.length === 0) {
+            html += '<p>You haven\'t discovered any documents yet. Explore the world to find clues!</p>';
+            return html;
+        }
+        
+        html += `<p>You have discovered ${visibleHandouts.length} document(s).</p>`;
+    } else {
+        html += '<p>Documents and information you\'ve discovered.</p>';
+    }
+    
+    html += visibleHandouts.map(handout => `
         <div class="card">
             <h3>${handout.name}</h3>
             <div class="card-meta"><strong>Source:</strong> ${handout.source}</div>
@@ -1012,40 +1100,46 @@ function updateSidebar(tab) {
 function buildSearchIndex() {
     state.searchIndex = [];
     
-    // Index guilds
+    // Index guilds (respect access)
     contentData.guilds.forEach(guild => {
-        state.searchIndex.push({
-            type: 'Guild',
-            title: guild.name,
-            content: `${guild.motto} ${guild.description} ${guild.keyInfo.join(' ')}`,
-            data: guild,
-            showFunction: () => showGuildDetail(guild.id)
-        });
+        if (hasAccess('guild', guild.name)) {
+            state.searchIndex.push({
+                type: 'Guild',
+                title: guild.name,
+                content: `${guild.motto} ${guild.description} ${guild.keyInfo.join(' ')}`,
+                data: guild,
+                showFunction: () => showGuildDetail(guild.id)
+            });
+        }
     });
     
-    // Index NPCs
+    // Index NPCs (respect access)
     contentData.npcs.forEach(npc => {
-        state.searchIndex.push({
-            type: 'NPC',
-            title: npc.name,
-            content: `${npc.title} ${npc.personality} ${npc.role}`,
-            data: npc,
-            showFunction: () => showNPCDetail(npc.id)
-        });
+        if (hasAccess('npc', npc.name)) {
+            state.searchIndex.push({
+                type: 'NPC',
+                title: npc.name,
+                content: `${npc.title} ${npc.personality} ${npc.role}`,
+                data: npc,
+                showFunction: () => showNPCDetail(npc.id)
+            });
+        }
     });
     
-    // Index locations
+    // Index locations (respect access)
     contentData.locations.forEach(loc => {
-        state.searchIndex.push({
-            type: 'Location',
-            title: loc.name,
-            content: `${loc.description} ${loc.features ? loc.features.join(' ') : ''}`,
-            data: loc,
-            showFunction: () => { switchTab('locations'); }
-        });
+        if (hasAccess('location', loc.name)) {
+            state.searchIndex.push({
+                type: 'Location',
+                title: loc.name,
+                content: `${loc.description} ${loc.features ? loc.features.join(' ') : ''}`,
+                data: loc,
+                showFunction: () => { switchTab('locations'); }
+            });
+        }
     });
     
-    // Index items, quests, etc.
+    // Index items, quests, etc. (items and quests are generally accessible)
     contentData.items.forEach(item => {
         state.searchIndex.push({
             type: 'Item',
@@ -1054,6 +1148,19 @@ function buildSearchIndex() {
             data: item,
             showFunction: () => { switchTab('items'); }
         });
+    });
+    
+    contentData.quests.forEach(quest => {
+        // Only show quests if the character knows them or is DM
+        if (state.currentCharacter?.accessLevel === 'dm' || state.currentCharacter?.activeQuests?.includes(quest.name) || quest.isPublic) {
+            state.searchIndex.push({
+                type: 'Quest',
+                title: quest.name,
+                content: `${quest.description} ${quest.objectives.join(' ')}`,
+                data: quest,
+                showFunction: () => { switchTab('quests'); }
+            });
+        }
     });
 }
 
@@ -1116,6 +1223,201 @@ function closeModal() {
     document.getElementById('searchModal').classList.add('hidden');
 }
 
+// ===== Login System =====
+function initializeLogin() {
+    const loginForm = document.getElementById('loginForm');
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    
+    // Check for saved session
+    const savedCharacter = localStorage.getItem('darcnia_character');
+    if (savedCharacter) {
+        const characterData = JSON.parse(savedCharacter);
+        loginCharacter(characterData);
+        return;
+    }
+    
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const characterName = document.getElementById('characterName').value.trim();
+        
+        if (!characterName) {
+            alert('Please enter a character name');
+            return;
+        }
+        
+        const characterKey = characterName.toLowerCase();
+        const characterData = characterDatabase[characterKey];
+        
+        if (characterData) {
+            // Save to localStorage
+            localStorage.setItem('darcnia_character', JSON.stringify(characterData));
+            loginCharacter(characterData);
+        } else {
+            // Create guest character with limited access
+            const guestCharacter = {
+                name: characterName,
+                accessLevel: 'guest',
+                knownGuilds: ['Guild Crystalia'],
+                knownLocations: ['Guild Crystalia Hall'],
+                knownSecrets: [],
+                discoveredHandouts: []
+            };
+            localStorage.setItem('darcnia_character', JSON.stringify(guestCharacter));
+            loginCharacter(guestCharacter);
+        }
+    });
+}
+
+function loginCharacter(characterData) {
+    state.currentCharacter = characterData;
+    state.accessLevel = characterData.accessLevel || 'guest';
+    
+    // Hide login, show main app
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    
+    // Update UI
+    updateCharacterBadge();
+    displayCharacterInfo();
+    
+    // Initialize the rest of the app
+    initializeApp();
+}
+
+function updateCharacterBadge() {
+    const badge = document.getElementById('characterBadge');
+    const character = state.currentCharacter;
+    
+    if (character.accessLevel === 'dm') {
+        badge.textContent = '👑 ' + character.name;
+        badge.style.background = 'var(--accent-secondary)';
+    } else {
+        badge.textContent = '⚔️ ' + character.name;
+    }
+}
+
+function displayCharacterInfo() {
+    const infoBanner = document.getElementById('characterInfo');
+    const character = state.currentCharacter;
+    
+    if (character.accessLevel === 'dm') {
+        infoBanner.innerHTML = `
+            <div class="access-notice dm-access">
+                <strong>👑 Dungeon Master Mode</strong><br>
+                You have full access to all content, including DM secrets and hidden information.
+            </div>
+        `;
+        infoBanner.classList.add('visible');
+        return;
+    }
+    
+    if (!character.class) {
+        // Guest character
+        infoBanner.innerHTML = `
+            <div class="access-notice">
+                <strong>👋 Welcome, ${character.name}!</strong><br>
+                You have limited access. Contact your DM to add your full character details for personalized content.
+            </div>
+        `;
+        infoBanner.classList.add('visible');
+        return;
+    }
+    
+    // Full character display
+    let html = `
+        <h3>⚔️ ${character.name}</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Race</div>
+                <div class="info-value">${character.race || 'Unknown'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Class</div>
+                <div class="info-value">${character.class || 'Unknown'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Guild</div>
+                <div class="info-value">${character.guild || 'None'}</div>
+            </div>
+        </div>
+    `;
+    
+    if (character.activeQuests && character.activeQuests.length > 0) {
+        html += `
+            <div class="access-notice">
+                <strong>📜 Active Quests:</strong> ${character.activeQuests.join(', ')}
+            </div>
+        `;
+    }
+    
+    infoBanner.innerHTML = html;
+    infoBanner.classList.add('visible');
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('darcnia_character');
+        location.reload();
+    }
+}
+
+function hasAccess(contentType, contentId) {
+    const character = state.currentCharacter;
+    
+    // DM has access to everything
+    if (character.accessLevel === 'dm') {
+        return true;
+    }
+    
+    // Check specific content types
+    switch(contentType) {
+        case 'guild':
+            if (character.knownGuilds === 'all') return true;
+            return character.knownGuilds?.includes(contentId) || false;
+            
+        case 'location':
+            if (character.knownLocations === 'all') return true;
+            return character.knownLocations?.includes(contentId) || false;
+            
+        case 'handout':
+            if (character.discoveredHandouts === 'all') return true;
+            return character.discoveredHandouts?.includes(contentId) || false;
+            
+        case 'npc':
+            if (character.accessLevel === 'dm') return true;
+            // Only show NPCs the character has met
+            return character.relationships?.includes(contentId) || false;
+            
+        case 'secret':
+            // Secrets are DM only unless specifically known
+            return character.knownSecrets?.includes(contentId) || false;
+            
+        default:
+            return true; // Default allow for basic content
+    }
+}
+
+function filterContentByAccess(contentList, contentType) {
+    const character = state.currentCharacter;
+    
+    // DM sees everything
+    if (character.accessLevel === 'dm') {
+        return contentList;
+    }
+    
+    // Filter based on character knowledge
+    return contentList.filter(item => {
+        return hasAccess(contentType, item.name || item.id || item.title);
+    });
+}
+
 // ===== Utility Functions =====
-console.log('🎲 Darcnia Campaign Reference loaded successfully!');
-console.log('📚 Search index built with', state.searchIndex.length, 'items');
+// Wait to log until after login
+function logSuccess() {
+    console.log('🎲 Darcnia Campaign Reference loaded successfully!');
+    console.log('📚 Search index built with', state.searchIndex.length, 'items');
+    console.log('⚔️ Playing as:', state.currentCharacter?.name);
+    console.log('🔑 Access level:', state.accessLevel);
+}
+
