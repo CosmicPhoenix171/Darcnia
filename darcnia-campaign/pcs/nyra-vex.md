@@ -1,22 +1,158 @@
 # Nyra Vex
 
-- Race: Human
-- Class: Rogue
-- Alignment: [placeholder]
-- Appearance:
-  - Short description: [placeholder — height, hair, typical clothing]
-  - Distinguishing features: Guild Crystalia crest tattoo on left shoulder blade (fractured crystal encircled by shifting silver and blue runes)
-- Background:
-  - Origin: [placeholder]
-  - Personal goals & motivations: [placeholder]
-  - Connections in Solspire: Eldon Thorne (Guildmaster), Lyra Windfern (Secretary), Guild Crystalia
-- Abilities & gear: 
-  - Guild Crystalia crest tattoo (magical mark)
-  - Ancient guild token (hums with power)
-  - Sealed mission scroll - Level 3: Skyreach Underspire (awaits unlocking)
-- Roleplay notes:
-  - Personality: [placeholder]
-  - Hooks: Mysterious voice called her "ghost-walker" during marking ceremony
+## Basic Information
+- **Race:** Human
+- **Class:** Rogue 1 (Wayfarer)
+- **Alignment:** Chaotic Neutral
+- **Background:** Wayfarer
+- **Size:** Medium (5'9")
+- **Age:** 30
+- **Gender:** Female
+
+## Appearance
+- **Height:** 5'9"
+- **Weight:** 150 lbs
+- **Hair:** Brown
+- **Eyes:** Hazel
+- **Skin:** Tan
+- **Distinguishing Features:** Guild Crystalia crest tattoo on left shoulder blade (fractured crystal encircled by shifting silver and blue runes)
+- **Description:** You grew up on the streets surrounded by similarly ill-fated souls and their friends and a few of them rivals. You slept where you could and did odd jobs.
+
+## Ability Scores
+- **Strength:** 9 (-1 ability, -1 save)
+- **Dexterity:** 18 (+4 ability, +4 save) *[Proficient]*
+- **Constitution:** 11 (+0 ability, +0 save)
+- **Intelligence:** 13 (+1 ability, +1 save) *[Proficient]*
+- **Wisdom:** 17 (+3 ability, +3 save)
+- **Charisma:** 18 (+3 ability, +3 save)
+
+## Combat Stats
+- **Armor Class:** 14 (Light Armor)
+- **Speed:** 30 ft
+- **Initiative:** +4
+- **Hit Points:** 8 (Max: 8, Temp: 0)
+- **Hit Dice:** 1d8
+- **Proficiency Bonus:** +2
+- **Inspiration:** Yes (1 point)
+
+## Skills
+*(Proficient skills marked with +)*
+- **Acrobatics** (DEX): +4
+- **Animal Handling** (WIS): +3
+- **Arcana** (INT): +1
+- **Athletics** (STR): -1
+- **Deception** (CHA): +3
+- **History** (INT): +1
+- **Insight** (WIS): +5 *[Proficient]*
+- **Intimidation** (CHA): +3
+- **Investigation** (INT): +3 *[Proficient]*
+- **Medicine** (WIS): +3
+- **Nature** (INT): +1
+- **Perception** (WIS): +7 *[Proficient]*
+- **Performance** (CHA): +3
+- **Persuasion** (CHA): +3
+- **Religion** (INT): +1
+- **Sleight of Hand** (DEX): +4
+- **Stealth** (DEX): +8 *[Proficient]*
+- **Survival** (WIS): +3
+
+## Senses
+- **Passive Investigation:** 13
+- **Passive Insight:** 15
+- **Passive Perception:** 17
+
+## Proficiencies
+- **Armor:** Light armor
+- **Weapons:** None listed
+- **Tools:** Thieves' Tools
+- **Languages:** Thieves' Cant, Common, Elvish, Halfling
+
+## Class Features
+
+### Expertise (Rogue)
+You gain Expertise in two of your skill proficiencies or your choice. Sleight of Hand and Stealth are Expertise.
+
+### Sneak Attack (Rogue)
+You know how to strike subtly and exploit a foe's distraction. Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack roll if you have Advantage on the roll and use a Finesse or Ranged weapon. You don't need Advantage if at least one of your allies is within 5 feet of the target, the ally doesn't have the Incapacitated condition, and you don't have Disadvantage.
+
+### Thieves' Cant (Rogue)
+You picked up various languages in the communities where you plied your roguish talents. You know Thieves' Cant and one other language of your choice (see chapter 7: "Adventuring").
+
+### Weapon Mastery (Rogue)
+Your training allowed you to use the mastery properties of two kinds of weapons of your choice with which you have proficiency, such as Daggers and Shortswords.
+
+## Background Features
+
+### Wayfarer
+You grew up on the streets surrounded by similarly ill-fated souls and their friends and a few of them rivals. You slept where you could and did odd jobs.
+
+## Feats
+
+### Resourceful (Human, Origin Feat)
+You gain Heroic Inspiration whenever you finish a Long Rest.
+
+### Skillful (Human)
+You gain proficiency in one skill of your choice.
+
+### Versatile (Human)
+You gain an Origin feat of your choice (see chapter 5). Skillful is recommended.
+
+### Lucky (Wayfarer, Level 1)
+Luck favors you. You gain the following benefits:
+- **Luck Points:** 3 (recharge on Long Rest)
+- **Advantage:** When you roll a d20 for an attack roll, ability check, or saving throw, you can spend 1 Luck Point to give yourself Advantage on the roll.
+- **Disadvantage:** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.
+
+### Savage Attacker (Origin Feat)
+**Prerequisite:** None
+**Repeatable:** No
+You've trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon's damage dice twice and use either roll against the target.
+
+## Weapons
+
+### Shortbow (Equipped)
+- **Type:** Ranged
+- **Range:** 80/320 ft
+- **Attack Bonus:** +6
+- **Damage:** 1d6+4 piercing
+- **Properties:** Vex, Mastery
+
+### Dagger (Equipped, Nick)
+- **Type:** Melee
+- **Range:** 5 ft
+- **Attack Bonus:** +4
+- **Damage:** 1d4+4 piercing
+- **Properties:** Nick, Mastery
+
+### Unarmed Strike (Melee)
+- **Range:** 5 ft
+- **Attack Bonus:** +1
+- **Damage:** 1+(-1) bludgeoning
+
+## Equipment & Inventory
+- Thieves' Tools
+- Ancient guild token (hums with power)
+- Sealed mission scroll - Level 3: Skyreach Underspire (awaits unlocking)
+- Light armor
+- Shortbow
+- Dagger
+- *(Additional equipment from character sheet storage visible but not fully detailed)*
+
+## Background
+- **Origin:** Grew up on the streets, surrounded by similarly ill-fated souls
+- **Personal Goals & Motivations:** [To be developed through play]
+- **Connections in Solspire:** 
+  - Eldon Thorne (Guildmaster of Guild Crystalia)
+  - Lyra Windfern (Secretary of Guild Crystalia)
+  - Guild Crystalia (Provisional Member)
+
+## Roleplay Notes
+- **Personality:** Resourceful, street-smart, adaptable
+- **Hooks:** 
+  - Mysterious voice called her "ghost-walker" during marking ceremony
+  - Ancient guild token chose her specifically
+  - Sealed mission scroll that won't open until she proves herself
+  - Thorne is hiding something about the voice
 
 ---
 
