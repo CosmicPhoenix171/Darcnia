@@ -131,6 +131,29 @@ body {
     box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
 }
 
+.btn-login:disabled {
+    background: var(--bg-tertiary);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.login-error {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(233, 69, 96, 0.2);
+    border: 1px solid var(--accent-primary);
+    border-radius: 6px;
+    color: var(--accent-primary);
+    font-size: 0.9rem;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
 .login-info {
     margin-top: 25px;
     padding-top: 25px;
@@ -146,6 +169,12 @@ body {
 .dm-note {
     color: var(--accent-secondary);
     font-style: italic;
+}
+
+.password-hint {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    opacity: 0.8;
 }
 
 /* ===== User Info & Header Updates ===== */

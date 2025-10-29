@@ -14,9 +14,21 @@ const CONFIG = {
 };
 
 // ===== Character Database =====
+// Simple hash function for password verification (in production, use proper authentication)
+function simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash.toString(36);
+}
+
 const characterDatabase = {
     'nyra vex': {
         name: 'Nyra Vex',
+        password: simpleHash('rogue123'), // Default password: rogue123
         race: 'Human',
         class: 'Rogue',
         guild: 'Guild Crystalia',
@@ -31,6 +43,7 @@ const characterDatabase = {
     },
     'dm': {
         name: 'Dungeon Master',
+        password: simpleHash('dmpass2025'), // Default DM password: dmpass2025
         accessLevel: 'dm',
         knownGuilds: 'all',
         knownLocations: 'all',
@@ -39,6 +52,7 @@ const characterDatabase = {
     },
     'dungeon master': {
         name: 'Dungeon Master',
+        password: simpleHash('dmpass2025'), // Default DM password: dmpass2025
         accessLevel: 'dm',
         knownGuilds: 'all',
         knownLocations: 'all',
@@ -1228,21 +1242,35 @@ function initializeLogin() {
     const loginForm = document.getElementById('loginForm');
     const loginScreen = document.getElementById('loginScreen');
     const mainApp = document.getElementById('mainApp');
+    const loginError = document.getElementById('loginError');
     
     // Check for saved session
     const savedCharacter = localStorage.getItem('darcnia_character');
-    if (savedCharacter) {
+    const savedToken = localStorage.getItem('darcnia_token');
+    if (savedCharacter && savedToken) {
         const characterData = JSON.parse(savedCharacter);
-        loginCharacter(characterData);
-        return;
+        // Verify token is still valid
+        const characterKey = characterData.name.toLowerCase();
+        const dbCharacter = characterDatabase[characterKey];
+        if (dbCharacter && dbCharacter.password === savedToken) {
+            loginCharacter(characterData);
+            return;
+        } else {
+            // Invalid session, clear it
+            localStorage.removeItem('darcnia_character');
+            localStorage.removeItem('darcnia_token');
+        }
     }
     
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const characterName = document.getElementById('characterName').value.trim();
+        loginError.style.display = 'none';
         
-        if (!characterName) {
-            alert('Please enter a character name');
+        const characterName = document.getElementById('characterName').value.trim();
+        const password = document.getElementById('characterPassword').value;
+        
+        if (!characterName || !password) {
+            showLoginError('Please enter both character name and password');
             return;
         }
         
@@ -1250,23 +1278,33 @@ function initializeLogin() {
         const characterData = characterDatabase[characterKey];
         
         if (characterData) {
-            // Save to localStorage
-            localStorage.setItem('darcnia_character', JSON.stringify(characterData));
-            loginCharacter(characterData);
+            // Check password
+            const passwordHash = simpleHash(password);
+            if (characterData.password === passwordHash) {
+                // Correct password - save to localStorage with token
+                localStorage.setItem('darcnia_character', JSON.stringify(characterData));
+                localStorage.setItem('darcnia_token', passwordHash);
+                loginCharacter(characterData);
+            } else {
+                showLoginError('❌ Incorrect password. Please try again.');
+            }
         } else {
-            // Create guest character with limited access
-            const guestCharacter = {
-                name: characterName,
-                accessLevel: 'guest',
-                knownGuilds: ['Guild Crystalia'],
-                knownLocations: ['Guild Crystalia Hall'],
-                knownSecrets: [],
-                discoveredHandouts: []
-            };
-            localStorage.setItem('darcnia_character', JSON.stringify(guestCharacter));
-            loginCharacter(guestCharacter);
+            showLoginError(`❌ Character "${characterName}" not found. Contact your DM to create a character.`);
         }
     });
+}
+
+function showLoginError(message) {
+    const loginError = document.getElementById('loginError');
+    loginError.textContent = message;
+    loginError.style.display = 'block';
+    
+    // Shake the form
+    const loginContainer = document.querySelector('.login-container');
+    loginContainer.style.animation = 'none';
+    setTimeout(() => {
+        loginContainer.style.animation = 'fadeIn 0.5s ease-in';
+    }, 10);
 }
 
 function loginCharacter(characterData) {
@@ -1358,6 +1396,7 @@ function displayCharacterInfo() {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('darcnia_character');
+        localStorage.removeItem('darcnia_token');
         location.reload();
     }
 }

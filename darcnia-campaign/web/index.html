@@ -18,12 +18,18 @@
                     <label for="characterName">Character Name</label>
                     <input type="text" id="characterName" placeholder="e.g., Nyra Vex" autocomplete="off" required>
                 </div>
+                <div class="form-group">
+                    <label for="characterPassword">Password</label>
+                    <input type="password" id="characterPassword" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
                 <button type="submit" class="btn-login">Enter Campaign</button>
+                <div id="loginError" class="login-error" style="display: none;"></div>
             </form>
             
             <div class="login-info">
                 <p>💡 <strong>Tip:</strong> Enter your character's name exactly as it appears in the campaign.</p>
                 <p class="dm-note">DMs: Enter "DM" or "Dungeon Master" for full access</p>
+                <p class="password-hint">🔒 Contact your DM if you need a password or to create a new character</p>
             </div>
         </div>
     </div>
