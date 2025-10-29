@@ -74,6 +74,92 @@ Summary of events and important beats.
 - Why is dungeon access restricted to guilds only?
 - Why does the guild's basement feel... wrong?
 
+### 4. Meeting Sophia - The "Eccentric Member"
+**Setting**: Guild hall common room, early morning after marking ceremony
+
+**The Scene:**
+As the party settles in for breakfast, a **translucent figure** phases through the far wall. She appears to be a woman in her mid-30s, with long silver-white hair that floats as if underwater, wearing robes embroidered with constellations. She's see-through - you can see the wall behind her.
+
+She sits at a corner table, apparently reading a book. The book floats in front of her ethereal hands.
+
+**Eldon Thorne enters, carrying tea:**
+- "Ah, morning Sophia. Sleep well?"
+- Sophia nods silently but doesn't look up
+- Thorne acts as if this is completely normal
+
+**If Party Stares or Asks:**
+
+**Lyra** (cheerfully): "Oh! That's Sophia. She's been with the guild forever. Keeps odd hours, very private. Don't take it personally if she doesn't chat much!"
+
+**If Party Approaches Sophia:**
+
+She looks up, makes direct eye contact with Nyra (and any other marked members). Her eyes seem to look *through* rather than *at*.
+
+**Sophia** (voice slightly echoes): "The mark suits you. It remembers, even when we forget."
+
+Before the party can respond:
+
+**Thorne** (quickly interjecting): "Don't mind her, she's always cryptic before breakfast. Sophia's a bit... eccentric. Brilliant, but eccentric."
+
+**If Touched:** Her form feels like cold mist. She doesn't react negatively, just looks amused.
+
+**Abnisha Appears:**
+
+A spectral cat - shimmering silver and blue - materializes and jumps onto Sophia's lap. Unlike Sophia, the cat feels more *real*, though its fur is cool like flowing water.
+
+**Abnisha** purrs loudly, staring at Nyra specifically.
+
+**Sophia** (stroking the cat): "Abnisha likes you. She has good judgment."
+
+**If Asked About Being a Ghost:**
+
+**Sophia:** "Ghost? No. I'm very much here. Just... differently."
+
+**Thorne** (nervous laugh): "She uses a lot of illusion magic. Makes her look all spooky. Great party trick!"
+
+**Sophia** (ignoring him): "You'll have questions. In time, perhaps I'll have answers."
+
+She stands (passes through her chair) and walks toward the wall. Before she phases through:
+
+**Sophia:** "Good luck on your first delve. The dungeon remembers those who enter. Make sure you remember yourselves."
+
+She vanishes. Abnisha remains, rubbing against party members' legs before also disappearing.
+
+**Aftermath:**
+
+**Thorne** (to party): "Don't mind her. Very old, very powerful, very strange. Been with the guild longer than anyone can remember. Just... treat her like any other member, yeah?"
+
+He's clearly lying about something, but not hostile.
+
+**Lyra:** "She's nice once you get to know her! Bit mysterious, but she's helped me lots of times. I think she's lonely."
+
+---
+
+## Investigation Hooks
+
+### Sophia-Related Clues:
+
+1. **Ask about Sophia:**
+   - Lyra: "Been here forever! I don't know where she sleeps though. Never seen her quarters."
+   - Thorne: "She's... complicated. Best not to pry."
+   - Other members: "Sophia? Yeah, she's weird. But harmless. I think?"
+
+2. **Research in the Library:**
+   - Old records mention "Guildmaster Sophia" from centuries ago
+   - Most records about her are missing or redacted
+   - A faded portrait shows a woman who looks exactly like the ghost
+
+3. **Follow Abnisha:**
+   - The cat appears throughout the day, leading party to interesting places
+   - Sometimes sits by sealed doors in the basement
+   - Purrs loudly when party discusses the marking ceremony
+   - Reacts nervously to mentions of the deep dungeon
+
+4. **Nighttime Encounter:**
+   - Sophia manifests in sleeping party members' rooms
+   - Whispers through their tattoos: "Be careful in the dark. Not everything down there is what it seems."
+   - Vanishes if they wake fully
+
 ---
 
 ## NPC Notes
