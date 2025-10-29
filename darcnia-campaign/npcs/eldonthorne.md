@@ -20,19 +20,37 @@
 - Has recently been troubled by strange dreams and occurrences in the guild hall
 
 ## Knowledge & Suspicions
-- **What he knows**:
-  - The guild was founded long ago by a legendary figure (but the details are vague)
-  - The Heartstone exists beneath the guild and is tied to the resurrection system
-  - The guild's magic is old and powerful, but its source is mysterious
-  - Strange occurrences have been increasing: whispers, dreams, feelings of being watched
-- **What he suspects but can't prove**:
-  - Something is wrong with the seal or the Heartstone
-  - The guild's decline may be connected to a larger pattern
-  - The dungeon beneath Solspire is more than just a trial
-- **What he doesn't know**:
-  - Sophia is alive and conscious within the Heartstone
-  - The resurrection system drains her strength
-  - The dungeon is a layered seal, and clearing it weakens Sophia's prison
+
+### What He Inherited (Guild Secrets Passed Down)
+When Eldon became Guildmaster, the previous Guildmaster shared certain protected truths:
+- **Sophia was the founder** - She created Guild Crystalia centuries ago
+- **She made a great sacrifice** - The exact nature is unclear from fragmented records
+- **The Heartstone is connected to her** - Her magic or essence is somehow tied to it
+- **Sophia's spirit still lingers** - She manifests within the guild (cover story: "eccentric member")
+- **The truth must be protected** - The previous Guildmaster instructed him to maintain the facade
+
+### What He Knows
+- Sophia was Guild Crystalia's founder, a legendary mage of immense power
+- She performed some kind of sealing ritual centuries ago
+- The Heartstone beneath the guild is tied to her magic and the resurrection system
+- Sophia's spirit manifests in the guild - he must treat her as a normal member
+- Strange occurrences have been increasing: whispers, dreams, feelings of being watched
+- The guild's magic is failing slowly - resurrections feel "heavier" than they used to
+
+### What He Suspects But Can't Prove
+- Sophia is trapped, not just "lingering" - her manifestations seem desperate
+- The resurrection system might be harming something or someone
+- The dungeon beneath Solspire is connected to Sophia's sacrifice
+- The guild's decline may be tied to the weakening of whatever Sophia sealed
+- Other guilds might know pieces of the truth they're not sharing
+
+### What He Doesn't Know (The Full Truth)
+- Sophia is alive and conscious, suffering within the Heartstone
+- Every resurrection directly drains Sophia's strength and will
+- The dungeon is a layered seal - clearing floors weakens Sophia's prison
+- The "wish at the end" is a lie planted by the sealed evil
+- The Big Bad is using adventurers to break free
+- Sophia's spirit manifestations are her desperately trying to warn them
 
 ## Relationship with the Party
 - **First meeting**: Eldon welcomes Nyra (and the party) to Guild Crystalia during Session 01

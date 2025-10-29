@@ -149,10 +149,10 @@ You've trained to deal particularly damaging strikes. Once per turn when you hit
 ## Roleplay Notes
 - **Personality:** Resourceful, street-smart, adaptable
 - **Hooks:** 
-  - Mysterious voice called her "ghost-walker" during marking ceremony
+  - Heard whispers during marking ceremony - origin unclear
   - Ancient guild token chose her specifically
   - Sealed mission scroll that won't open until she proves herself
-  - Thorne is hiding something about the voice
+  - Thorne is hiding something - reacted with fear to mention of the voice
 
 ---
 
@@ -214,20 +214,32 @@ As the final line fades, the silver fire surges around Nyra — and her skin glo
 
 **Thorne** (quietly from the doorway): "When the stone sings, you'll feel it too."
 
-### Scene 5: The Voice and the Lie
-Later, Nyra hesitates before speaking.
+### Scene 5: The Whisper in the Fire
+As the marking completes, Nyra hears something—a whisper woven into the crackling flames, distant and layered with echoes.
 
-**Nyra:** "Thank you, Thorne. And what do you know of a calm, feminine, ancient voice in my head that said: 'I see you… ghost-walker…'?"
+*"I see you..."*
 
-Thorne stops cold. For a fraction of a second — recognition. Fear. Then he recovers.
+The words seem to come from everywhere and nowhere at once. Was it the fire? The runes? Her own mind?
 
-**Thorne:** "A voice? Hmph. Probably the magic settling. Echoes from the mark. Happens sometimes. Nothing real."
+Nyra looks around, but Lyra seems oblivious, closing the ancient tome with reverence.
 
-He gives her a measured smile, too rehearsed to be genuine.
+**Lyra:** "The mark is complete! Welcome to Guild Crystalia."
 
-**Thorne:** "If you hear it again… best to keep it to yourself."
+Later, as they leave the chamber, Nyra hesitates.
 
-Nyra knows he's lying. He recognized that voice.
+**Nyra:** "During the ceremony... did you hear anything? Like a voice?"
+
+Lyra blinks. "A voice? No, just the usual magical resonance. Why?"
+
+Nyra glances at Thorne, who has suddenly gone very still.
+
+**Thorne** (carefully): "Sometimes the old magic... echoes. Fragments of intent woven into the ritual. Nothing to worry about."
+
+But his expression says otherwise. His hands grip his staff a little tighter.
+
+**Thorne:** "If you hear it again... let me know. Immediately."
+
+The fear in his voice is subtle but unmistakable. He knows something he's not saying.
 
 ### Scene 6: The Locked Scroll
 Nyra takes the sealed mission scroll in hand. The wax hums faintly, reacting to the glow of her tattoo. A pulse runs down her arm.
@@ -277,7 +289,7 @@ She gestures for Nyra to follow.
 - Underwent marking ceremony in hidden chamber
 - Swore the Oath of Crystalia
 - Received Guild Crest tattoo (left shoulder blade)
-- Heard mysterious voice: "I see you… ghost-walker…"
-- Thorne lied about knowing the voice
+- Heard whispers during ceremony - "I see you..." (origin unclear)
+- Thorne reacted with fear when asked about the voice
 - Mission scroll remains sealed until she proves herself
 - Moved into guild barracks (free lodging)

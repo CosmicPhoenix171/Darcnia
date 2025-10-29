@@ -9,8 +9,15 @@ Maps, seals, and dungeon-level lore.
 The dungeon beneath Solspire is **not a trial to be conquered**. It is a **layered lock**, and each floor is a layer of the seal holding back an ancient evil.
 
 ### Dungeon Entrance & Access
-- **Location**: The dungeon entrance is in the middle of Solspire, accessible only to authorized guild members
-- **Access control**: Guild-sanctioned parties only; enforced by magical wards and city guards
+- **Location**: The dungeon entrance is in the middle of Solspire, accessible to authorized guild members from multiple guilds
+- **Access control**: Multiple guilds have dungeon access rights, including:
+  - **Guild Crystalia** (primary access - built on the Heartstone site)
+  - **Crimson Vanguard** (elite combat guild)
+  - **City Watch** (law enforcement rights)
+  - **Merchants' Concord** (economic investment in dungeon trade)
+  - **Other major guilds** (negotiated access through political/historical agreements)
+- **Access is enforced by**: Magical wards keyed to guild crest tattoos and city guard patrols
+- **Why multiple guilds?**: The dungeon has existed for centuries and predates Guild Crystalia's monopoly. Adventurers from many realms and guilds seek the "wish at the end" - exclusivity would be impossible to maintain.
 - **Path**: The dungeon descends deep beneath the city, with its lowest levels reaching toward the Heartstone beneath Guild Crystalia
 - **Public belief**: The entrance is seen as a gateway to glory and the promised "wish at the end"
 

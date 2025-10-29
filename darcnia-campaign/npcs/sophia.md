@@ -32,7 +32,7 @@
 - Appears and disappears without using doors
 - Sometimes phases partially through furniture
 - Doesn't eat, drink, or sleep (makes excuses if asked)
-- Never seen during the day - only manifests at dawn, dusk, or night
+- Rarely seen in crowded spaces - prefers quiet corners and empty rooms
 - Touch feels like cold mist
 - Can be in two places at once briefly (splits her manifestation)
 - Animals react strangely - some flee, others are drawn to her
