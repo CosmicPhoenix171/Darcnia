@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darcnia Campaign - Player Reference</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🏛️ Darcnia Campaign Reference</h1>
+            <p class="subtitle">Solspire - The City of Guilds</p>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for guilds, NPCs, locations, items..." />
+                <button id="searchBtn">🔍 Search</button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="theme-toggle">🌙</button>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="guilds">Guilds</button>
+            <button class="tab-btn" data-tab="npcs">NPCs</button>
+            <button class="tab-btn" data-tab="locations">Locations</button>
+            <button class="tab-btn" data-tab="items">Items</button>
+            <button class="tab-btn" data-tab="quests">Quests</button>
+            <button class="tab-btn" data-tab="handouts">Handouts</button>
+            <button class="tab-btn" data-tab="lore">Lore</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="contentArea">
+            <!-- Content will be loaded here dynamically -->
+            <div class="loading">Loading content...</div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <h3>Quick Reference</h3>
+            <div class="quick-links">
+                <!-- Will be populated dynamically -->
+            </div>
+        </aside>
+
+        <!-- Search Results Modal -->
+        <div id="searchModal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close">&times;</button>
+                <h2>Search Results</h2>
+                <div id="searchResults"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>Darcnia Campaign | D&D 5e | For Player Reference Only</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
