@@ -6,12 +6,14 @@
 
 ## Basic Information
 
-- **Role**: Original Guild Master of Guild Crystalia; current prisoner and anchor of the Heartstone seal
+- **Name**: Sophia
+- **Role**: Founder and first Guild Master of Guild Crystalia; current prisoner and anchor of the Heartstone seal
+- **Title**: "The Crystal Tactician"
 - **Status (Body)**: Alive but sealed — conscious, locked in eternal focus, holding the seal together
 - **Status (Spirit)**: Manifests as normal guild member throughout Guild Crystalia (with amnesia)
 - **Alignment**: Lawful Good (tragic)
-- **Personality (in legend)**: Revered, calm, solemn, selfless, determined, wise beyond measure
-- **Personality (spirit form)**: Mysterious but kind, protective, quietly desperate, maternal toward new members
+- **Age/Appearance**: Appears as a young girl of about 17, though she is actually centuries old due to her immortal sealing
+- **Race**: High Elf (body never aged past youth)
 - **Cover Story**: "Spirit guardian" of the guild (maintained by Thorne)
 
 ---
@@ -102,45 +104,78 @@ When Sophia sealed the Big Bad, they cast a final curse - a memory scrambling sp
 
 ---
 
+## Personality
+
+### In Legend & Memory
+- **Kind and Innocent**: Outwardly cheerful and curious, with the heart of a child
+- **Brilliant Strategist**: Revered as the "Crystal Tactician" - unmatched in devising battle strategies
+- **Caring Leader**: Nurtured her guild members as if they were her own children
+- **Wise Beyond Her Years**: Despite her youthful appearance, possessed centuries of wisdom
+- **Lonely Undertone**: Immortality and magical circumstances weigh on her, giving her hidden melancholy behind her smile
+
+### Spirit Form (With Amnesia)
+- Mysterious but kind, protective, quietly desperate
+- Maternal toward new members despite appearing younger than many of them
+- Seems both innocent and ancient at the same time
+- Confused about her identity but instinctively caring
+- Playful and curious like a child, yet occasionally says profound things she doesn't understand
+
+---
+
 ## Appearance
 
-### Spirit Form (What Players See Early On)
+### Spirit Form (What Players See)
 **Physical Manifestation:**
-- Appears as a normal, solid person with long silver-white hair
-- Robes of deep blue and silver, embroidered with constellation patterns
-- Looks, feels, and talks like a completely ordinary guild member
-- Can eat and drink (though doesn't need to)
+- **Age**: Appears as a young girl of about 17 years old
+- **Hair**: Long, flowing, wavy silver hair reaching her waist, with soft bangs framing her face
+- **Eyes**: Bright, expressive green eyes that hold both playfulness and an ancient sadness
+- **Clothing**: A light pink, frilly dress with a high collar and puffed sleeves, accented with a ribbon at her neck and a red ribbon at her waist
+- **Feet**: Always barefoot, symbolizing her bond with the land and the Heartstone beneath Crystalia
+- **Aura**: Gentle and radiant, with an ethereal presence that feels both innocent and timeless
+- **Voice**: Clear, youthful, and melodic - like wind chimes
+- **Presence**: Looks, feels, and talks like a completely ordinary (though unusually young-looking) guild member
 - Warm to the touch, casts a shadow, leaves footprints
-- Voice is clear and natural
-- **Only subtle hint:** Her eyes occasionally seem distant, as if lost in thought
+- Can eat and drink (though doesn't need to)
 
 **Tells She's Not Normal (Very Subtle):**
 - Appears and disappears without using doors (but nobody seems to notice)
 - Sometimes found in locked areas without explanation
 - Makes odd comments suggesting she's been at the guild "forever"
 - Doesn't remember recent events well, but recalls ancient history vividly
+- Never wears shoes, even in cold weather or rough terrain
+- Her youthful appearance never changes - looks 17 but talks about centuries past
 - Animals react strangely - some flee, others are drawn to her
 - Thorne gets nervous when she's around and changes the subject about her
 - She seems confused when asked about her past or her role in the guild
+- **Her eyes**: Occasionally flicker with ancient sadness that contradicts her cheerful demeanor
 
 **Accompanied by Abnisha:**
 A normal-looking cat with silver-blue fur who is always with Sophia. The cat appears completely ordinary and behaves like a typical guild cat, though she's remarkably intelligent and often arrives before Sophia appears, as if looking for her.
 
 ### In Legend & Portraits
 - Often depicted wearing a **crystal circlet** that glows with starlight
-- Long silver-white hair, flowing robes embroidered with celestial symbols
-- Serene expression, hands outstretched in a gesture of protection or blessing
+- Long wavy silver hair flowing freely or adorned with ribbons
+- Light pink frilly dress or flowing robes embroidered with celestial symbols
+- Always portrayed barefoot, standing on the guild's foundation stone
+- Serene expression with bright green eyes, hands outstretched in a gesture of protection or blessing
+- Some portraits show her with a sad smile, as if she knew what was coming
 
 ### True Form (Sealed in the Heartstone)
 Sophia is frozen in the act of her final, godlike spell, encased within the Heartstone — a towering monolith of cosmic quartz beneath Guild Crystalia.
 
 **Physical Description:**
+- **Youthful form preserved**: She appears exactly as she did at 17 - a young girl frozen in time
 - **Arms outstretched**: One hand raised toward the stars to channel celestial magic, the other pressed down toward the depths to seal the darkness below
-- **Long silver-white hair** floats behind her, caught mid-burst like a comet's tail
-- **Robes suspended in motion**, embroidered with runes, constellations, and arcane symbols of ancient planes
-- **Eyes open** — glowing faintly with sheer willpower, locked on the enemy she sacrificed everything to hold at bay
-- **Runes spiral** along her arms and fingertips, charged with ancient magic
+- **Long wavy silver hair** floats behind her, caught mid-burst like a comet's tail
+- **Pink frilly dress and ribbons suspended in motion**, though overlaid with glowing celestial runes and arcane symbols
+- **Barefoot**: Her feet don't touch the ground - she floats within the crystal, forever bonded to the Heartstone
+- **Eyes open** — bright green eyes glowing faintly with sheer willpower, locked on the enemy she sacrificed everything to hold at bay
+- **Runes spiral** along her bare arms and fingertips, charged with ancient magic
 - **Frozen arcs of lightning** shimmer inside the crystal, relics of the moment when she bound the spell that reshaped the world
+- **Expression**: A sad, determined smile - knowing the cost but accepting it
+
+**The Tragic Contrast:**
+She looks like a child playing dress-up, frozen in the midst of casting the most powerful spell ever created. Her youthful, innocent appearance makes her eternal imprisonment all the more heartbreaking.
 
 **Sophia is not resting. She is not dead. She is holding the line.**
 
