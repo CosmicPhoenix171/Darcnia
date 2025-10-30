@@ -229,7 +229,7 @@ darcnia-campaign/
 ✅ **Moral complexity** - Not just "kill bad guys"  
 ✅ **Tactical variety** - Combat, skill challenges, social encounters  
 ✅ **Rich lore** - But revealed gradually, not info-dumped  
-✅ **NPC-driven** - Eldon and Lyra provide guidance and hooks  
+✅ **NPC-driven** - Eldon and Tessa provide guidance and hooks  
 ✅ **Player agency** - Multiple solutions to problems  
 ✅ **Emotional stakes** - Sophia's sacrifice is powerful hook  
 
@@ -242,7 +242,7 @@ darcnia-campaign/
 3. **Track reputation** - Makes factions feel alive and reactive
 4. **Foreshadow constantly** - Dreams, whispers, environmental clues
 5. **Let players investigate** - Reward curiosity with discoveries
-6. **NPCs are allies** - Eldon and Lyra should feel helpful, not adversarial
+6. **NPCs are allies** - Eldon and Tessa should feel helpful, not adversarial
 7. **The dungeon is tempting** - Make rewards real but seed unease
 8. **Moral weight matters** - When truth is revealed, it should impact players emotionally
 

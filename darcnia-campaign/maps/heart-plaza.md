@@ -70,7 +70,7 @@
 - Small kiosks for major guilds
 - Recruitment and public relations
 - **Present**:
-  - Guild Crystalia (Lyra or assistant)
+  - Guild Crystalia (Tessa or assistant)
   - Merchant's Concord (haughty clerk)
   - Arkwright Circle (tinkering with magitech display)
   - Shadowweave (hooded figure, mysterious)

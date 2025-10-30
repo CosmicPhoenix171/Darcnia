@@ -37,7 +37,7 @@ This file provides the reputation system and quick reference. For full details o
 ### Overview
 - **Current Standing**: Friendly (+2)
 - **Leader**: Eldon Thorne (Guild Master)
-- **Key NPCs**: Lyra Windfern (Receptionist)
+- **Key NPCs**: Tessa Windfern (Receptionist)
 - **Size**: Small (50-75 active members)
 - **Resources**: Limited (underfunded)
 - **Influence**: Declining but historic
@@ -61,7 +61,7 @@ This file provides the reputation system and quick reference. For full details o
 **Unfriendly (-5 to -1)**:
 - Limited access to services
 - No discounts or special treatment
-- Cold reception from Eldon/Lyra
+- Cold reception from Eldon/Tessa
 
 **Neutral (0)**:
 - Starting position (if not inducted)

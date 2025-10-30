@@ -24,9 +24,9 @@
 ### Key Features
 
 **Reception Desk**
-- Lyra Windfern's domain
+- Tessa Windfern's domain
 - Ledgers, maps, contact lists scattered about
-- Bell to ring for service (Lyra appears within 1 minute)
+- Bell to ring for service (Tessa appears within 1 minute)
 - Tea service always available
 
 **Job Board**
@@ -55,7 +55,7 @@
 - **Cover**: Tables and reception desk provide half cover
 - **Hazards**: Fireplace (1d6 fire damage if pushed into)
 - **Exits**: Main entrance (south), Eldon's office (north), basement stairs (southwest)
-- **Ambient Sounds**: Crackling fire, murmured conversations, Lyra's cheerful greetings
+- **Ambient Sounds**: Crackling fire, murmured conversations, Tessa's cheerful greetings
 
 ---
 
@@ -152,13 +152,13 @@
 ## NPCs Typically Present
 
 **Main Hall (Day)**:
-- Lyra Windfern (always at reception)
+- Tessa Windfern (always at reception)
 - Eldon Thorne (office or wandering, 60% chance)
 - 2d6 guild members (background characters)
 - 1d4 petitioners/visitors
 
 **Main Hall (Night)**:
-- Lyra or night clerk
+- Tessa or night clerk
 - 1d4 guild members
 - Mostly empty
 
@@ -177,7 +177,7 @@ Roll 1d10 when party visits:
 2. **Delivery Arrival**: Merchant delivers supplies, needs help unloading (earn 5 gp)
 3. **Argument**: Two guild members arguing about dungeon tactics (party can mediate)
 4. **Visiting Dignitary**: Member from another guild visiting (potential rivalry or quest hook)
-5. **Lyra's Tea Party**: Lyra insists party join her for tea and gossip (social encounter, gain rumors)
+5. **Tessa's Tea Party**: Tessa insists party join her for tea and gossip (social encounter, gain rumors)
 6. **Eldon's Lecture**: Eldon giving impromptu history lesson to new recruits (can join, learn lore)
 7. **Suspicious Character**: Hooded figure asking questions about the Heartstone (plot hook)
 8. **Ceremony**: Guild initiation ceremony in progress (see tattoo application ritual)
@@ -199,7 +199,7 @@ Roll 1d10 when party visits:
 ## DM Notes
 
 - Use Guild Hall as recurring safe hub
-- Lyra and Eldon are sources of quests and lore
+- Tessa and Eldon are sources of quests and lore
 - Job board provides adventure hooks
 - Basement investigation is major early quest
 - Tone: Comfortable and welcoming, but hiding deep secrets

@@ -23,7 +23,7 @@ Darcnia is a vast, floating continent suspended in the cosmos above the Material
 - [Add other PCs as they join]
 
 ### Recent Events
-- **Session 01**: Nyra arrived in Solspire and met Eldon Thorne (Guild Master) and Lyra Windfern (receptionist) at Guild Crystalia
+- **Session 01**: Nyra arrived in Solspire and met Eldon Thorne (Guild Master) and Tessa Windfern (receptionist) at Guild Crystalia
 - The party learned about the Guild Crest Tattoo and heard rumors of the Heartstone and the dungeon beneath the city
 - Next step: Investigate the Heartstone and explore the dungeon's first level
 

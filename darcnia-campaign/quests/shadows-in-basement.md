@@ -147,7 +147,7 @@ This quest unlocks several new options:
 ### Immediate
 - Other guild members notice party going to basement
 - Rumors spread about "secret mission for Eldon"
-- Lyra asks party about findings (can share or keep secret)
+- Tessa asks party about findings (can share or keep secret)
 
 ### Campaign-Level
 - First major step toward uncovering the truth

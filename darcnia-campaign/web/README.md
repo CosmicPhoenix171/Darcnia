@@ -45,7 +45,7 @@ An interactive website for your players to search and explore campaign informati
 
 ### NPCs (2 Currently)
 - Eldon Thorne (Guild Master)
-- Lyra Windfern (Receptionist)
+- Tessa Windfern (Receptionist)
 
 ### Locations
 - Guild Crystalia Hall
@@ -132,7 +132,7 @@ The site currently shows **player-safe content only**:
 
 ✅ **Included:**
 - All guild public information
-- Known NPCs (Eldon, Lyra)
+- Known NPCs (Eldon, Tessa)
 - Public locations
 - Available items and quests
 - Discovered handouts

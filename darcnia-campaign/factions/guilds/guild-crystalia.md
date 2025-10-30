@@ -10,7 +10,7 @@
 - **Founded**: By Sophia herself (centuries ago)
 - **Current Standing**: Friendly (+2) - Party's home guild
 - **Leader**: Eldon Thorne (Guild Master)
-- **Key NPCs**: Lyra Windfern (Receptionist)
+- **Key NPCs**: Tessa Windfern (Receptionist)
 - **Size**: Small (5 active members)
 - **Resources**: Limited (underfunded)
 - **Influence**: Declining but historic
@@ -73,7 +73,7 @@
 ## Culture
 
 ### Daily Life
-- Morning briefing with Eldon or Lyra
+- Morning briefing with Eldon or Tessa
 - Job board quests assigned by priority
 - Training yard sessions (combat practice)
 - Evening meal in guild hall (communal)
@@ -90,7 +90,7 @@
 - **Senior Members**: Veterans with 10+ years experience
 - **Full Members**: Inducted members with crest tattoos
 - **Apprentices**: New recruits not yet inducted
-- **Support Staff**: Lyra and others (non-combat roles)
+- **Support Staff**: Tessa and others (non-combat roles)
 
 ---
 
@@ -106,7 +106,7 @@
 ### Unfriendly (-5 to -1)
 - Limited access to services
 - No discounts or special treatment
-- Cold reception from Eldon/Lyra
+- Cold reception from Eldon/Tessa
 - Low-priority quests only
 - Watched with suspicion
 
@@ -169,7 +169,7 @@
 - Resurrection services (expensive, drains Sophia)
 - Guild hall lodging (small fee)
 - Archives and library access
-- Message delivery via Lyra's network
+- Message delivery via Tessa's network
 
 ### Restricted (High Reputation Only)
 - Basement archives (ancient texts)
@@ -189,7 +189,7 @@
 - **Secret**: Suspects something wrong with resurrection magic
 - See `npcs/eldonthorne.md` for full details
 
-### Lyra Windfern - Receptionist
+### Tessa Windfern - Receptionist
 - **Race**: Halfling (30s)
 - **Class**: Expert (non-combatant)
 - **Personality**: Cheerful, talkative, observant
@@ -295,7 +295,7 @@ See `items/magic-items.md` for full details:
 - Party inducted into guild
 - Receives crest tattoos
 - Begins to notice guild's decline
-- Meets Eldon and Lyra, forms bonds
+- Meets Eldon and Tessa, forms bonds
 
 ### Mid Campaign
 - Discovers clues about Sophia in basement
@@ -314,7 +314,7 @@ See `items/magic-items.md` for full details:
 ## DM Notes
 
 - Guild Crystalia is emotional anchor for party
-- Eldon and Lyra should feel like family
+- Eldon and Tessa should feel like family
 - Guild's decline creates underdog story
 - Discovering truth about Sophia hits harder if party loves the guild
 - Guild members can assist in major battles

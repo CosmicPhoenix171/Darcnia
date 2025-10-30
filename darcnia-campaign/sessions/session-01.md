@@ -17,7 +17,7 @@ Summary of events and important beats.
 
 ---
 
-## Guild Contact – Meeting Eldon Thorne and Lyra Windfern
+## Guild Contact – Meeting Eldon Thorne and Tessa Windfern
 
 ### Arrival at Guild Crystalia
 **Setting**: Guild Crystalia's foyer / main hall — slightly worn but welcoming; arcane symbols and old banners adorn the walls.
@@ -31,22 +31,22 @@ Summary of events and important beats.
   - Does not mention that it drains Sophia's strength (he doesn't know)
 - **Possible hook**: Eldon shares a vague story about "the first guild master" — a legendary figure whose name has been lost to time
 
-**Nyra meets Lyra Windfern**:
-- Lyra is warm, excitable, and immediately helpful
+**Nyra meets Tessa Windfern**:
+- Tessa is warm, excitable, and immediately helpful
 - She provides:
   - Rumors: "There's a wish at the bottom of the dungeon!" (believes the lie)
   - Directions: Key locations in Solspire (market, taverns, other guilds)
   - Contact details: Merchants, informants, potential allies
-- **Possible scene**: Lyra offers tea and shares gossip about recent events in the city
+- **Possible scene**: Tessa offers tea and shares gossip about recent events in the city
 
 ---
 
 ## Key Scenes
 
 ### 1. Introductions & Roleplay
-- Eldon and Lyra welcome Nyra (and the party) to Guild Crystalia
+- Eldon and Tessa welcome Nyra (and the party) to Guild Crystalia
 - Eldon gives a brief tour of the guild hall (avoiding the deep basement levels)
-- Lyra provides a starter quest or task to test the party's abilities
+- Tessa provides a starter quest or task to test the party's abilities
 
 ### 2. A Minor Task or Investigation
 **Possible quest options**:
@@ -89,7 +89,7 @@ She sits at a corner table, apparently reading a book. The book floats in front 
 
 **If Party Stares or Asks:**
 
-**Lyra** (cheerfully): "Oh! That's Sophia. She's been with the guild forever. Keeps odd hours, very private. Don't take it personally if she doesn't chat much!"
+**Tessa** (cheerfully): "Oh! That's Sophia. She's been with the guild forever. Keeps odd hours, very private. Don't take it personally if she doesn't chat much!"
 
 **If Party Approaches Sophia:**
 
@@ -131,7 +131,7 @@ She vanishes. Abnisha remains, rubbing against party members' legs before also d
 
 He's clearly lying about something, but not hostile.
 
-**Lyra:** "She's nice once you get to know her! Bit mysterious, but she's helped me lots of times. I think she's lonely."
+**Tessa:** "She's nice once you get to know her! Bit mysterious, but she's helped me lots of times. I think she's lonely."
 
 ---
 
@@ -140,7 +140,7 @@ He's clearly lying about something, but not hostile.
 ### Sophia-Related Clues:
 
 1. **Ask about Sophia:**
-   - Lyra: "Been here forever! I don't know where she sleeps though. Never seen her quarters."
+   - Tessa: "Been here forever! I don't know where she sleeps though. Never seen her quarters."
    - Thorne: "She's... complicated. Best not to pry."
    - Other members: "Sophia? Yeah, she's weird. But harmless. I think?"
 
@@ -169,7 +169,7 @@ He's clearly lying about something, but not hostile.
 - **Hooks**: May ask the party to investigate strange occurrences; could share fragments of ancient lore
 - **Secrets**: Troubled by recent dreams; suspects something is wrong but can't articulate it
 
-### Lyra Windfern
+### Tessa Windfern
 - **Summary**: Friendly, talkative, well-connected
 - **Hooks**: Provides rumors, introductions, and minor quests
 - **Secrets**: Has heard whispers about "the first guild master" but thinks they're myths
@@ -191,14 +191,14 @@ He's clearly lying about something, but not hostile.
 
 ### Investigation Hooks
 - Investigate the rumor about the sealed Heartstone
-- Check leads from Lyra's gossip list
+- Check leads from Tessa's gossip list
 - Visit the dungeon entrance in the city center (guild-access required)
 - Explore the deeper basement levels beneath Guild Crystalia
 - Research the Guild Crest Tattoo: how initiation works, tokens needed for Teleport to Ally, and where the Guild Hall's teleportation circle is located
 
 ### Character Development
 - Nyra's personal goals and motivations (why did she come to Darcnia?)
-- Relationships with Eldon and Lyra
+- Relationships with Eldon and Tessa
 - Party dynamics and bonds
 
 ### Foreshadowing
@@ -230,7 +230,7 @@ He's clearly lying about something, but not hostile.
 ## Summary for the Party
 
 **What happened**:
-- Arrived in Solspire, met Eldon Thorne and Lyra Windfern at Guild Crystalia
+- Arrived in Solspire, met Eldon Thorne and Tessa Windfern at Guild Crystalia
 - Learned about the Guild Crest Tattoo and the guild's "old magic"
 - Completed a minor introductory task
 - Heard rumors about the Heartstone and a "wish" at the bottom of the dungeon

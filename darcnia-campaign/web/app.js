@@ -4,7 +4,7 @@ const CONFIG = {
     playerAccessible: {
         // Define what players can access (DM sections excluded)
         guilds: true,
-        npcs: ['eldonthorne', 'lyrawindfern'], // Only specific NPCs (not Sophia secrets)
+        npcs: ['eldonthorne', 'tessawindfern'], // Only specific NPCs (not Sophia secrets)
         locations: true,
         items: true,
         quests: true,
@@ -32,7 +32,7 @@ const characterDatabase = {
         race: 'Human',
         class: 'Rogue',
         guild: 'Guild Crystalia',
-        relationships: ['Eldon Thorne', 'Lyra Windfern'],
+        relationships: ['Eldon Thorne', 'Tessa Windfern'],
         knownLocations: ['Guild Crystalia Hall', 'Heart Plaza', 'Hearthstone Inn'],
         knownGuilds: ['Guild Crystalia', 'The Crimson Vanguard', "Merchants' Concord", 'City Watch'],
         completedQuests: ['Missing Cat'],
@@ -399,8 +399,8 @@ const contentData = {
             ]
         },
         {
-            id: 'lyra-windfern',
-            name: 'Lyra Windfern',
+            id: 'tessa-windfern',
+            name: 'Tessa Windfern',
             title: 'Receptionist at Guild Crystalia',
             race: 'Halfling',
             age: '30s',
@@ -435,7 +435,7 @@ const contentData = {
                 {
                     name: 'Ground Floor',
                     features: [
-                        'Reception desk (Lyra\'s domain)',
+                        'Reception desk (Tessa\'s domain)',
                         'Job board with available quests',
                         'Common room with fireplace',
                         'Eldon\'s office',
@@ -460,7 +460,7 @@ const contentData = {
                     ]
                 }
             ],
-            npcs: ['Eldon Thorne', 'Lyra Windfern'],
+            npcs: ['Eldon Thorne', 'Tessa Windfern'],
             access: 'Guild members only'
         },
         {
@@ -1091,7 +1091,7 @@ function updateSidebar(tab) {
         case 'npcs':
             links = [
                 { text: 'Eldon Thorne', action: () => showNPCDetail('eldon-thorne') },
-                { text: 'Lyra Windfern', action: () => showNPCDetail('lyra-windfern') }
+                { text: 'Tessa Windfern', action: () => showNPCDetail('tessa-windfern') }
             ];
             break;
         default:

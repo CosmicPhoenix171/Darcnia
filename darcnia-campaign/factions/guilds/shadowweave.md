@@ -159,7 +159,7 @@
 
 ### The Whisper's Identity
 - Major mystery throughout campaign
-- Possible reveals: respected noble, Eldon Thorne (!), Lyra Windfern, committee, magical AI
+- Possible reveals: respected noble, Eldon Thorne (!), Tessa Windfern, committee, magical AI
 - Truth at DM's discretion
 
 ### Shadowweave's True Goal

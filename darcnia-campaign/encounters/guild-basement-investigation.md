@@ -152,6 +152,6 @@ This is where things get strange.
 ## Follow-up Hooks
 
 - Eldon suggests researching in the city archives
-- Lyra mentions an old sage who might know more
+- Tessa mentions an old sage who might know more
 - Dreams of Sophia become more frequent and vivid
 - The sealed door remains, beckoning...

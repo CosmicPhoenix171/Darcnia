@@ -1,4 +1,4 @@
-# Lyra Windfern – Guild Receptionist & Rumor-Broker
+# Tessa Windfern – Guild Receptionist & Rumor-Broker
 
 ---
 
@@ -50,7 +50,7 @@
 
 ### Combat Statistics (Avoid Combat!)
 
-**Lyra Windfern**  
+**Tessa Windfern**  
 *Small humanoid (halfling), neutral good*
 
 - **AC** 11 (simple clothes)
@@ -67,25 +67,25 @@
 
 ### Special Abilities
 
-**Brave (Halfling)**: Lyra has advantage on saving throws against being frightened.
+**Brave (Halfling)**: Tessa has advantage on saving throws against being frightened.
 
-**Halfling Nimbleness**: Lyra can move through the space of any creature that is larger than her.
+**Halfling Nimbleness**: Tessa can move through the space of any creature that is larger than her.
 
-**Lucky (Halfling)**: When Lyra rolls a 1 on an attack roll, ability check, or saving throw, she can reroll the die and must use the new roll.
+**Lucky (Halfling)**: When Tessa rolls a 1 on an attack roll, ability check, or saving throw, she can reroll the die and must use the new roll.
 
-**Network of Contacts**: Lyra knows someone in almost every district of Solspire. She can gather information or make introductions with a successful DC 10 Persuasion check (takes 1 hour).
+**Network of Contacts**: Tessa knows someone in almost every district of Solspire. She can gather information or make introductions with a successful DC 10 Persuasion check (takes 1 hour).
 
-**Tea Enthusiast**: Lyra always has tea available. Sharing tea with her grants advantage on social checks for the next interaction.
+**Tea Enthusiast**: Tessa always has tea available. Sharing tea with her grants advantage on social checks for the next interaction.
 
 ### Actions
 
 **Dagger** (only if absolutely necessary): Melee or Ranged Weapon Attack: +3 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 3 (1d4 + 1) piercing damage.
 
-**Flee!**: If combat breaks out, Lyra uses her action to Dash toward safety and calls for help.
+**Flee!**: If combat breaks out, Tessa uses her action to Dash toward safety and calls for help.
 
 ### Roleplay Notes
-- **Combat**: Lyra is NOT a combatant. She flees and hides, or calls for guild members to help.
-- **Social**: Lyra excels at gathering rumors, making introductions, and smoothing over conflicts.
+- **Combat**: Tessa is NOT a combatant. She flees and hides, or calls for guild members to help.
+- **Social**: Tessa excels at gathering rumors, making introductions, and smoothing over conflicts.
 - **Support**: Can provide information, contacts, and emotional encouragement.
 - **Quirk**: Always has a cup of tea, gets flustered easily, uses lots of hand gestures.
 
@@ -93,21 +93,21 @@
 
 ## DM Combat Notes
 
-**Lyra should NEVER be in combat unless**:
+**Tessa should NEVER be in combat unless**:
 - Guild hall is directly attacked and she can't escape
 - Used as hostage (dramatic story moment)
 
-**If Lyra is threatened**:
+**If Tessa is threatened**:
 - Party likely rushes to protect her (she's beloved)
 - Other guild members intervene
 - Creates strong emotional stakes
 
-**If Lyra dies**: Party loses friendly contact and information source. Guild morale plummets. Eldon is devastated.
+**If Tessa dies**: Party loses friendly contact and information source. Guild morale plummets. Eldon is devastated.
 
 ---
 
 ## Notes for the DM
-- Lyra is a friendly, non-threatening NPC who helps the party feel welcome
+- Tessa is a friendly, non-threatening NPC who helps the party feel welcome
 - Use her to deliver rumors, hooks, and side quests in a natural way
 - She can serve as comic relief or emotional support during tense moments
 - If the party befriends her, she may confide her own suspicions or fears as the campaign progresses

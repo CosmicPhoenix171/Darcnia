@@ -14,7 +14,7 @@ One-page reference for essential information during sessions.
 - **Knows**: Fragments of Sophia legend, suspects something wrong
 - **Doesn't Know**: Sophia is alive, resurrection drains her
 
-### Lyra Windfern (Receptionist)
+### Tessa Windfern (Receptionist)
 - **Role**: Information broker, social connector
 - **Personality**: Warm, excitable, talkative, helpful
 - **Quick Stats**: AC 11, HP 9, +5 to Persuasion/Insight

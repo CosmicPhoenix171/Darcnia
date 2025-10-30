@@ -49,7 +49,7 @@ Recent reports from guild members include:
 
 ### Notable Members
 - **Eldon Thorne** (Guild Master) — Old, eccentric, sharp-minded; senses something is wrong but doesn't know what
-- **Lyra Windfern** (Receptionist) — Warm, excitable, helpful; collects rumors and may have heard fragments of the truth
+- **Tessa Windfern** (Receptionist) — Warm, excitable, helpful; collects rumors and may have heard fragments of the truth
 - **Sophia** (Original Guild Master) — Sealed in the Heartstone; memory mostly erased from guild records
 
 ### Goals & Current Conflicts

@@ -143,7 +143,7 @@ You've trained to deal particularly damaging strikes. Once per turn when you hit
 - **Personal Goals & Motivations:** [To be developed through play]
 - **Connections in Solspire:** 
   - Eldon Thorne (Guildmaster of Guild Crystalia)
-  - Lyra Windfern (Secretary of Guild Crystalia)
+  - Tessa Windfern (Secretary of Guild Crystalia)
   - Guild Crystalia (Provisional Member)
 
 ## Roleplay Notes
@@ -173,11 +173,11 @@ There's no signature. Just a crudely sketched map and a small, flat token shaped
 It hums faintly when her fingers graze it.
 
 ### Scene 2: Arrival at Guild Crystalia
-Lyra Windfern, the guild's bright and clumsy secretary, is startled when Nyra arrives with the ancient token.
+Tessa Windfern, the guild's bright and clumsy secretary, is startled when Nyra arrives with the ancient token.
 
-**Lyra:** "We haven't issued one of those in years... you must be special! The Guildmaster will want to see you right away."
+**Tessa:** "We haven't issued one of those in years... you must be special! The Guildmaster will want to see you right away."
 
-Lyra guides Nyra through the hall — a fading guild, banners worn thin, yet still alive with quiet purpose. She registers Nyra as a provisional member and leads her to meet the Guildmaster.
+Tessa guides Nyra through the hall — a fading guild, banners worn thin, yet still alive with quiet purpose. She registers Nyra as a provisional member and leads her to meet the Guildmaster.
 
 ### Scene 3: Meeting Guildmaster Thorne
 Guildmaster Eldon Thorne, eccentric but sharp, studies the token with deep familiarity.
@@ -192,9 +192,9 @@ He grants her provisional membership, handing over a sealed mission scroll marke
 He watches her quietly, like someone who already knows what she's going to become.
 
 ### Scene 4: The Mark of Crystalia
-Lyra leads Nyra into a hidden induction chamber beneath the guild. Ancient runes shimmer across the walls. A silver flame rises in the center brazier.
+Tessa leads Nyra into a hidden induction chamber beneath the guild. Ancient runes shimmer across the walls. A silver flame rises in the center brazier.
 
-**Lyra** (reverent): "Only those chosen by the token are branded here. The magic remembers."
+**Tessa** (reverent): "Only those chosen by the token are branded here. The magic remembers."
 
 She opens the ancient tome and reads the oath aloud. The runes pulse as her voice echoes, layered with something older.
 
@@ -221,15 +221,15 @@ As the marking completes, Nyra hears something—a whisper woven into the crackl
 
 The words seem to come from everywhere and nowhere at once. Was it the fire? The runes? Her own mind?
 
-Nyra looks around, but Lyra seems oblivious, closing the ancient tome with reverence.
+Nyra looks around, but Tessa seems oblivious, closing the ancient tome with reverence.
 
-**Lyra:** "The mark is complete! Welcome to Guild Crystalia."
+**Tessa:** "The mark is complete! Welcome to Guild Crystalia."
 
 Later, as they leave the chamber, Nyra hesitates.
 
 **Nyra:** "During the ceremony... did you hear anything? Like a voice?"
 
-Lyra blinks. "A voice? No, just the usual magical resonance. Why?"
+Tessa blinks. "A voice? No, just the usual magical resonance. Why?"
 
 Nyra glances at Thorne, who has suddenly gone very still.
 
@@ -262,19 +262,19 @@ He gestures to the hall.
 **Thorne:** "You've got the key. Now earn the lock."
 
 ### Scene 7: The Offer of Rest
-As Thorne leaves, Lyra peeks in with her usual cheerful energy.
+As Thorne leaves, Tessa peeks in with her usual cheerful energy.
 
-**Lyra:** "You must be tired! Want to stay here for the night, or do you have a place in the city?"
+**Tessa:** "You must be tired! Want to stay here for the night, or do you have a place in the city?"
 
 **Nyra:** "That's fine... I'll stay here if that's okay."
 
-**Lyra** (grinning): "Of course! Totally fine! That'll be twenty-five gold a night — no breakfast, no refunds, and you have to feed the mimic."
+**Tessa** (grinning): "Of course! Totally fine! That'll be twenty-five gold a night — no breakfast, no refunds, and you have to feed the mimic."
 
 She pauses. Then, laughing: "Kidding. It's free. Unless you actually want to pay me. I won't stop you."
 
 She gestures for Nyra to follow.
 
-**Lyra:** "Come on, I'll show you to the barracks. You get a bunk, a chest, and a wall hook that probably won't fall off in your sleep. Fair warning, the guy two beds over snores like a collapsing dragon."
+**Tessa:** "Come on, I'll show you to the barracks. You get a bunk, a chest, and a wall hook that probably won't fall off in your sleep. Fair warning, the guy two beds over snores like a collapsing dragon."
 
 ---
 
@@ -282,7 +282,7 @@ She gestures for Nyra to follow.
 
 ### Session 0: Guild Crystalia Introduction
 - Received mysterious invitation via ancient guild token
-- Met Lyra Windfern (guild secretary)
+- Met Tessa Windfern (guild secretary)
 - Joined Guild Crystalia as provisional member
 - Met Guildmaster Eldon Thorne
 - Received sealed mission scroll: "Level 3 — Skyreach Underspire"

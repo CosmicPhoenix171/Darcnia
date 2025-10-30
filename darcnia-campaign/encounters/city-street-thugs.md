@@ -93,7 +93,7 @@ As the party walks through a less-traveled street in Solspire, 3-4 rough-looking
 ## Consequences
 
 - **Guards question party**: Quick roleplaying scene, establishes law enforcement presence
-- **Lyra hears about it**: Comments on the encounter next time party visits guild
+- **Tessa hears about it**: Comments on the encounter next time party visits guild
 - **Criminal network takes notice**: May lead to future encounters or quests
 
 ---
