@@ -1145,9 +1145,6 @@ function initializeApp() {
     // Load initial content
     loadContent('market');
     
-    // Inject dice roller tray (5e feel)
-    injectDiceTray();
-    
     // Log success
     logSuccess();
 }
