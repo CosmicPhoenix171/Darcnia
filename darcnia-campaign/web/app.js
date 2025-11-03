@@ -1769,20 +1769,17 @@ function showShopDetail(shopId) {
     const isDM = state.currentCharacter?.accessLevel === 'dm';
     const stockSet = (state._currentMarketStock || generateDailyStock(shops))[shop.id] || new Set();
         const ALL_RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary'];
-        const filters = state.shopFilters[shop.id] || { q: '', inStockOnly: false, rarities: new Set() };
+        const filters = state.shopFilters[shop.id] || { q: '', inStockOnly: true, rarities: new Set() };
     
         let html = `<h2>${shop.name}</h2>`;
     if (shop.description) html += `<p>${shop.description}</p>`;
         html += `<div class="card-meta">Showing today's stock (daily rotation). L0 items are always available.</div>`;
 
-        // Filter bar
+        // Filter bar (in stock only is forced on by default)
         html += `
             <div class="shop-filters card">
                 <div class="filters-row">
                     <input type="search" id="shop-q" placeholder="Search in ${shop.name}..." value="${filters.q?.replace(/"/g,'&quot;')||''}" />
-                    <label class="checkbox">
-                        <input type="checkbox" id="shop-instock" ${filters.inStockOnly ? 'checked' : ''}/> In stock only
-                    </label>
                 </div>
                 <div class="filters-row rarity-chips">
                     ${ALL_RARITIES.map(r => {
@@ -1847,23 +1844,21 @@ function resolveShop(targetId, shops) {
 
 // Shop filter wiring
 function wireShopFilters(shopId) {
-    const filters = state.shopFilters[shopId] || { q: '', inStockOnly: false, rarities: new Set() };
+    const filters = state.shopFilters[shopId] || { q: '', inStockOnly: true, rarities: new Set() };
     const qEl = document.getElementById('shop-q');
-    const inEl = document.getElementById('shop-instock');
     const chipEls = Array.from(document.querySelectorAll('.rarity-chips .chip[data-rarity]'));
     const clearEl = document.getElementById('rarity-clear');
     const ensure = (v) => (v instanceof Set ? v : new Set(Array.isArray(v)?v:[]));
     filters.rarities = ensure(filters.rarities);
+    // Force inStockOnly to always be true
+    filters.inStockOnly = true;
     state.shopFilters[shopId] = filters;
     
     if (qEl) qEl.addEventListener('input', () => {
         filters.q = qEl.value || '';
         showShopDetail(shopId);
     });
-    if (inEl) inEl.addEventListener('change', () => {
-        filters.inStockOnly = !!inEl.checked;
-        showShopDetail(shopId);
-    });
+    // inStockOnly checkbox removed - always forced to true
     chipEls.forEach(ch => ch.addEventListener('click', () => {
         const r = ch.getAttribute('data-rarity');
         if (filters.rarities.has(r)) filters.rarities.delete(r); else filters.rarities.add(r);
