@@ -40,7 +40,8 @@ const characterDatabase = {
         knownSecrets: [],
         accessLevel: 'player',
         discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note'],
-        clearedDungeonLevel: 0
+        clearedDungeonLevel: 0,
+        bank: { gold: 100, silver: 50, copper: 25 } // Starting funds
     },
     'dm': {
         name: 'Dungeon Master',
@@ -78,7 +79,8 @@ const state = {
         mode: 'normal', // 'normal' | 'adv' | 'dis'
         history: []     // keep last 10 results
     },
-    cart: [] // Shopping cart: [{key, name, price, shop, quantity}]
+    cart: [], // Shopping cart: [{key, name, price, shop, quantity}]
+    bank: { gold: 0, silver: 0, copper: 0 } // Player's bank balance
 };
 
 // ===== Data Structure =====
@@ -1137,6 +1139,11 @@ function initializeApp() {
     // Update theme toggle icon
     updateThemeIcon();
     
+    // Load bank balance from character
+    if (state.currentCharacter && state.currentCharacter.bank) {
+        state.bank = { ...state.currentCharacter.bank };
+    }
+    
     // Setup event listeners
     setupEventListeners();
     
@@ -1145,6 +1152,9 @@ function initializeApp() {
     
     // Load initial content
     loadContent('market');
+    
+    // Update bank display
+    updateBankDisplay();
     
     // Log success
     logSuccess();
@@ -2042,8 +2052,64 @@ function clearCart() {
 }
 
 function checkout() {
-    const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-    alert(`Checkout feature coming soon!\n\nYou have ${totalItems} items in your cart.`);
+    if (state.cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+    
+    // Calculate total cost
+    let totalGold = 0;
+    let totalSilver = 0;
+    let totalCopper = 0;
+    
+    state.cart.forEach(item => {
+        const itemTotal = calculateItemTotal(item.price, item.quantity);
+        totalGold += itemTotal.gold;
+        totalSilver += itemTotal.silver;
+        totalCopper += itemTotal.copper;
+    });
+    
+    // Normalize currency
+    totalSilver += Math.floor(totalCopper / 10);
+    totalCopper = totalCopper % 10;
+    totalGold += Math.floor(totalSilver / 10);
+    totalSilver = totalSilver % 10;
+    
+    // Convert player's bank balance to copper for comparison
+    const playerCopper = (state.bank.gold * 100) + (state.bank.silver * 10) + state.bank.copper;
+    const costCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
+    
+    if (costCopper > playerCopper) {
+        alert(`Insufficient funds!\n\nTotal Cost: ${formatPrice(totalGold, totalSilver, totalCopper)}\nYour Balance: ${formatPrice(state.bank.gold, state.bank.silver, state.bank.copper)}`);
+        return;
+    }
+    
+    // Deduct from balance
+    let remainingCopper = playerCopper - costCopper;
+    
+    state.bank.copper = remainingCopper % 10;
+    remainingCopper = Math.floor(remainingCopper / 10);
+    state.bank.silver = remainingCopper % 10;
+    state.bank.gold = Math.floor(remainingCopper / 10);
+    
+    // Save to character database
+    if (state.currentCharacter && state.currentCharacter.bank) {
+        state.currentCharacter.bank = { ...state.bank };
+    }
+    
+    const itemCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPaid = formatPrice(totalGold, totalSilver, totalCopper);
+    
+    // Clear cart
+    state.cart = [];
+    updateCartDisplay();
+    updateBankDisplay();
+    
+    // Close modal
+    const modal = document.getElementById('searchModal');
+    if (modal) modal.classList.add('hidden');
+    
+    showCartNotification(`✅ Purchase complete! Paid ${totalPaid} for ${itemCount} item(s).`);
 }
 
 function showCartNotification(message) {
@@ -2060,6 +2126,122 @@ function showCartNotification(message) {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 2000);
+}
+
+// ===== Bank Management =====
+function updateBankDisplay() {
+    const bankBtn = document.getElementById('bankButton');
+    if (bankBtn) {
+        const balance = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper);
+        bankBtn.textContent = `💰 ${balance}`;
+    }
+}
+
+function showBank() {
+    const balance = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper);
+    
+    let html = '<h2>💰 Bank Account</h2>';
+    html += '<div class="bank-info">';
+    html += `<div class="bank-balance">
+        <strong>Current Balance:</strong>
+        <div class="bank-balance-amount">${balance}</div>
+    </div>`;
+    html += '</div>';
+    
+    html += '<div class="bank-deposit">';
+    html += '<h3>Deposit Funds</h3>';
+    html += '<div class="bank-form">';
+    html += '<div class="currency-input">';
+    html += '<label>Gold: <input type="number" id="depositGold" min="0" value="0" /></label>';
+    html += '<label>Silver: <input type="number" id="depositSilver" min="0" value="0" /></label>';
+    html += '<label>Copper: <input type="number" id="depositCopper" min="0" value="0" /></label>';
+    html += '</div>';
+    html += '<button onclick="depositFunds()" class="btn-primary">Deposit</button>';
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="bank-withdraw">';
+    html += '<h3>Withdraw Funds</h3>';
+    html += '<div class="bank-form">';
+    html += '<div class="currency-input">';
+    html += '<label>Gold: <input type="number" id="withdrawGold" min="0" value="0" /></label>';
+    html += '<label>Silver: <input type="number" id="withdrawSilver" min="0" value="0" /></label>';
+    html += '<label>Copper: <input type="number" id="withdrawCopper" min="0" value="0" /></label>';
+    html += '</div>';
+    html += '<button onclick="withdrawFunds()" class="btn-secondary">Withdraw</button>';
+    html += '</div>';
+    html += '</div>';
+    
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
+}
+
+function depositFunds() {
+    const gold = parseInt(document.getElementById('depositGold').value) || 0;
+    const silver = parseInt(document.getElementById('depositSilver').value) || 0;
+    const copper = parseInt(document.getElementById('depositCopper').value) || 0;
+    
+    if (gold === 0 && silver === 0 && copper === 0) {
+        alert('Please enter an amount to deposit.');
+        return;
+    }
+    
+    state.bank.gold += gold;
+    state.bank.silver += silver;
+    state.bank.copper += copper;
+    
+    // Normalize currency
+    state.bank.silver += Math.floor(state.bank.copper / 10);
+    state.bank.copper = state.bank.copper % 10;
+    state.bank.gold += Math.floor(state.bank.silver / 10);
+    state.bank.silver = state.bank.silver % 10;
+    
+    // Save to character
+    if (state.currentCharacter && state.currentCharacter.bank) {
+        state.currentCharacter.bank = { ...state.bank };
+    }
+    
+    updateBankDisplay();
+    showBank();
+    showCartNotification(`✅ Deposited ${formatPrice(gold, silver, copper)}`);
+}
+
+function withdrawFunds() {
+    const gold = parseInt(document.getElementById('withdrawGold').value) || 0;
+    const silver = parseInt(document.getElementById('withdrawSilver').value) || 0;
+    const copper = parseInt(document.getElementById('withdrawCopper').value) || 0;
+    
+    if (gold === 0 && silver === 0 && copper === 0) {
+        alert('Please enter an amount to withdraw.');
+        return;
+    }
+    
+    // Convert to copper for comparison
+    const withdrawCopper = (gold * 100) + (silver * 10) + copper;
+    const bankCopper = (state.bank.gold * 100) + (state.bank.silver * 10) + state.bank.copper;
+    
+    if (withdrawCopper > bankCopper) {
+        alert('Insufficient funds!');
+        return;
+    }
+    
+    // Deduct from balance
+    let remainingCopper = bankCopper - withdrawCopper;
+    
+    state.bank.copper = remainingCopper % 10;
+    remainingCopper = Math.floor(remainingCopper / 10);
+    state.bank.silver = remainingCopper % 10;
+    state.bank.gold = Math.floor(remainingCopper / 10);
+    
+    // Save to character
+    if (state.currentCharacter && state.currentCharacter.bank) {
+        state.currentCharacter.bank = { ...state.bank };
+    }
+    
+    updateBankDisplay();
+    showBank();
+    showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper)}`);
 }
 
 // ===== Dice Roller =====
