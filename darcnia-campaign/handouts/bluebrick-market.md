@@ -53,6 +53,10 @@ Availability rule
 - Torch (1) [L0]: 1 cp
 - Waterskin [L0]: 2 sp
 - Whetstone [L0]: 1 cp
+ - Bottle, glass [L0]: 2 gp
+ - Bucket [L0]: 5 cp
+ - Chest [L0]: 5 gp
+ - Robes [L0]: 1 gp
 
 ## Three Feathers Archery (Ammo & Ranged Supplies)
 - Arrows (20) [L0]: 1 gp
@@ -112,6 +116,7 @@ Light/Medium Armor and common weapons only; specialty gear by order.
   - Greatsword [L1]: 50 gp
   - Glaive [L1]: 20 gp
   - Halberd [L1]: 20 gp
+  - Lance [L1]: 10 gp
   - Longbow [L1]: 50 gp
   - Heavy crossbow [L1]: 50 gp
   - Hand crossbow [L2]: 75 gp
@@ -128,10 +133,71 @@ Light/Medium Armor and common weapons only; specialty gear by order.
  - Basic poison (vial) [L2]: 100 gp
  - Vial (empty) [L0]: 1 gp
 
+### Restricted Poisons (licensed sale)
+Sale requires guild authorization and discreet handling; harmful misuse is illegal.
+- Assassin's blood (ingested) [L2]: 150 gp
+- Burnt othur fumes (inhaled) [L2]: 500 gp
+- Crawler mucus (contact) [L2]: 200 gp
+- Drow poison (injury) [L2]: 200 gp
+- Essence of ether (inhaled) [L2]: 300 gp
+- Malice (inhaled) [L2]: 250 gp
+- Midnight tears (ingested) [L2]: 1,500 gp
+- Oil of taggit (contact) [L2]: 400 gp
+- Pale tincture (ingested) [L2]: 250 gp
+- Purple worm poison (injury) [L3]: 2,000 gp
+- Serpent venom (injury) [L2]: 200 gp
+- Torpor (ingested) [L2]: 600 gp
+- Truth serum (ingested) [L2]: 150 gp
+- Wyvern poison (injury) [L3]: 1,200 gp
+
 ## Stables & Services (Official)
 - Meals (per day, modest): 3 sp
 - Inn stay (per day, modest room): 5 sp
 - Stabling (per day): 5 sp
+
+## Guild Services & Trade
+Citywide guild counters handle common services, lodging, fares, and commodity exchange at posted rates.
+
+- Food, Drink, and Lodging
+  - Ale (gallon): 2 sp
+  - Ale (mug): 4 cp
+  - Banquet (per person): 10 gp
+  - Bread (loaf): 2 cp
+  - Cheese (hunk): 1 sp
+  - Wine, common (pitcher): 2 sp
+  - Wine, fine (bottle): 10 gp
+
+- Inn stay (per day)
+  - Squalid: 7 cp
+  - Poor: 1 sp
+  - Modest: 5 sp
+  - Comfortable: 8 sp
+  - Wealthy: 2 gp
+  - Aristocratic: 4 gp
+
+- Meals (per day)
+  - Squalid: 3 cp
+  - Poor: 6 cp
+  - Modest: 3 sp
+  - Comfortable: 5 sp
+  - Wealthy: 8 sp
+  - Aristocratic: 2 gp
+
+- Common Services
+  - Coach cab (within city): 1 cp
+  - Coach cab (between towns, per mile): 3 cp
+  - Hireling (untrained, per day): 2 sp
+  - Hireling (skilled, per day): 2 gp
+  - Messenger (per mile): 2 cp
+  - Road or gate toll: 1 cp
+  - Ship’s passage (per mile): 1 sp
+
+- Trade Goods Exchange (typical equivalents)
+  - 1 cp = 1 lb wheat; 2 cp = 1 lb flour or one chicken; 5 cp = 1 lb salt
+  - 1 sp = 1 lb iron or 1 sq. yd. canvas; 5 sp = 1 lb copper or 1 sq. yd. cotton cloth
+  - 1 gp = 1 lb ginger or one goat; 2 gp = 1 lb cinnamon/pepper or one sheep; 3 gp = 1 lb cloves or one pig
+  - 5 gp = 1 lb silver or 1 sq. yd. linen; 10 gp = 1 sq. yd. silk or one cow; 15 gp = 1 lb saffron or one ox
+  - 50 gp = 1 lb gold; 500 gp = 1 lb platinum
 
 ## Tinker’s Nook (Utility & Traps)
 - Ball bearings (1,000) [L0]: 1 gp
@@ -149,13 +215,16 @@ Light/Medium Armor and common weapons only; specialty gear by order.
 - Ram, portable [L0]: 4 gp
 - Magnifying glass [L2]: 100 gp
 - Spyglass [L3]: 1,000 gp
+ - Chain (10 ft) [L0]: 5 gp
+ - Climber’s kit [L1]: 25 gp
+ - Spikes, iron (10) [L0]: 1 gp
 
 ## Scribe & Sealery (Paper & Ink)
 - Ink (1 oz) [L0]: 10 gp
 - Ink pen [L0]: 2 cp
 - Parchment (sheet) [L0]: 1 sp
 - Paper (sheet) [L0]: 2 sp
-- Sealing wax [L0]: 5 sp
+ - Sealing wax [L0]: 4 sp
 - Chalk (1 piece) [L0]: 1 cp
 - Case, map or scroll [L0]: 1 gp
 - Book [L0]: 25 gp
@@ -344,216 +413,4 @@ Notes
 ---
 
 ## Official 5e SRD — Complete Equipment Lists
-The following sections list all items and prices from the SRD for quick reference. Availability tags default to [L0]. DMs may adjust or gate items by level for your campaign.
-
-### SRD Armor (complete)
-- Padded [L0]: 5 gp
-- Leather [L0]: 10 gp
-- Studded leather [L0]: 45 gp
-- Hide [L0]: 10 gp
-- Chain shirt [L0]: 50 gp
-- Scale mail [L0]: 50 gp
-- Breastplate [L0]: 400 gp
-- Half plate [L0]: 750 gp
-- Ring mail [L0]: 30 gp
-- Chain mail [L0]: 75 gp
-- Splint [L0]: 200 gp
-- Plate [L0]: 1,500 gp
-- Shield [L0]: 10 gp
-
-### SRD Weapons (complete)
-- Simple melee: Club 1 sp; Dagger 2 gp; Greatclub 2 sp; Handaxe 5 gp; Javelin 5 sp; Light hammer 2 sp; Mace 5 gp; Quarterstaff 2 sp; Sickle 1 gp; Spear 1 gp
-- Simple ranged: Light crossbow 25 gp; Dart 5 cp; Shortbow 25 gp; Sling 1 sp
-- Martial melee: Battleaxe 10 gp; Flail 10 gp; Glaive 20 gp; Greataxe 30 gp; Greatsword 50 gp; Halberd 20 gp; Lance 10 gp; Longsword 15 gp; Maul 10 gp; Morningstar 15 gp; Pike 5 gp; Rapier 25 gp; Scimitar 25 gp; Shortsword 10 gp; Trident 5 gp; War pick 5 gp; Warhammer 15 gp; Whip 2 gp
-- Martial ranged: Blowgun 10 gp; Hand crossbow 75 gp; Heavy crossbow 50 gp; Longbow 50 gp; Net 1 gp
-- Ammunition: Arrows (20) 1 gp; Blowgun needles (50) 1 gp; Crossbow bolts (20) 1 gp; Sling bullets (20) 4 cp
-
-All weapon entries above are [L0] by default.
-
-### SRD Adventuring Gear (complete)
-- Abacus [L0]: 2 gp
-- Acid (vial) [L0]: 25 gp
-- Alchemist's fire (flask) [L0]: 50 gp
-- Antitoxin (vial) [L0]: 50 gp
-- Arcane focus, crystal [L0]: 10 gp
-- Arcane focus, orb [L0]: 20 gp
-- Arcane focus, rod [L0]: 10 gp
-- Arcane focus, staff [L0]: 5 gp
-- Arcane focus, wand [L0]: 10 gp
-- Backpack [L0]: 2 gp
-- Ball bearings (bag of 1,000) [L0]: 1 gp
-- Barrel [L0]: 2 gp
-- Basket [L0]: 4 sp
-- Bedroll [L0]: 1 gp
-- Bell [L0]: 1 gp
-- Blanket [L0]: 5 sp
-- Block and tackle [L0]: 1 gp
-- Book [L0]: 25 gp
-- Bottle, glass [L0]: 2 gp
-- Bucket [L0]: 5 cp
-- Caltrops (bag of 20) [L0]: 1 gp
-- Candle [L0]: 1 cp
-- Case, crossbow bolt [L0]: 1 gp
-- Case, map or scroll [L0]: 1 gp
-- Chain (10 feet) [L0]: 5 gp
-- Chalk (1 piece) [L0]: 1 cp
-- Chest [L0]: 5 gp
-- Climber's kit [L0]: 25 gp
-- Clothes, common [L0]: 5 sp
-- Clothes, costume [L0]: 5 gp
-- Clothes, fine [L0]: 15 gp
-- Clothes, traveler's [L0]: 2 gp
-- Component pouch [L0]: 25 gp
-- Crowbar [L0]: 2 gp
-- Druidic focus, sprig of mistletoe [L0]: 1 gp
-- Druidic focus, totem [L0]: 1 gp
-- Druidic focus, wooden staff [L0]: 5 gp
-- Druidic focus, yew wand [L0]: 10 gp
-- Fishing tackle [L0]: 1 gp
-- Flask or tankard [L0]: 2 cp
-- Grappling hook [L0]: 2 gp
-- Hammer [L0]: 1 gp
-- Hammer, sledge [L0]: 2 gp
-- Healer's kit [L0]: 5 gp
-- Holy symbol, amulet [L0]: 5 gp
-- Holy symbol, emblem [L0]: 5 gp
-- Holy symbol, reliquary [L0]: 5 gp
-- Holy water (flask) [L0]: 25 gp
-- Hourglass [L0]: 25 gp
-- Hunting trap [L0]: 5 gp
-- Ink (1 oz bottle) [L0]: 10 gp
-- Ink pen [L0]: 2 cp
-- Jug or pitcher [L0]: 2 cp
-- Ladder (10-foot) [L0]: 1 sp
-- Lamp [L0]: 5 sp
-- Lantern, bullseye [L0]: 10 gp
-- Lantern, hooded [L0]: 5 gp
-- Lock [L0]: 10 gp
-- Magnifying glass [L0]: 100 gp
-- Manacles [L0]: 2 gp
-- Mess kit [L0]: 2 sp
-- Mirror, steel [L0]: 5 gp
-- Oil (flask) [L0]: 1 sp
-- Paper (one sheet) [L0]: 2 sp
-- Parchment (one sheet) [L0]: 1 sp
-- Perfume (vial) [L0]: 5 gp
-- Pick, miner's [L0]: 2 gp
-- Piton [L0]: 5 cp
-- Poison, basic (vial) [L2]: 100 gp
-- Pole (10-foot) [L0]: 5 cp
-- Pot, iron [L0]: 2 gp
-- Potion of healing [L1]: 50 gp
-- Pouch [L0]: 5 sp
-- Quiver [L0]: 1 gp
-- Ram, portable [L0]: 4 gp
-- Rations (1 day) [L0]: 5 sp
-- Robes [L0]: 1 gp
-- Rope, hempen (50 feet) [L0]: 1 gp
-- Rope, silk (50 feet) [L1]: 10 gp
-- Sack [L0]: 1 cp
-- Scale, merchant's [L0]: 5 gp
-- Sealing wax [L0]: 4 sp
-- Shovel [L0]: 2 gp
-- Signal whistle [L0]: 5 cp
-- Signet ring [L0]: 5 gp
-- Soap [L0]: 2 cp
-- Spellbook [L0]: 50 gp
-- Spikes, iron (10) [L0]: 1 gp
-- Spyglass [L0]: 1,000 gp
-- Tent, two-person [L0]: 2 gp
-- Tinderbox [L0]: 5 sp
-- Torch [L0]: 1 cp
-- Vial [L0]: 1 gp
-- Waterskin [L0]: 2 sp
-- Whetstone [L0]: 1 cp
-
-### SRD Tools (complete)
-- Alchemist's supplies [L0]: 50 gp
-- Brewer's supplies [L0]: 20 gp
-- Calligrapher's supplies [L0]: 10 gp
-- Carpenter's tools [L0]: 8 gp
-- Cartographer's tools [L0]: 15 gp
-- Cobbler's tools [L0]: 5 gp
-- Cook's utensils [L0]: 1 gp
-- Glassblower's tools [L0]: 30 gp
-- Jeweler's tools [L0]: 25 gp
-- Leatherworker's tools [L0]: 5 gp
-- Mason's tools [L0]: 10 gp
-- Painter's supplies [L0]: 10 gp
-- Potter's tools [L0]: 10 gp
-- Smith's tools [L0]: 20 gp
-- Tinker's tools [L0]: 50 gp
-- Weaver's tools [L0]: 1 gp
-- Woodcarver's tools [L0]: 1 gp
-- Disguise kit [L0]: 25 gp
-- Forgery kit [L0]: 15 gp
-- Gaming set — Dice set [L0]: 1 sp
-- Gaming set — Playing card set [L0]: 5 sp
-- Herbalism kit [L0]: 5 gp
-- Musical instrument — Bagpipes [L0]: 30 gp
-- Musical instrument — Drum [L0]: 6 gp
-- Musical instrument — Dulcimer [L0]: 25 gp
-- Musical instrument — Flute [L0]: 2 gp
-- Musical instrument — Lute [L0]: 35 gp
-- Musical instrument — Lyre [L0]: 30 gp
-- Musical instrument — Horn [L0]: 3 gp
-- Musical instrument — Pan flute [L0]: 12 gp
-- Musical instrument — Shawm [L0]: 2 gp
-- Musical instrument — Viol [L0]: 30 gp
-- Navigator's tools [L0]: 25 gp
-- Poisoner's kit [L2]: 50 gp
-- Thieves' tools [L0]: 25 gp
-
-### SRD Mounts & Vehicles (complete)
-- Camel [L0]: 50 gp
-- Donkey or mule [L0]: 8 gp
-- Elephant [L0]: 200 gp
-- Horse, draft [L0]: 50 gp
-- Horse, riding [L0]: 75 gp
-- Mastiff [L0]: 25 gp
-- Pony [L0]: 30 gp
-- Warhorse [L0]: 400 gp
-- Bit and bridle [L0]: 2 gp
-- Carriage [L0]: 100 gp
-- Cart [L0]: 15 gp
-- Chariot [L0]: 250 gp
-- Feed (per day) [L0]: 5 cp
-- Saddle, exotic [L0]: 60 gp
-- Saddle, military [L0]: 20 gp
-- Saddle, pack [L0]: 5 gp
-- Saddle, riding [L0]: 10 gp
-- Saddlebags [L0]: 4 gp
-- Sled [L0]: 20 gp
-- Stabling (per day) [L0]: 5 sp
-- Wagon [L0]: 35 gp
-- Keelboat [L0]: 3,000 gp
-- Rowboat [L0]: 50 gp
-- Longship [L0]: 10,000 gp
-- Sailing ship [L0]: 10,000 gp
-- Warship [L0]: 25,000 gp
-- Galley [L0]: 30,000 gp
-
-Note: Barding costs ×4 the listed armor price and weighs ×2.
-
-### SRD Trade Goods (and Expenses)
-- Trade goods value: 1 cp = 1 lb wheat; 2 cp = 1 lb flour or one chicken; 5 cp = 1 lb salt; 1 sp = 1 lb iron or 1 sq. yd. canvas; 5 sp = 1 lb copper or 1 sq. yd. cotton cloth; 1 gp = 1 lb ginger or one goat; 2 gp = 1 lb cinnamon/pepper or one sheep; 3 gp = 1 lb cloves or one pig; 5 gp = 1 lb silver or 1 sq. yd. linen; 10 gp = 1 sq. yd. silk or one cow; 15 gp = 1 lb saffron or one ox; 50 gp = 1 lb gold; 500 gp = 1 lb platinum
-- Food, Drink, and Lodging — Ale (gallon) 2 sp; Ale (mug) 4 cp; Banquet (per person) 10 gp; Bread (loaf) 2 cp; Cheese (hunk) 1 sp; Wine, common (pitcher) 2 sp; Wine, fine (bottle) 10 gp
-- Inn stay (per day): Squalid 7 cp; Poor 1 sp; Modest 5 sp; Comfortable 8 sp; Wealthy 2 gp; Aristocratic 4 gp
-- Meals (per day): Squalid 3 cp; Poor 6 cp; Modest 3 sp; Comfortable 5 sp; Wealthy 8 sp; Aristocratic 2 gp
-- Services: Coach cab within a city 1 cp; Coach cab between towns 3 cp per mile; Hireling (untrained) 2 sp/day; Hireling (skilled) 2 gp/day; Messenger 2 cp per mile; Road or gate toll 1 cp; Ship’s passage 1 sp per mile
-
-### SRD Poisons (sample list)
-- Assassin's blood (ingested) [L2]: 150 gp
-- Burnt othur fumes (inhaled) [L2]: 500 gp
-- Crawler mucus (contact) [L2]: 200 gp
-- Drow poison (injury) [L2]: 200 gp
-- Essence of ether (inhaled) [L2]: 300 gp
-- Malice (inhaled) [L2]: 250 gp
-- Midnight tears (ingested) [L2]: 1,500 gp
-- Oil of taggit (contact) [L2]: 400 gp
-- Pale tincture (ingested) [L2]: 250 gp
-- Purple worm poison (injury) [L3]: 2,000 gp
-- Serpent venom (injury) [L2]: 200 gp
-- Torpor (ingested) [L2]: 600 gp
-- Truth serum (ingested) [L2]: 150 gp
-- Wyvern poison (injury) [L3]: 1,200 gp
+All SRD items are already available in the vendor sections above; no additional entries remain here.
