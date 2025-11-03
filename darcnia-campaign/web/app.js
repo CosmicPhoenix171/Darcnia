@@ -1244,6 +1244,7 @@ function loadContent(tab) {
             contentArea.innerHTML = '<div class="loading">Loading market...</div>';
             ensureMarketLoaded().then(() => {
                 contentArea.innerHTML = renderMarket();
+                startRestockCountdown();
             });
             break;
         case 'quests':
@@ -1683,6 +1684,15 @@ function renderMarket() {
     
     let html = '<h2>🛒 Bluebrick Market</h2>';
     html += '<p>Browse shops. Stock rotates daily. Items tagged [L0] are always in stock; higher-level and rarer items appear less often.</p>';
+    
+    // Countdown timer for merchant restock
+    html += '<div class="restock-timer-container">';
+    html += '<div class="restock-timer">';
+    html += '<span class="timer-icon">⏰</span>';
+    html += '<span class="timer-label">Next Restock in:</span>';
+    html += '<span class="timer-countdown" id="restockCountdown">--:--:--</span>';
+    html += '</div>';
+    html += '</div>';
     
     // Controls removed (no level gating)
     
@@ -2525,6 +2535,67 @@ function updateHistoryDisplay() {
             </div>
         `;
     }).join('');
+}
+
+// ===== Restock Countdown Timer =====
+let restockInterval = null;
+
+function startRestockCountdown() {
+    // Clear any existing interval
+    if (restockInterval) {
+        clearInterval(restockInterval);
+    }
+    
+    // Update immediately
+    updateRestockCountdown();
+    
+    // Update every second
+    restockInterval = setInterval(updateRestockCountdown, 1000);
+}
+
+function updateRestockCountdown() {
+    const countdownElement = document.getElementById('restockCountdown');
+    if (!countdownElement) {
+        // Element not found, clear interval
+        if (restockInterval) {
+            clearInterval(restockInterval);
+            restockInterval = null;
+        }
+        return;
+    }
+    
+    // Calculate time until next midnight UTC
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0);
+    
+    const diff = tomorrow - now;
+    
+    if (diff <= 0) {
+        countdownElement.textContent = 'Restocking...';
+        countdownElement.classList.add('restock-imminent');
+        return;
+    }
+    
+    // Calculate hours, minutes, seconds
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Format with leading zeros
+    const hoursStr = String(hours).padStart(2, '0');
+    const minutesStr = String(minutes).padStart(2, '0');
+    const secondsStr = String(seconds).padStart(2, '0');
+    
+    countdownElement.textContent = `${hoursStr}:${minutesStr}:${secondsStr}`;
+    
+    // Add visual feedback when close to restock
+    if (hours === 0 && minutes < 5) {
+        countdownElement.classList.add('restock-soon');
+    } else {
+        countdownElement.classList.remove('restock-soon');
+    }
 }
 
 // ===== Utility Functions =====
