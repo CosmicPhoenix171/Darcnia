@@ -564,3 +564,165 @@ header::after {
         transform: translateX(-560px) translateY(480px) rotate(-46deg);
     }
 }
+
+/* ===== SHOOTING STARS FROM LEFT SIDE ===== */
+.container {
+    position: relative;
+}
+
+.container::before::before,
+.container::after::before {
+    content: '';
+    position: fixed;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9) 50%, transparent);
+    box-shadow: 0 0 6px rgba(255,255,255,0.8);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+/* Create additional layers for left-side shooting stars using :before and :after on body and html */
+html::after {
+    content: '';
+    position: fixed;
+    width: 85px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85) 50%, transparent);
+    box-shadow: 0 0 6px rgba(255,255,255,0.7);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    top: 30%;
+    left: -100px;
+    animation: shootingStarLeft1 13s ease-in 1s infinite;
+}
+
+@keyframes shootingStarLeft1 {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(45deg);
+    }
+    4% { 
+        opacity: 0.9;
+        transform: translateX(220px) translateY(180px) rotate(45deg);
+    }
+    8% { 
+        opacity: 0;
+        transform: translateX(440px) translateY(360px) rotate(45deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(440px) translateY(360px) rotate(45deg);
+    }
+}
+
+/* Shooting star from top-left */
+body {
+    position: relative;
+}
+
+body::before::after {
+    content: '';
+    position: fixed;
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9) 50%, transparent);
+    box-shadow: 0 0 7px rgba(255,255,255,0.8);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    top: -50px;
+    left: 20%;
+    animation: shootingStarTopLeft 15s ease-in 7s infinite;
+}
+
+@keyframes shootingStarTopLeft {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(35deg);
+    }
+    3.5% { 
+        opacity: 1;
+        transform: translateX(200px) translateY(280px) rotate(35deg);
+    }
+    7% { 
+        opacity: 0;
+        transform: translateX(400px) translateY(560px) rotate(35deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(400px) translateY(560px) rotate(35deg);
+    }
+}
+
+/* Shooting star from top-center */
+.tabs::before {
+    content: '';
+    position: fixed;
+    width: 90px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200,220,255,0.9) 50%, transparent);
+    box-shadow: 0 0 6px rgba(200,220,255,0.8);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    top: -40px;
+    left: 50%;
+    animation: shootingStarTopCenter 17s ease-in 9s infinite;
+}
+
+@keyframes shootingStarTopCenter {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(40deg);
+    }
+    4% { 
+        opacity: 0.95;
+        transform: translateX(180px) translateY(250px) rotate(40deg);
+    }
+    8% { 
+        opacity: 0;
+        transform: translateX(360px) translateY(500px) rotate(40deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(360px) translateY(500px) rotate(40deg);
+    }
+}
+
+/* Shooting star from left-middle */
+.tabs::after {
+    content: '';
+    position: fixed;
+    width: 105px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,245,235,0.9) 50%, transparent);
+    box-shadow: 0 0 6px rgba(255,245,235,0.8);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    top: 55%;
+    left: -120px;
+    animation: shootingStarLeftMiddle 14s ease-in 3.5s infinite;
+}
+
+@keyframes shootingStarLeftMiddle {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(42deg);
+    }
+    4.5% { 
+        opacity: 0.88;
+        transform: translateX(250px) translateY(200px) rotate(42deg);
+    }
+    9% { 
+        opacity: 0;
+        transform: translateX(500px) translateY(400px) rotate(42deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(500px) translateY(400px) rotate(42deg);
+    }
+}
+
