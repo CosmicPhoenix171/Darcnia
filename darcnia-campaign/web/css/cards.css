@@ -82,14 +82,15 @@ div.shop-card,
     opacity: 1;
 }
 
-/* Ensure card-grid cards (market cards) get the glow effect */
+/* Ensure card-grid cards (market cards) get the glow effect and simple lift */
 .card-grid .card:hover,
 .card-grid .shop-card:hover {
+    transform: translateY(-10px) !important; /* Simple lift up effect */
     box-shadow: 
         0 0 30px rgba(186, 104, 200, 0.8),
         0 0 60px rgba(186, 104, 200, 0.6),
         0 0 90px rgba(156, 39, 176, 0.4),
-        0 16px 36px rgba(0, 0, 0, 0.45),
+        0 20px 40px rgba(0, 0, 0, 0.5), /* Increased shadow when lifted */
         inset 0 1px 2px rgba(255, 255, 255, 0.18) !important;
     border-color: rgba(186, 104, 200, 0.7) !important;
     border-top-color: rgba(186, 104, 200, 0.9) !important;
