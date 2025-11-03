@@ -145,15 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeSheet() {
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('characterSheetTheme') || 'light';
-    setTheme(savedTheme);
+    // Always use dark theme to match campaign site
+    setTheme('dark');
 }
 
 function setupEventListeners() {
-    // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-    
     // Save/Load/Export buttons
     document.getElementById('saveBtn').addEventListener('click', saveCharacterData);
     document.getElementById('loadBtn').addEventListener('click', loadFromFile);
@@ -191,17 +187,9 @@ function setupEventListeners() {
 }
 
 // ===== Theme Management =====
-function toggleTheme() {
-    const currentTheme = document.body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-}
-
 function setTheme(theme) {
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('characterSheetTheme', theme);
-    const themeBtn = document.getElementById('themeToggle');
-    themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 // ===== Calculations =====
