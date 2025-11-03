@@ -2520,6 +2520,206 @@ a:focus-visible {
     }
 }
 
+/* ===== DICE ROLLER STYLES ===== */
+.dice-roller-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.dice-page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.dice-page-header h2 {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: var(--text-gold);
+    margin-bottom: 0.5rem;
+    text-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.dice-mode-selector {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.dice-mode-btn {
+    padding: 0.75rem 1.5rem;
+    background: rgba(45, 27, 61, 0.6);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+}
+
+.dice-mode-btn:hover {
+    background: rgba(75, 47, 91, 0.8);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(186, 104, 200, 0.3);
+}
+
+.dice-mode-btn.active {
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0);
+    border-color: var(--accent-gold);
+    color: var(--text-gold);
+    box-shadow: 0 0 20px rgba(186, 104, 200, 0.5);
+}
+
+.dice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.dice-btn {
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    color: var(--text-gold);
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dice-btn:hover {
+    background: rgba(75, 47, 91, 0.9);
+    border-color: var(--accent-purple);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(186, 104, 200, 0.4);
+    color: white;
+}
+
+.dice-btn:active {
+    transform: translateY(-2px) scale(1.02);
+    animation: diceShake 0.5s ease;
+}
+
+@keyframes diceShake {
+    0%, 100% { transform: translateY(-2px) rotate(0deg); }
+    25% { transform: translateY(-2px) rotate(-5deg); }
+    75% { transform: translateY(-2px) rotate(5deg); }
+}
+
+.custom-roll-section {
+    background: rgba(26, 11, 46, 0.6);
+    border: 2px solid rgba(186, 104, 200, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.custom-roll-section h3 {
+    color: var(--accent-purple);
+    margin-bottom: 1rem;
+    font-family: 'Cinzel', serif;
+}
+
+.custom-roll-input {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.custom-roll-input input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem 1rem;
+    background: rgba(26, 11, 46, 0.8);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: 'Crimson Text', serif;
+}
+
+.custom-roll-input input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 12px rgba(186, 104, 200, 0.4);
+}
+
+.custom-roll-input button {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0);
+    border: 2px solid var(--accent-purple);
+    border-radius: 8px;
+    color: var(--text-gold);
+    font-weight: 700;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-roll-input button:hover {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8);
+    box-shadow: 0 4px 16px rgba(186, 104, 200, 0.5);
+    transform: translateY(-2px);
+}
+
+.dice-history {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.dice-history h3 {
+    color: var(--accent-gold);
+    margin-bottom: 1rem;
+    font-family: 'Cinzel', serif;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dice-history-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 3rem 1rem;
+    font-style: italic;
+}
+
+.dice-roll-entry {
+    padding: 1rem;
+    background: rgba(26, 11, 46, 0.4);
+    border-left: 4px solid var(--accent-purple);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    animation: fadeInUp 0.4s ease;
+}
+
+.dice-roll-entry:first-child {
+    border-left-color: var(--accent-gold);
+    background: rgba(45, 27, 61, 0.6);
+}
+
+.dice-roll-result {
+    font-size: 1.25rem;
+    color: var(--text-gold);
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
 /* ===== MOBILE OPTIMIZATION ===== */
 @media (max-width: 768px) {
     /* Reduce star density on mobile for performance */
@@ -2532,5 +2732,24 @@ a:focus-visible {
     footer::after,
     nav::before {
         display: none;
+    }
+    
+    /* Dice roller mobile styles */
+    .dice-roller-container {
+        padding: 0 1rem;
+    }
+
+    .dice-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .dice-btn {
+        padding: 1.25rem 0.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .dice-page-header h2 {
+        font-size: 2rem;
     }
 }
