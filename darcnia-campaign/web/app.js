@@ -1192,6 +1192,9 @@ function initializeApp() {
     if (loginBtn && state.currentCharacter.name !== 'Guest') {
         loginBtn.textContent = `👤 ${state.currentCharacter.name}`;
         loginBtn.classList.add('logged-in');
+        
+        // Setup real-time sync for returning user
+        setupFirebaseRealtimeSync(state.currentCharacter.name);
     }
     
     // Setup event listeners
@@ -1255,6 +1258,54 @@ async function loadCharacterDataFromFirebase(characterName) {
         console.error('Firebase load error:', error);
     }
     return null;
+}
+
+// Real-time listener reference (to unsubscribe later)
+let firebaseListener = null;
+
+function setupFirebaseRealtimeSync(characterName) {
+    // Remove any existing listener
+    if (firebaseListener) {
+        firebaseListener.off();
+        firebaseListener = null;
+    }
+    
+    if (!database || !characterName || characterName === 'Guest') return;
+    
+    try {
+        const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        firebaseListener = database.ref(`characters/${sanitizedName}/bank`);
+        
+        firebaseListener.on('value', (snapshot) => {
+            const bankData = snapshot.val();
+            
+            if (bankData) {
+                // Only update if data is different (prevent infinite loop)
+                const currentBank = JSON.stringify(state.bank);
+                const newBank = JSON.stringify(bankData);
+                
+                if (currentBank !== newBank) {
+                    state.bank = { ...bankData };
+                    localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+                    updateBankDisplay();
+                    console.log('🔄 Bank balance synced from Firebase');
+                    showCartNotification('💰 Bank balance updated');
+                }
+            }
+        });
+        
+        console.log(`🔔 Real-time sync enabled for ${characterName}`);
+    } catch (error) {
+        console.error('Firebase listener error:', error);
+    }
+}
+
+function stopFirebaseRealtimeSync() {
+    if (firebaseListener) {
+        firebaseListener.off();
+        firebaseListener = null;
+        console.log('🔕 Real-time sync disabled');
+    }
 }
 
 // ===== Theme Management =====
@@ -2353,6 +2404,9 @@ function showLogin() {
     if (isLoggedIn) {
         // Logout
         if (confirm('Logout and return to Guest?')) {
+            // Stop real-time sync
+            stopFirebaseRealtimeSync();
+            
             // Clear saved character from localStorage
             localStorage.removeItem('loggedInCharacter');
             
@@ -2439,6 +2493,9 @@ async function attemptLogin() {
     loginBtn.classList.add('logged-in');
     
     updateBankDisplay();
+    
+    // Setup real-time sync for this character
+    setupFirebaseRealtimeSync(character.name);
     
     // Close modal
     const modal = document.getElementById('searchModal');
