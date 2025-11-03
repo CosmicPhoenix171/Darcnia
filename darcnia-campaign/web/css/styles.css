@@ -1279,17 +1279,20 @@ a:active {
 
 /* ===== CARDS ===== */
 .card {
-    /* TEST: Super obvious style to verify CSS is loading */
-    background: rgba(255, 0, 0, 0.1) !important; /* Slight red tint to test */
-    backdrop-filter: blur(50px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(50px) saturate(200%) !important;
-    border: 3px solid rgba(255, 215, 0, 0.8) !important; /* Bright gold border */
+    /* ULTRA transparent glassmorphism - starfield must show through! */
+    background: rgba(30, 15, 50, 0.08) !important; /* Nearly invisible dark purple */
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
+    border: 2px solid rgba(186, 104, 200, 0.5);
+    border-top: 2px solid rgba(255, 255, 255, 0.25);
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.5),
-        0 0 30px rgba(255, 215, 0, 0.5);
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 2px rgba(255, 255, 255, 0.15),
+        0 0 20px rgba(186, 104, 200, 0.2);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -1317,16 +1320,14 @@ a:active {
     box-shadow: 
         var(--glow-md),
         0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 30px rgba(186, 104, 200, 0.4),
+        0 0 30px rgba(186, 104, 200, 0.5),
         inset 0 1px 2px rgba(255, 255, 255, 0.2);
-    border-color: rgba(186, 104, 200, 0.6);
-    border-top-color: rgba(255, 255, 255, 0.3);
-    /* Enhanced glass effect on hover - MORE opaque for readability */
-    backdrop-filter: blur(35px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
-    background: linear-gradient(145deg, 
-        rgba(55, 37, 71, 0.35), 
-        rgba(36, 21, 56, 0.40)) !important;
+    border-color: rgba(186, 104, 200, 0.7);
+    border-top-color: rgba(255, 255, 255, 0.35);
+    /* Hover: slightly more visible for readability */
+    backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
+    -webkit-backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
+    background: rgba(40, 20, 60, 0.18) !important;
 }
 
 .card:hover::before {
