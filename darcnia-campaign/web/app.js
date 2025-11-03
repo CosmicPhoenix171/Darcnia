@@ -1037,7 +1037,12 @@ const contentData = {
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
     // No login screen — initialize the app directly with a guest user
-    state.currentCharacter = { name: 'Guest', accessLevel: 'player', clearedDungeonLevel: 0 };
+    state.currentCharacter = { 
+        name: 'Guest', 
+        accessLevel: 'player', 
+        clearedDungeonLevel: 0,
+        bank: { gold: 100, silver: 50, copper: 25 }
+    };
     initializeApp();
     
     // ===== Enhanced UI Features =====
