@@ -413,3 +413,154 @@ nav::before {
         transform: translateX(-360px) translateY(240px) rotate(-50deg);
     }
 }
+
+/* Additional shooting stars for more activity */
+nav::after,
+main::before,
+main::after,
+header::before,
+header::after {
+    content: '';
+    position: fixed;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9) 50%, transparent);
+    box-shadow: 0 0 6px rgba(255,255,255,0.8);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+/* Shooting star 4 */
+nav::after {
+    top: 15%;
+    right: -120px;
+    width: 90px;
+    animation: shootingStar4 14s ease-in 2s infinite;
+}
+
+@keyframes shootingStar4 {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(-48deg);
+    }
+    4% { 
+        opacity: 0.9;
+        transform: translateX(-220px) translateY(180px) rotate(-48deg);
+    }
+    8% { 
+        opacity: 0;
+        transform: translateX(-440px) translateY(360px) rotate(-48deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(-440px) translateY(360px) rotate(-48deg);
+    }
+}
+
+/* Shooting star 5 */
+main::before {
+    top: 35%;
+    right: -130px;
+    width: 110px;
+    animation: shootingStar5 16s ease-in 8s infinite;
+}
+
+@keyframes shootingStar5 {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(-42deg);
+    }
+    3.5% { 
+        opacity: 1;
+        transform: translateX(-240px) translateY(200px) rotate(-42deg);
+    }
+    7% { 
+        opacity: 0;
+        transform: translateX(-480px) translateY(400px) rotate(-42deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(-480px) translateY(400px) rotate(-42deg);
+    }
+}
+
+/* Shooting star 6 */
+main::after {
+    top: 60%;
+    right: -140px;
+    width: 95px;
+    animation: shootingStar6 13s ease-in 5s infinite;
+}
+
+@keyframes shootingStar6 {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(-47deg);
+    }
+    4.5% { 
+        opacity: 0.85;
+        transform: translateX(-210px) translateY(165px) rotate(-47deg);
+    }
+    9% { 
+        opacity: 0;
+        transform: translateX(-420px) translateY(330px) rotate(-47deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(-420px) translateY(330px) rotate(-47deg);
+    }
+}
+
+/* Shooting star 7 - faster one */
+header::before {
+    top: 25%;
+    right: -110px;
+    width: 70px;
+    animation: shootingStar7 10s ease-in 4s infinite;
+}
+
+@keyframes shootingStar7 {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(-43deg);
+    }
+    3% { 
+        opacity: 1;
+        transform: translateX(-160px) translateY(140px) rotate(-43deg);
+    }
+    6% { 
+        opacity: 0;
+        transform: translateX(-320px) translateY(280px) rotate(-43deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(-320px) translateY(280px) rotate(-43deg);
+    }
+}
+
+/* Shooting star 8 - slow and majestic */
+header::after {
+    top: 45%;
+    right: -150px;
+    width: 120px;
+    animation: shootingStar8 20s ease-in 10s infinite;
+}
+
+@keyframes shootingStar8 {
+    0% { 
+        opacity: 0; 
+        transform: translateX(0) translateY(0) rotate(-46deg);
+    }
+    5% { 
+        opacity: 0.95;
+        transform: translateX(-280px) translateY(240px) rotate(-46deg);
+    }
+    10% { 
+        opacity: 0;
+        transform: translateX(-560px) translateY(480px) rotate(-46deg);
+    }
+    100% { 
+        opacity: 0;
+        transform: translateX(-560px) translateY(480px) rotate(-46deg);
+    }
+}
