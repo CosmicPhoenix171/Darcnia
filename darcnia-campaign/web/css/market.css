@@ -175,6 +175,13 @@
     margin-top: 0.25rem;
 }
 
+.cart-item-subtotal {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
 .cart-item-controls {
     display: flex;
     align-items: center;
@@ -221,6 +228,32 @@
 .cart-remove-btn:hover {
     background: rgba(255, 107, 107, 0.3);
     border-color: rgba(255, 107, 107, 0.8);
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    background: rgba(186, 104, 200, 0.15);
+    border: 2px solid rgba(186, 104, 200, 0.5);
+    border-radius: 12px;
+    font-size: 1.2rem;
+    box-shadow: 0 0 20px rgba(186, 104, 200, 0.3);
+}
+
+.cart-total strong {
+    color: var(--text-primary);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+}
+
+.cart-total-price {
+    color: var(--text-gold);
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .cart-actions {

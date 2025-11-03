@@ -1934,12 +1934,26 @@ function showCart() {
     let html = '<h2>🛒 Shopping Cart</h2>';
     html += '<div class="cart-items">';
     
+    let totalGold = 0;
+    let totalSilver = 0;
+    let totalCopper = 0;
+    
     state.cart.forEach(item => {
+        // Calculate subtotal for this item
+        const itemTotal = calculateItemTotal(item.price, item.quantity);
+        totalGold += itemTotal.gold;
+        totalSilver += itemTotal.silver;
+        totalCopper += itemTotal.copper;
+        
+        // Display subtotal
+        const subtotal = formatPrice(itemTotal.gold, itemTotal.silver, itemTotal.copper);
+        
         html += `
             <div class="cart-item">
                 <div class="cart-item-info">
                     <strong>${item.name}</strong>
                     <div class="cart-item-price">${item.price} each</div>
+                    <div class="cart-item-subtotal">Subtotal: ${subtotal}</div>
                 </div>
                 <div class="cart-item-controls">
                     <button onclick="updateCartQuantity('${item.key}', -1)" class="cart-qty-btn">−</button>
@@ -1952,6 +1966,19 @@ function showCart() {
     });
     
     html += '</div>';
+    
+    // Normalize the total (convert excess copper to silver, excess silver to gold)
+    totalSilver += Math.floor(totalCopper / 10);
+    totalCopper = totalCopper % 10;
+    totalGold += Math.floor(totalSilver / 10);
+    totalSilver = totalSilver % 10;
+    
+    // Display grand total
+    const grandTotal = formatPrice(totalGold, totalSilver, totalCopper);
+    html += `<div class="cart-total">
+        <strong>Total:</strong> <span class="cart-total-price">${grandTotal}</span>
+    </div>`;
+    
     html += '<div class="cart-actions">';
     html += `<button onclick="clearCart()" class="btn-secondary">Clear Cart</button>`;
     html += `<button onclick="checkout()" class="btn-primary">Checkout</button>`;
@@ -1960,6 +1987,33 @@ function showCart() {
     const modal = document.getElementById('searchModal');
     document.getElementById('searchResults').innerHTML = html;
     modal.classList.remove('hidden');
+}
+
+function calculateItemTotal(priceStr, quantity) {
+    // Parse price string like "5 gp", "3 sp", "10 cp", or "2 gp, 5 sp"
+    let gold = 0, silver = 0, copper = 0;
+    
+    const gpMatch = priceStr.match(/(\d+)\s*gp/i);
+    const spMatch = priceStr.match(/(\d+)\s*sp/i);
+    const cpMatch = priceStr.match(/(\d+)\s*cp/i);
+    
+    if (gpMatch) gold = parseInt(gpMatch[1]);
+    if (spMatch) silver = parseInt(spMatch[1]);
+    if (cpMatch) copper = parseInt(cpMatch[1]);
+    
+    return {
+        gold: gold * quantity,
+        silver: silver * quantity,
+        copper: copper * quantity
+    };
+}
+
+function formatPrice(gold, silver, copper) {
+    const parts = [];
+    if (gold > 0) parts.push(`${gold} gp`);
+    if (silver > 0) parts.push(`${silver} sp`);
+    if (copper > 0) parts.push(`${copper} cp`);
+    return parts.length > 0 ? parts.join(', ') : '0 cp';
 }
 
 function clearCart() {
