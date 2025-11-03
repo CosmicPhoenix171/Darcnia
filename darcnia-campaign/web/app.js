@@ -41,7 +41,7 @@ const characterDatabase = {
         accessLevel: 'player',
         discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note'],
         clearedDungeonLevel: 0,
-        bank: { gold: 100, silver: 50, copper: 25 } // Starting funds
+        bank: { gold: 0, silver: 0, copper: 0 } // Starting funds
     },
     'dm': {
         name: 'Dungeon Master',
