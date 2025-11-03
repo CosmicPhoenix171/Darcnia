@@ -1,0 +1,169 @@
+/* ===== CARD STYLES - GLASSMORPHISM ===== */
+/* This file MUST be imported LAST to override all other card styles */
+
+.card,
+.shop-card,
+div.card,
+div.shop-card,
+.card-grid .card,
+.market-grid .card {
+    /* ULTRA transparent glassmorphism - starfield must show through! */
+    background: rgba(30, 15, 50, 0.05) !important;
+    backdrop-filter: blur(50px) saturate(200%) brightness(1.2) !important;
+    -webkit-backdrop-filter: blur(50px) saturate(200%) brightness(1.2) !important;
+    border: 2px solid rgba(186, 104, 200, 0.5) !important;
+    border-top: 2px solid rgba(255, 255, 255, 0.25) !important;
+    border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 15px !important;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 2px rgba(255, 255, 255, 0.15),
+        0 0 20px rgba(186, 104, 200, 0.2) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    /* Enable 3D transforms */
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, transparent, var(--card-glow), transparent);
+    border-radius: 15px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+}
+
+.card:hover,
+.shop-card:hover {
+    transform: translateY(-8px) translateZ(20px) rotateX(2deg);
+    box-shadow: 
+        var(--glow-md),
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(186, 104, 200, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    border-color: rgba(186, 104, 200, 0.7) !important;
+    border-top-color: rgba(255, 255, 255, 0.35) !important;
+    /* Hover: slightly more visible for readability */
+    backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
+    -webkit-backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
+    background: rgba(40, 20, 60, 0.18) !important;
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+/* Subtle tilt effect based on mouse position (can be enhanced with JS) */
+@media (hover: hover) and (pointer: fine) {
+    .card {
+        transition: all 0.15s ease-out;
+    }
+    
+    .card:hover {
+        /* Will look even better with JS-driven tilt based on mouse position */
+        animation: cardFloat 3s ease-in-out infinite;
+    }
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(-8px) translateZ(20px) rotateX(2deg) rotateY(0deg); }
+    50% { transform: translateY(-10px) translateZ(22px) rotateX(2deg) rotateY(1deg); }
+}
+
+.card h3 {
+    margin-top: 0;
+    color: var(--text-gold);
+}
+
+/* Ornate golden corners on cards */
+.card::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    pointer-events: none;
+    background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M2,14 Q2,2 14,2' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M26,2 Q38,2 38,14' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M2,26 Q2,38 14,38' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M26,38 Q38,38 38,26' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: top left, top right, bottom left, bottom right;
+    background-size: 32px 32px;
+    opacity: 0.85;
+    filter: drop-shadow(0 0 3px rgba(255,215,0,0.4));
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+/* Pink left accent like the screenshot */
+.card {
+    border-left: 4px solid rgba(255,105,180,0.7) !important;
+}
+
+.card p { 
+    color: var(--text-muted); 
+}
+
+.card h3 { 
+    font-family: 'Cinzel', serif; 
+}
+
+.card-meta {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0.5rem 0;
+}
+
+.card-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+/* Rarity-based card accents */
+.card[data-rarity="Uncommon"] { 
+    border-left-color: rgba(102, 187, 106, 0.7) !important; 
+}
+
+.card[data-rarity="Rare"] { 
+    border-left-color: rgba(66, 165, 245, 0.7) !important; 
+}
+
+.card[data-rarity="Very Rare"] { 
+    border-left-color: rgba(171, 71, 188, 0.7) !important; 
+}
+
+.card[data-rarity="Legendary"] {
+    border-left-color: rgba(255, 215, 0, 0.9) !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(255, 215, 0, 0.4) !important;
+}
+
+/* Card focus states for keyboard navigation */
+.card:focus-visible,
+.shop-card:focus-visible {
+    outline: 3px solid var(--accent-gold);
+    outline-offset: 4px;
+    border-color: var(--accent-gold) !important;
+    box-shadow: 
+        0 0 0 6px rgba(255, 215, 0, 0.2),
+        var(--glow-md);
+    animation: focusPulse 2s ease-in-out infinite;
+}

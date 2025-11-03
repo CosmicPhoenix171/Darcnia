@@ -2,6 +2,7 @@
 @import url('starfield.css');
 @import url('market.css');
 @import url('dice-roller.css');
+@import url('cards.css'); /* MUST BE LAST - overrides all card styles */
 
 /* ===== FANTASY THEME - ROOT VARIABLES ===== */
 :root {
@@ -2877,24 +2878,4 @@ a:focus-visible {
     .dice-page-header h2 {
         font-size: 2rem;
     }
-}
-
-/* ===== GLASSMORPHISM OVERRIDE - MUST BE LAST ===== */
-/* Force transparent glass effect on ALL cards */
-.card,
-.shop-card,
-div.card,
-div.shop-card,
-.card-grid .card,
-.market-grid .card {
-    background: rgba(30, 15, 50, 0.05) !important;
-    backdrop-filter: blur(50px) saturate(200%) brightness(1.2) !important;
-    -webkit-backdrop-filter: blur(50px) saturate(200%) brightness(1.2) !important;
-}
-
-.card:hover,
-.shop-card:hover {
-    background: rgba(40, 20, 60, 0.18) !important;
-    backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
-    -webkit-backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
 }
