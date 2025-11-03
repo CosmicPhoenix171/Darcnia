@@ -1,12 +1,13 @@
 // ===== Firebase Configuration =====
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
+    authDomain: "dnd-5e-e1ad1.firebaseapp.com",
+    databaseURL: "https://dnd-5e-e1ad1-default-rtdb.firebaseio.com",
+    projectId: "dnd-5e-e1ad1",
+    storageBucket: "dnd-5e-e1ad1.firebasestorage.app",
+    messagingSenderId: "630611257093",
+    appId: "1:630611257093:web:5fafca4be805d4679bb96c",
+    measurementId: "G-Y4Y25TDECL"
 };
 
 // Initialize Firebase
