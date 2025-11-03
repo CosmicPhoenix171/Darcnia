@@ -191,6 +191,9 @@ function checkLoggedInCharacter() {
         console.log('📋 No character logged in, using local storage only');
         loadCharacterData();
     }
+    
+    // Update login UI
+    updateLoginDisplay();
 }
 
 // ===== Firebase Functions =====
@@ -263,12 +266,82 @@ async function saveCharacterToFirebase() {
     }
 }
 
+// ===== Login/Logout Functions =====
+function handleLogin() {
+    const nameInput = document.getElementById('characterNameLogin');
+    const characterName = nameInput.value.trim();
+    
+    if (!characterName) {
+        showNotification('❌ Please enter a character name');
+        return;
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('loggedInCharacter', characterName);
+    currentCharacterName = characterName;
+    
+    // Update UI
+    updateLoginDisplay();
+    
+    // Load character data from Firebase
+    loadCharacterFromFirebase(characterName);
+    setupFirebaseRealtimeSync(characterName);
+    
+    showNotification(`✅ Logged in as ${characterName}`);
+    console.log(`🔓 Logged in as: ${characterName}`);
+}
+
+function handleLogout() {
+    // Remove Firebase listener
+    if (firebaseListener) {
+        firebaseListener.off();
+        firebaseListener = null;
+    }
+    
+    // Clear localStorage
+    localStorage.removeItem('loggedInCharacter');
+    currentCharacterName = null;
+    
+    // Update UI
+    updateLoginDisplay();
+    
+    // Clear character sheet
+    loadCharacterData(); // Load empty/default data
+    
+    showNotification('👋 Logged out');
+    console.log('🔒 Logged out');
+}
+
+function updateLoginDisplay() {
+    const nameInput = document.getElementById('characterNameLogin');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const display = document.getElementById('loggedInDisplay');
+    
+    if (currentCharacterName && currentCharacterName !== 'Guest') {
+        // Logged in state
+        nameInput.style.display = 'none';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        display.textContent = `👤 ${currentCharacterName}`;
+        display.style.display = 'inline-block';
+    } else {
+        // Logged out state
+        nameInput.style.display = 'inline-block';
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        display.style.display = 'none';
+        nameInput.value = '';
+    }
+}
+
 function setupEventListeners() {
-    // Save/Load/Export buttons
-    document.getElementById('saveBtn').addEventListener('click', saveCharacterData);
-    document.getElementById('loadBtn').addEventListener('click', loadFromFile);
-    document.getElementById('printBtn').addEventListener('click', () => window.print());
-    document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
+    // Login/Logout buttons
+    document.getElementById('loginBtn').addEventListener('click', handleLogin);
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    document.getElementById('characterNameLogin').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
     
     // Ability score changes
     document.querySelectorAll('.ability-score').forEach(input => {

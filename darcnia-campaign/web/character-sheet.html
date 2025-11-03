@@ -25,8 +25,13 @@
                     <p class="subtitle">D&D 2024 Character Sheet</p>
                 </div>
                 <div class="header-buttons">
-                    <button id="printBtn" class="bank-button-header" onclick="window.print()" title="Print Character Sheet">🖨️ Print</button>
-                    <button id="saveBtn" class="cart-button-header" onclick="saveCharacterData()" title="Save Character">💾 Save</button>
+                    <!-- Character Login -->
+                    <div class="character-login">
+                        <input type="text" id="characterNameLogin" placeholder="Character Name" />
+                        <button id="loginBtn" class="login-button">Login</button>
+                        <button id="logoutBtn" class="logout-button" style="display: none;">Logout</button>
+                        <span id="loggedInDisplay" class="logged-in-display"></span>
+                    </div>
                 </div>
             </div>
             
