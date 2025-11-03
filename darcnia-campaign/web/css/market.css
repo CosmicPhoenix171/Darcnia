@@ -425,6 +425,51 @@
     box-shadow: 0 0 12px rgba(186, 104, 200, 0.3);
 }
 
+/* ===== LOGIN FORM ===== */
+.login-form {
+    max-width: 400px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.login-form label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'Cinzel', serif;
+}
+
+.login-form input {
+    padding: 0.75rem;
+    background: rgba(26, 11, 46, 0.6);
+    border: 2px solid rgba(186, 104, 200, 0.3);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: rgba(186, 104, 200, 0.6);
+    box-shadow: 0 0 12px rgba(186, 104, 200, 0.3);
+}
+
+.login-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.login-hint {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
 /* ===== SHOP CARD TITLE - CLEAN AND READABLE ===== */
 .shop-card .shop-card-title {
     font-family: 'Cinzel Decorative', 'Cinzel', serif;

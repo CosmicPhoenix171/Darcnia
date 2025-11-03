@@ -932,6 +932,37 @@ main {
     background: linear-gradient(135deg, #9c27b0, #ba68c8);
 }
 
+.login-button {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid rgba(186, 104, 200, 0.4);
+    border-radius: 25px;
+    background: rgba(26, 11, 46, 0.8);
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-deep);
+    white-space: nowrap;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(123, 31, 162, 0.3), rgba(156, 39, 176, 0.3));
+    border-color: rgba(186, 104, 200, 0.7);
+    box-shadow: 0 4px 16px rgba(186, 104, 200, 0.4);
+}
+
+.login-button.logged-in {
+    border-color: rgba(76, 175, 80, 0.6);
+    color: #4caf50;
+}
+
+.login-button.logged-in:hover {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(129, 199, 132, 0.2));
+    border-color: rgba(76, 175, 80, 0.8);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+}
+
 /* Theme toggle */
 .theme-toggle {
     position: fixed;

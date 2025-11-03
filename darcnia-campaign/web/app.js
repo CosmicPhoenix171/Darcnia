@@ -2260,6 +2260,99 @@ function withdrawFunds() {
     showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper)}`);
 }
 
+// ===== Login System =====
+function showLogin() {
+    const loginBtn = document.getElementById('loginBtn');
+    const isLoggedIn = loginBtn.classList.contains('logged-in');
+    
+    if (isLoggedIn) {
+        // Logout
+        if (confirm('Logout and return to Guest?')) {
+            state.currentCharacter = { 
+                name: 'Guest', 
+                accessLevel: 'player', 
+                clearedDungeonLevel: 0,
+                bank: { gold: 0, silver: 0, copper: 0 }
+            };
+            loginBtn.textContent = '👤 Login';
+            loginBtn.classList.remove('logged-in');
+            
+            // Reset bank to saved or default
+            const savedBank = localStorage.getItem('bankBalance');
+            if (savedBank) {
+                state.bank = JSON.parse(savedBank);
+            } else {
+                state.bank = { gold: 0, silver: 0, copper: 0 };
+            }
+            updateBankDisplay();
+            showCartNotification('👋 Logged out');
+        }
+        return;
+    }
+    
+    // Login modal
+    let html = '<h2>🔐 Character Login</h2>';
+    html += '<div class="login-form">';
+    html += '<label>Character Name:</label>';
+    html += '<input type="text" id="loginUsername" placeholder="e.g., Nyra Vex" />';
+    html += '<label>Password:</label>';
+    html += '<input type="password" id="loginPassword" placeholder="Password" />';
+    html += '<div class="login-actions">';
+    html += '<button onclick="attemptLogin()" class="btn-primary">Login</button>';
+    html += '<button onclick="closeLoginModal()" class="btn-secondary">Cancel</button>';
+    html += '</div>';
+    html += '<div class="login-hint">Default: <em>Nyra Vex</em> / <em>rogue123</em></div>';
+    html += '</div>';
+    
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
+}
+
+function attemptLogin() {
+    const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    
+    const character = characterDatabase[username];
+    
+    if (!character) {
+        alert('Character not found!');
+        return;
+    }
+    
+    if (character.password !== simpleHash(password)) {
+        alert('Incorrect password!');
+        return;
+    }
+    
+    // Successful login
+    state.currentCharacter = character;
+    state.accessLevel = character.accessLevel || 'player';
+    
+    // Load character's bank balance
+    if (character.bank) {
+        state.bank = { ...character.bank };
+        saveBankToLocalStorage();
+    }
+    
+    const loginBtn = document.getElementById('loginBtn');
+    loginBtn.textContent = `👤 ${character.name}`;
+    loginBtn.classList.add('logged-in');
+    
+    updateBankDisplay();
+    
+    // Close modal
+    const modal = document.getElementById('searchModal');
+    modal.classList.add('hidden');
+    
+    showCartNotification(`✅ Welcome, ${character.name}!`);
+}
+
+function closeLoginModal() {
+    const modal = document.getElementById('searchModal');
+    modal.classList.add('hidden');
+}
+
 // ===== Dice Roller =====
 function injectDiceTray() {
     if (document.getElementById('diceTray')) return;
