@@ -1028,7 +1028,9 @@ const contentData = {
 
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
-    initializeLogin();
+    // No login screen — initialize the app directly with a guest user
+    state.currentCharacter = { name: 'Guest', accessLevel: 'player', clearedDungeonLevel: 0 };
+    initializeApp();
 });
 
 function initializeApp() {
@@ -1046,7 +1048,7 @@ function initializeApp() {
     buildSearchIndex();
     
     // Load initial content
-    loadContent('overview');
+    loadContent('market');
     
     // Log success
     logSuccess();
@@ -1081,22 +1083,24 @@ function setupEventListeners() {
     });
     
     // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    const themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
     
     // Search
-    document.getElementById('searchBtn').addEventListener('click', performSearch);
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    if (searchBtn) searchBtn.addEventListener('click', performSearch);
+    if (searchInput) searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') performSearch();
     });
     
     // Modal close
-    document.querySelector('.modal-close').addEventListener('click', closeModal);
-    document.getElementById('searchModal').addEventListener('click', (e) => {
+    const modalClose = document.querySelector('.modal-close');
+    const searchModal = document.getElementById('searchModal');
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    if (searchModal) searchModal.addEventListener('click', (e) => {
         if (e.target.id === 'searchModal') closeModal();
     });
-    
-    // Logout button
-    document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
 // ===== Tab Switching =====
@@ -1133,10 +1137,16 @@ function loadContent(tab) {
             contentArea.innerHTML = renderLocations();
             break;
         case 'market':
-            contentArea.innerHTML = renderMarket();
+            contentArea.innerHTML = '<div class="loading">Loading market...</div>';
+            ensureMarketLoaded().then(() => {
+                contentArea.innerHTML = renderMarket();
+            });
             break;
         case 'quests':
-            contentArea.innerHTML = renderQuests();
+            contentArea.innerHTML = '<div class="loading">Loading quests...</div>';
+            ensureQuestsLoaded().then(html => {
+                contentArea.innerHTML = renderQuests();
+            });
             break;
         case 'handouts':
             contentArea.innerHTML = renderHandouts();
@@ -1319,6 +1329,218 @@ function renderLocations() {
 }
 
 // ===== Market Rendering =====
+// Seeded RNG (mulberry32)
+function seededRng(seed) {
+    let t = seed >>> 0;
+    return function () {
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ (t >>> 15), 1 | t);
+        r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+// Build a numeric seed from the current date and the view level (stable per day)
+function buildDailySeed(viewLevel) {
+    const d = new Date();
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}-L${viewLevel}`;
+    let h = 2166136261; // FNV-like
+    for (let i = 0; i < key.length; i++) {
+        h ^= key.charCodeAt(i);
+        h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+    }
+    return h >>> 0;
+}
+
+function getItemRarity(item) {
+    const r = (item.rarity || 'Common').toLowerCase();
+    if (r.includes('very rare')) return 'Very Rare';
+    if (r.includes('legendary')) return 'Legendary';
+    if (r.includes('uncommon')) return 'Uncommon';
+    if (r.includes('rare')) return 'Rare';
+    return 'Common';
+}
+
+const RARITY_BASE_RATE = {
+    'Common': 0.6,
+    'Uncommon': 0.35,
+    'Rare': 0.2,
+    'Very Rare': 0.1,
+    'Legendary': 0.05,
+};
+
+function levelAppearanceFactor(requiredLevel) {
+    return Math.max(0.15, 1 - 0.05 * Math.max(0, requiredLevel));
+}
+
+function itemInStock(rng, item, viewLevel) {
+    const req = Number(item.level ?? 0);
+    if (req > viewLevel) return false;
+    if (req <= 0) return true; // L0 always available
+    const base = RARITY_BASE_RATE[getItemRarity(item)] ?? 0.3;
+    const p = base * levelAppearanceFactor(req);
+    return rng() < p;
+}
+
+function assignItemKeys(shops) {
+    shops.forEach(shop => {
+        (shop.categories || []).forEach(cat => {
+            (cat.items || []).forEach(it => {
+                const r = (it.rarity || '').trim();
+                it._key = `${shop.id}::${cat.name}::${it.name}::L${it.level ?? 0}::${r}`.toLowerCase();
+            });
+        });
+    });
+    return shops;
+}
+
+function generateDailyStock(shops, viewLevel) {
+    const seed = buildDailySeed(viewLevel);
+    const rng = seededRng(seed);
+    const stock = {};
+    shops.forEach(shop => {
+        const set = new Set();
+        (shop.categories || []).forEach(cat => {
+            (cat.items || []).forEach(it => {
+                if (itemInStock(rng, it, viewLevel)) {
+                    set.add(it._key);
+                }
+            });
+        });
+        stock[shop.id] = set;
+    });
+    return stock;
+}
+async function loadText(path) {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error('Failed to load ' + path);
+    return await res.text();
+}
+
+async function ensureMarketLoaded() {
+    if (state.marketShopsLoaded) return state.marketShopsLoaded;
+    const mdPath = CONFIG.campaignPath + 'handouts/bluebrick-market.md';
+    const text = await loadText(mdPath);
+    const shops = parseBluebrickMarketMarkdown(text);
+    state.marketShopsLoaded = shops;
+    return shops;
+}
+
+function getMarketShops() {
+    return state.marketShopsLoaded || contentData.marketShops || [];
+}
+
+function parseBluebrickMarketMarkdown(md) {
+    const lines = md.split(/\r?\n/);
+    const shops = [];
+    let currentShop = null;
+    let currentCategory = null;
+    let inHeader = true;
+    
+    const pushShop = () => { if (currentShop) shops.push(currentShop); };
+    const startShop = (name, description='') => {
+        currentShop = { id: slugify(name), name, description, categories: [] };
+        currentCategory = null;
+    };
+    const startCategory = (name, note=null) => {
+        const cat = { name: name.trim(), note, items: [] };
+        currentShop.categories.push(cat);
+        currentCategory = cat;
+    };
+    const addItem = (raw, priceStr) => {
+        if (!currentShop) return;
+        if (!currentCategory) startCategory('General');
+        const parsed = parseItem(raw, priceStr);
+        currentCategory.items.push(parsed);
+    };
+    
+    const arcanePrefix = 'Arcane Exchange';
+    
+    for (let rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        if (line.startsWith('---')) { inHeader = false; continue; }
+        if (inHeader) continue;
+        
+        // Shop header
+        if (line.startsWith('## ')) {
+            const name = line.replace(/^##\s+/, '').trim();
+            pushShop();
+            startShop(name);
+            continue;
+        }
+        
+        // Arcane Exchange subcategories as ### headings
+        if (line.startsWith('### ') && currentShop && currentShop.name.startsWith(arcanePrefix)) {
+            const catName = line.replace(/^###\s+/, '').trim();
+            startCategory(catName);
+            continue;
+        }
+        
+        // Category bullets like "- Armor" or "- Simple/Martial Weapons (common stock)"
+        const catMatch = rawLine.match(/^\s*-\s+([^:\[][^:]*)$/);
+        if (catMatch && currentShop && !currentShop.name.startsWith(arcanePrefix)) {
+            startCategory(catMatch[1]);
+            continue;
+        }
+        
+        // Item bullets like "- Name [tag]: price" or with indentation
+        const itemMatch = rawLine.match(/^\s*-\s+(.+?):\s*(.+)$/);
+        if (itemMatch && currentShop) {
+            addItem(itemMatch[1], itemMatch[2]);
+            continue;
+        }
+        
+        // Note lines for bundles
+        if (currentShop && /bundles/i.test(line) && !line.startsWith('-')) {
+            if (!currentCategory) startCategory('General');
+            currentCategory.note = (currentCategory.note ? currentCategory.note + ' ' : '') + line;
+            continue;
+        }
+        
+        // Optional: description text after shop header
+        if (currentShop && currentShop.description === '') {
+            // First non-empty, non-heading line after shop is a description if it is not a list
+            if (!line.startsWith('-') && !line.startsWith('###')) {
+                currentShop.description = rawLine.trim();
+                continue;
+            }
+        }
+    }
+    pushShop();
+    return shops;
+}
+
+function parseItem(label, price) {
+    // Extract bracket content e.g., [L0] or [Uncommon, L3]
+    let level = 0; let rarity = null; let name = label.trim(); let note = null;
+    const bracket = name.match(/\[(.*?)\]/);
+    if (bracket) {
+        const inside = bracket[1];
+        // Identify L#
+        const lMatch = inside.match(/L\s*(\d+)/i);
+        if (lMatch) level = parseInt(lMatch[1], 10);
+        // Identify rarity
+        const rMatch = inside.match(/(Common|Uncommon|Rare|Very Rare|Legendary)/i);
+        if (rMatch) rarity = capitalizeWords(rMatch[1]);
+        name = name.replace(/\s*\[.*?\]\s*/, ' ').trim();
+    }
+    // Detect em-dash or dash style notes appended to price line (e.g., "— small blast ...")
+    let finalPrice = price.trim();
+    const noteMatch = finalPrice.match(/\s*[—-]\s*(.+)$/);
+    if (noteMatch) {
+        note = noteMatch[1].trim();
+        finalPrice = finalPrice.replace(/\s*[—-].*$/, '').trim();
+    }
+    return { name, price: finalPrice, level, rarity, note };
+}
+
+function slugify(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function capitalizeWords(s) { return s.replace(/\b\w/g, c => c.toUpperCase()); }
+
 function getMarketViewLevel() {
     // DM can override; otherwise use character's cleared level
     if (state.marketViewLevel !== null && state.currentCharacter?.accessLevel === 'dm') return state.marketViewLevel;
@@ -1344,6 +1566,9 @@ function renderMarket() {
     const character = state.currentCharacter;
     const isDM = character?.accessLevel === 'dm';
     const viewLevel = getMarketViewLevel();
+    const shops = assignItemKeys(getMarketShops());
+    const dailyStock = generateDailyStock(shops, viewLevel);
+    state._currentMarketStock = dailyStock;
     
     let html = '<h2>🛒 Bluebrick Market</h2>';
     html += '<p>Browse shops and check stock based on your cleared dungeon level.</p>';
@@ -1371,18 +1596,27 @@ function renderMarket() {
     
     // Shop grid
     html += '<div class="card-grid">';
-    html += contentData.marketShops.map(shop => renderShopCard(shop)).join('');
+    html += shops.map(shop => renderShopCard(shop)).join('');
     html += '</div>';
     
     return html;
 }
 
 function renderShopCard(shop) {
-    // Count available items for quick glance
-    const isDM = state.currentCharacter?.accessLevel === 'dm';
+    // Count available items for quick glance using daily stock
     const viewLevel = getMarketViewLevel();
-    const total = shop.categories.reduce((sum, c) => sum + c.items.length, 0);
-    const available = shop.categories.reduce((sum, c) => sum + filterItemsByLevel(c.items, viewLevel, isDM).length, 0);
+    const stockSet = state._currentMarketStock?.[shop.id] || new Set();
+    let total = 0;
+    let available = 0;
+    (shop.categories || []).forEach(c => {
+        (c.items || []).forEach(it => {
+            total += 1;
+            const req = Number(it.level ?? 0);
+            const eligible = req <= viewLevel;
+            const inStock = req <= 0 || (eligible && stockSet.has(it._key));
+            if (inStock) available += 1;
+        });
+    });
     
     return `
         <div class="card" onclick="showShopDetail('${shop.id}')">
@@ -1396,38 +1630,58 @@ function renderShopCard(shop) {
 }
 
 function showShopDetail(shopId) {
-    const shop = contentData.marketShops.find(s => s.id === shopId);
+    const shops = assignItemKeys(getMarketShops());
+    const shop = resolveShop(shopId, shops);
     if (!shop) return;
     const isDM = state.currentCharacter?.accessLevel === 'dm';
     const viewLevel = getMarketViewLevel();
+    const stockSet = generateDailyStock(shops, viewLevel)[shop.id] || new Set();
     
     let html = `<h2>${shop.name}</h2>`;
     if (shop.description) html += `<p>${shop.description}</p>`;
     html += `<div class="card-meta">Showing items up to L${viewLevel}${isDM ? ' (DM adjustable)' : ''}</div>`;
     
     shop.categories.forEach(cat => {
-        const items = filterItemsByLevel(cat.items, viewLevel, isDM);
-        const locked = cat.items.length - items.length;
+        const items = (cat.items || []);
+        let shown = 0;
         html += `<h3>${cat.name}</h3>`;
         if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
-        if (items.length === 0) {
-            html += '<p>No items available at your current dungeon level.</p>';
-        } else {
-            html += '<ul>' + items.map(it => {
-                const lvlTag = (typeof it.level === 'number') ? ` <span class="tag">L${it.level}</span>` : '';
-                const rarityTag = it.rarity ? ` <span class="tag">${it.rarity}</span>` : '';
+        html += '<ul class="market-list">';
+        items.forEach(it => {
+            const req = Number(it.level ?? 0);
+            const eligible = req <= viewLevel;
+            const inStock = req <= 0 || (eligible && stockSet.has(it._key));
+            const rarity = it.rarity ? it.rarity : getItemRarity(it);
+            const cls = (!inStock && isDM) ? 'item-dim' : '';
+            // Player sees only in-stock items; DM sees all (dimmed when OOS/locked)
+            if (inStock || isDM) {
+                const badge = (!eligible ? `Locked L${req}` : (!inStock && req > 0 ? 'Out of stock' : `L${req}`));
+                const lvlTag = ` <span class="tag">${badge}</span>`;
+                const rarityTag = rarity ? ` <span class="tag">${rarity}</span>` : '';
                 const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
-                return `<li><strong>${it.name}</strong>${lvlTag}${rarityTag}: ${it.price}${note}</li>`;
-            }).join('') + '</ul>';
-        }
-        if (locked > 0) {
-            html += `<div class="card-meta">${locked} item(s) locked at higher levels.</div>`;
+                html += `<li class="${cls}"><strong>${it.name}</strong>${lvlTag}${rarityTag}: ${it.price}${note}</li>`;
+                shown++;
+            }
+        });
+        html += '</ul>';
+        if (shown === 0) {
+            html += '<p class="card-meta">No items available at your current dungeon level today.</p>';
         }
     });
     
     const modal = document.getElementById('searchModal');
     document.getElementById('searchResults').innerHTML = html;
     modal.classList.remove('hidden');
+}
+
+function resolveShop(targetId, shops) {
+    const lower = (targetId || '').toLowerCase();
+    let s = shops.find(x => x.id === targetId);
+    if (s) return s;
+    s = shops.find(x => x.id.startsWith(lower));
+    if (s) return s;
+    s = shops.find(x => x.name.toLowerCase().startsWith(lower.replace(/-/g, ' ')));
+    return s;
 }
 
 function renderItems() {
@@ -1452,24 +1706,14 @@ function renderItems() {
 }
 
 function renderQuests() {
-    let html = '<h2>📜 Available Quests</h2>';
-    html += contentData.quests.map(quest => `
-        <div class="card">
-            <h3>${quest.name}</h3>
-            <div class="card-meta">
-                <strong>Level:</strong> ${quest.level} | 
-                <strong>Reward:</strong> ${quest.reward}
-            </div>
-            <p><strong>Quest Giver:</strong> ${quest.giver}</p>
-            <p>${quest.description}</p>
-            <h4>Objectives:</h4>
-            <ul>${quest.objectives.map(obj => `<li>${obj}</li>`).join('')}</ul>
-            <div class="card-tags">
-                <span class="tag">${quest.status}</span>
-            </div>
-        </div>
-    `).join('');
-    return html;
+    // If we have markdown HTML loaded, render it inside a card; otherwise, kick off the loader
+    if (state.questsMarkdownHTML) {
+        return `
+            <h2>📜 Guild Crystalia Job Board</h2>
+            <div class="card markdown">${state.questsMarkdownHTML}</div>
+        `;
+    }
+    return '<div class="loading">Loading quests...</div>';
 }
 
 function renderHandouts() {
@@ -1514,14 +1758,7 @@ function renderHandouts() {
 
 function renderLore() {
     let html = '<h2>📚 Lore & History</h2>';
-    html += '<p>What you\'ve learned about the world.</p>';
-    html += contentData.lore.map(lore => `
-        <div class="card">
-            <h3>${lore.title}</h3>
-            <div class="card-meta">${lore.category}</div>
-            ${lore.content}
-        </div>
-    `).join('');
+    html += '<p>This section is not available in the simplified site.</p>';
     return html;
 }
 
@@ -1539,24 +1776,15 @@ function updateSidebar(tab) {
                 { text: 'Arcane Exchange', action: () => showShopDetail('arcane-exchange') }
             ];
             break;
-        case 'guilds':
+        case 'quests':
             links = [
-                { text: 'Guild Crystalia (Your Guild)', action: () => showGuildDetail('guild-crystalia') },
-                { text: 'Crimson Vanguard', action: () => showGuildDetail('crimson-vanguard') },
-                { text: 'Hearthkeepers', action: () => showGuildDetail('hearthkeepers') },
-                { text: 'All Guilds', action: () => switchTab('guilds') }
-            ];
-            break;
-        case 'npcs':
-            links = [
-                { text: 'Eldon Thorne', action: () => showNPCDetail('eldon-thorne') },
-                { text: 'Tessa Windfern', action: () => showNPCDetail('tessa-windfern') }
+                { text: 'Available Quests', action: () => switchTab('quests') },
+                { text: 'Browse Market', action: () => switchTab('market') }
             ];
             break;
         default:
             links = [
-                { text: 'Overview', action: () => switchTab('overview') },
-                { text: 'Your Guild', action: () => showGuildDetail('guild-crystalia') },
+                { text: 'Browse Market', action: () => switchTab('market') },
                 { text: 'Available Quests', action: () => switchTab('quests') }
             ];
     }
@@ -1573,61 +1801,14 @@ function updateSidebar(tab) {
 function buildSearchIndex() {
     state.searchIndex = [];
     
-    // Index guilds (respect access)
-    contentData.guilds.forEach(guild => {
-        if (hasAccess('guild', guild.name)) {
-            state.searchIndex.push({
-                type: 'Guild',
-                title: guild.name,
-                content: `${guild.motto} ${guild.description} ${guild.keyInfo.join(' ')}`,
-                data: guild,
-                showFunction: () => showGuildDetail(guild.id)
-            });
-        }
-    });
+    // Only index Market and Quests for the simplified site
     
-    // Index NPCs (respect access)
-    contentData.npcs.forEach(npc => {
-        if (hasAccess('npc', npc.name)) {
-            state.searchIndex.push({
-                type: 'NPC',
-                title: npc.name,
-                content: `${npc.title} ${npc.personality} ${npc.role}`,
-                data: npc,
-                showFunction: () => showNPCDetail(npc.id)
-            });
-        }
-    });
-    
-    // Index locations (respect access)
-    contentData.locations.forEach(loc => {
-        if (hasAccess('location', loc.name)) {
-            state.searchIndex.push({
-                type: 'Location',
-                title: loc.name,
-                content: `${loc.description} ${loc.features ? loc.features.join(' ') : ''}`,
-                data: loc,
-                showFunction: () => { switchTab('locations'); }
-            });
-        }
-    });
-    
-    // Index items, quests, etc. (items and quests are generally accessible)
-    // Legacy items index (keep for compatibility if any)
-    if (Array.isArray(contentData.items)) {
-        contentData.items.forEach(item => {
-            state.searchIndex.push({
-                type: 'Item',
-                title: item.name,
-                content: item.description || '',
-                data: item,
-                showFunction: () => { switchTab('market'); }
-            });
-        });
-    }
+    // Legacy items index removed (Market is the primary catalog)
     // Index market shops and items
-    if (Array.isArray(contentData.marketShops)) {
-        contentData.marketShops.forEach(shop => {
+    // Build index after market is available for better coverage
+    const shopsForIndex = getMarketShops();
+    if (Array.isArray(shopsForIndex)) {
+        shopsForIndex.forEach(shop => {
             state.searchIndex.push({
                 type: 'Shop',
                 title: shop.name,
@@ -1662,6 +1843,60 @@ function buildSearchIndex() {
             });
         }
     });
+}
+
+// ===== Quests: Load from Markdown =====
+async function ensureQuestsLoaded() {
+    if (state.questsMarkdownHTML) return state.questsMarkdownHTML;
+    const mdPath = CONFIG.campaignPath + 'handouts/guild-job-board.md';
+    const text = await loadText(mdPath);
+    const html = basicMarkdownToHTML(text);
+    state.questsMarkdownHTML = html;
+    return html;
+}
+
+// Lightweight Markdown converter for headings, bold, and lists
+function basicMarkdownToHTML(md) {
+    const lines = md.split(/\r?\n/);
+    let html = '';
+    let inList = false;
+    for (let raw of lines) {
+        let line = raw;
+        if (/^\s*$/.test(line)) { if (inList) { html += '</ul>'; inList = false; } continue; }
+        // Headings
+        if (line.startsWith('### ')) { if (inList) { html += '</ul>'; inList = false; } html += `<h3>${escapeHtml(line.slice(4))}</h3>`; continue; }
+        if (line.startsWith('## ')) { if (inList) { html += '</ul>'; inList = false; } html += `<h2>${escapeHtml(line.slice(3))}</h2>`; continue; }
+        if (line.startsWith('# ')) { if (inList) { html += '</ul>'; inList = false; } html += `<h1>${escapeHtml(line.slice(2))}</h1>`; continue; }
+        // List item
+        if (/^\s*[-*]\s+/.test(line)) {
+            if (!inList) { html += '<ul>'; inList = true; }
+            const itemText = line.replace(/^\s*[-*]\s+/, '');
+            html += `<li>${formatInlineMD(itemText)}</li>`;
+            continue;
+        }
+        // Horizontal rule
+        if (/^---+$/.test(line.trim())) { if (inList) { html += '</ul>'; inList = false; } html += '<hr />'; continue; }
+        // Paragraph
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<p>${formatInlineMD(line)}</p>`;
+    }
+    if (inList) html += '</ul>';
+    return html;
+}
+
+function formatInlineMD(text) {
+    // Bold **text**
+    let t = escapeHtml(text);
+    t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Inline code `code`
+    t = t.replace(/`([^`]+?)`/g, '<code>$1</code>');
+    return t;
+}
+
+function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 }
 
 function performSearch() {
@@ -1724,168 +1959,7 @@ function closeModal() {
 }
 
 // ===== Login System =====
-function initializeLogin() {
-    const loginForm = document.getElementById('loginForm');
-    const loginScreen = document.getElementById('loginScreen');
-    const mainApp = document.getElementById('mainApp');
-    const loginError = document.getElementById('loginError');
-    
-    // Check for saved session
-    const savedCharacter = localStorage.getItem('darcnia_character');
-    const savedToken = localStorage.getItem('darcnia_token');
-    if (savedCharacter && savedToken) {
-        const characterData = JSON.parse(savedCharacter);
-        // Verify token is still valid
-        const characterKey = characterData.name.toLowerCase();
-        const dbCharacter = characterDatabase[characterKey];
-        if (dbCharacter && dbCharacter.password === savedToken) {
-            loginCharacter(characterData);
-            return;
-        } else {
-            // Invalid session, clear it
-            localStorage.removeItem('darcnia_character');
-            localStorage.removeItem('darcnia_token');
-        }
-    }
-    
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        loginError.style.display = 'none';
-        
-        const characterName = document.getElementById('characterName').value.trim();
-        const password = document.getElementById('characterPassword').value;
-        
-        if (!characterName || !password) {
-            showLoginError('Please enter both character name and password');
-            return;
-        }
-        
-        const characterKey = characterName.toLowerCase();
-        const characterData = characterDatabase[characterKey];
-        
-        if (characterData) {
-            // Check password
-            const passwordHash = simpleHash(password);
-            if (characterData.password === passwordHash) {
-                // Correct password - save to localStorage with token
-                localStorage.setItem('darcnia_character', JSON.stringify(characterData));
-                localStorage.setItem('darcnia_token', passwordHash);
-                loginCharacter(characterData);
-            } else {
-                showLoginError('❌ Incorrect password. Please try again.');
-            }
-        } else {
-            showLoginError(`❌ Character "${characterName}" not found. Contact your DM to create a character.`);
-        }
-    });
-}
-
-function showLoginError(message) {
-    const loginError = document.getElementById('loginError');
-    loginError.textContent = message;
-    loginError.style.display = 'block';
-    
-    // Shake the form
-    const loginContainer = document.querySelector('.login-container');
-    loginContainer.style.animation = 'none';
-    setTimeout(() => {
-        loginContainer.style.animation = 'fadeIn 0.5s ease-in';
-    }, 10);
-}
-
-function loginCharacter(characterData) {
-    state.currentCharacter = characterData;
-    state.accessLevel = characterData.accessLevel || 'guest';
-    
-    // Hide login, show main app
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    
-    // Update UI
-    updateCharacterBadge();
-    displayCharacterInfo();
-    
-    // Initialize the rest of the app
-    initializeApp();
-}
-
-function updateCharacterBadge() {
-    const badge = document.getElementById('characterBadge');
-    const character = state.currentCharacter;
-    
-    if (character.accessLevel === 'dm') {
-        badge.textContent = '👑 ' + character.name;
-        badge.style.background = 'var(--accent-secondary)';
-    } else {
-        badge.textContent = '⚔️ ' + character.name;
-    }
-}
-
-function displayCharacterInfo() {
-    const infoBanner = document.getElementById('characterInfo');
-    const character = state.currentCharacter;
-    
-    if (character.accessLevel === 'dm') {
-        infoBanner.innerHTML = `
-            <div class="access-notice dm-access">
-                <strong>👑 Dungeon Master Mode</strong><br>
-                You have full access to all content, including DM secrets and hidden information.
-            </div>
-        `;
-        infoBanner.classList.add('visible');
-        return;
-    }
-    
-    if (!character.class) {
-        // Guest character
-        infoBanner.innerHTML = `
-            <div class="access-notice">
-                <strong>👋 Welcome, ${character.name}!</strong><br>
-                You have limited access. Contact your DM to add your full character details for personalized content.
-            </div>
-        `;
-        infoBanner.classList.add('visible');
-        return;
-    }
-    
-    // Full character display
-    let html = `
-        <h3>⚔️ ${character.name}</h3>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">Race</div>
-                <div class="info-value">${character.race || 'Unknown'}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Class</div>
-                <div class="info-value">${character.class || 'Unknown'}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Guild</div>
-                <div class="info-value">${character.guild || 'None'}</div>
-            </div>
-        </div>
-    `;
-    
-    if (character.activeQuests && character.activeQuests.length > 0) {
-        html += `
-            <div class="access-notice">
-                <strong>📜 Active Quests:</strong> ${character.activeQuests.join(', ')}
-            </div>
-        `;
-    }
-    
-    infoBanner.innerHTML = html;
-    infoBanner.classList.add('visible');
-}
-
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('darcnia_character');
-        localStorage.removeItem('darcnia_token');
-        location.reload();
-    }
-}
+// Removed: Site runs without authentication. A default Guest user is used.
 
 function hasAccess(contentType, contentId) {
     const character = state.currentCharacter;

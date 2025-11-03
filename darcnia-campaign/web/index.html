@@ -7,34 +7,8 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-screen">
-        <div class="login-container">
-            <h1>🏛️ Darcnia Campaign</h1>
-            <p class="login-subtitle">Enter your character's name to access the world of Solspire</p>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="characterName">Character Name</label>
-                    <input type="text" id="characterName" placeholder="e.g., Nyra Vex" autocomplete="off" required>
-                </div>
-                <div class="form-group">
-                    <label for="characterPassword">Password</label>
-                    <input type="password" id="characterPassword" placeholder="Enter your password" autocomplete="current-password" required>
-                </div>
-                <button type="submit" class="btn-login">Enter Campaign</button>
-                <div id="loginError" class="login-error" style="display: none;"></div>
-            </form>
-            
-            <div class="login-info">
-                <p>💡 <strong>Tip:</strong> Enter your character's name exactly as it appears in the campaign.</p>
-                <p class="password-hint">🔒 Contact your DM if you need a password or to create a new character</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Application (hidden until login) -->
-    <div class="container" id="mainApp" style="display: none;">
+    <div class="container" id="mainApp">
         <!-- Header -->
         <header>
             <div class="header-top">
@@ -42,15 +16,12 @@
                     <h1>🏛️ Darcnia Campaign Reference</h1>
                     <p class="subtitle">Solspire - The City of Guilds</p>
                 </div>
-                <div class="user-info">
-                    <span class="character-badge" id="characterBadge"></span>
-                    <button id="logoutBtn" class="btn-logout" title="Logout">🚪 Logout</button>
-                </div>
+                
             </div>
             
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search for guilds, NPCs, locations, items..." />
+                <input type="text" id="searchInput" placeholder="Search market items or quests..." />
                 <button id="searchBtn">🔍 Search</button>
             </div>
 
@@ -58,19 +29,13 @@
             <button id="themeToggle" class="theme-toggle">🌙</button>
         </header>
 
-        <!-- Character Info Banner -->
-        <div id="characterInfo" class="character-info-banner"></div>
+    <!-- Character Info Banner (unused without login) -->
+    <div id="characterInfo" class="character-info-banner" style="display:none"></div>
 
         <!-- Navigation Tabs -->
         <nav class="tabs">
-            <button class="tab-btn active" data-tab="overview">Overview</button>
-            <button class="tab-btn" data-tab="guilds">Guilds</button>
-            <button class="tab-btn" data-tab="npcs">NPCs</button>
-            <button class="tab-btn" data-tab="locations">Locations</button>
-            <button class="tab-btn" data-tab="market">Market</button>
+            <button class="tab-btn active" data-tab="market">Market</button>
             <button class="tab-btn" data-tab="quests">Quests</button>
-            <button class="tab-btn" data-tab="handouts">Handouts</button>
-            <button class="tab-btn" data-tab="lore">Lore</button>
         </nav>
 
         <!-- Main Content Area -->

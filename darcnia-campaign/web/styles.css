@@ -1,3 +1,17 @@
+/* Basic styling for markdown-rendered content */
+.markdown h1, .markdown h2, .markdown h3 { margin: 0.5rem 0; }
+.markdown ul { margin: 0.5rem 1.25rem; }
+.markdown li { margin: 0.25rem 0; }
+.markdown strong { font-weight: 600; }
+.markdown em { font-style: italic; }
+.loading { opacity: 0.8; font-style: italic; }
+
+/* Market list & availability visuals */
+.market-list { list-style: none; padding-left: 0; margin: 0.5rem 0 0.75rem; }
+.market-list li { padding: 4px 0; display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; align-items: baseline; }
+.market-list .item-dim { opacity: 0.45; }
+.market-list .tag { background: var(--surface-2, #2a2f3a); color: var(--text-muted, #9aa4b2); border-radius: 4px; padding: 0 6px; font-size: 0.8em; }
+.market-list .card-meta { font-size: 0.9em; }
 /* ===== CSS Variables ===== */
 :root {
     --bg-primary: #1a1a2e;
