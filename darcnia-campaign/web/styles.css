@@ -936,43 +936,43 @@ a:active {
     text-shadow: 0 1px 1px rgba(0,0,0,0.35);
 }
 
-/* Enhanced metallic gold effect with superior contrast and readability */
+/* Enhanced metallic gold effect with maximum readability */
 .shop-card .shop-card-title {
     display: inline-block;
     position: relative;
     font-weight: 700;
-    /* Stronger stroke for crisp definition */
-    -webkit-text-stroke: 1px rgba(60, 40, 20, 0.9);
-    /* Cleaner metallic gold gradient optimized for readability */
+    /* Strong dark outline for maximum contrast */
+    -webkit-text-stroke: 1.5px rgba(20, 10, 5, 0.95);
+    /* Richer, darker gold gradient for better readability */
     background-image:
-        /* Subtle brushed metal texture */
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0 1px, rgba(255,255,255,0) 1px 3px),
-        /* Metallic gold gradient with better contrast */
+        /* Very subtle brushed metal texture */
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, rgba(255,255,255,0) 1px 3px),
+        /* Darker metallic gold gradient with high contrast */
         linear-gradient(115deg, 
-            #996515 0%,     /* Rich dark gold */
-            #B8860B 10%,    /* Dark goldenrod */
-            #DAA520 20%,    /* Goldenrod */
-            #FFD700 30%,    /* Pure gold */
-            #FFED4E 40%,    /* Bright yellow-gold */
-            #FFF59D 50%,    /* Light yellow center */
-            #FFED4E 60%,    /* Bright yellow-gold */
-            #FFD700 70%,    /* Pure gold */
-            #DAA520 80%,    /* Goldenrod */
-            #B8860B 90%,    /* Dark goldenrod */
-            #996515 100%);  /* Rich dark gold */
+            #6B5416 0%,     /* Deep bronze-gold */
+            #8B6914 10%,    /* Dark gold */
+            #A67C26 20%,    /* Rich gold */
+            #C8A84C 30%,    /* Medium gold */
+            #D4AF37 40%,    /* Metallic gold */
+            #E4C563 50%,    /* Bright gold center */
+            #D4AF37 60%,    /* Metallic gold */
+            #C8A84C 70%,    /* Medium gold */
+            #A67C26 80%,    /* Rich gold */
+            #8B6914 90%,    /* Dark gold */
+            #6B5416 100%);  /* Deep bronze-gold */
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    /* Reduced brightness for better readability */
-    filter: brightness(1.25) saturate(1.4) contrast(1.2) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9));
-    /* Tighter, more focused shadows - less blur, more definition */
+    /* Minimal brightness with strong drop shadow */
+    filter: brightness(1.1) saturate(1.3) contrast(1.25) drop-shadow(0 3px 4px rgba(0, 0, 0, 1));
+    /* Strong dark shadows for crisp, readable text */
     text-shadow:
-        0 0 8px rgba(255, 215, 0, 0.5),
-        0 2px 6px rgba(0, 0, 0, 0.95),
-        0 4px 8px rgba(255, 215, 0, 0.3),
-        0 -1px 0 rgba(255, 255, 220, 0.6),
-        1px 1px 0 rgba(100, 60, 20, 0.8),
-        2px 2px 0 rgba(60, 40, 15, 0.6);
+        0 0 4px rgba(0, 0, 0, 0.9),
+        0 2px 8px rgba(0, 0, 0, 1),
+        0 4px 12px rgba(0, 0, 0, 0.8),
+        1px 1px 2px rgba(0, 0, 0, 0.95),
+        2px 2px 4px rgba(0, 0, 0, 0.9),
+        -1px -1px 0 rgba(0, 0, 0, 0.7);
 }
 .shop-card .shop-card-title::after {
     content: '';
