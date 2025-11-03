@@ -1,5 +1,34 @@
 // ===== D&D 2024 Character Sheet JavaScript =====
 
+// ===== Firebase Configuration =====
+const firebaseConfig = {
+    apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
+    authDomain: "dnd-5e-e1ad1.firebaseapp.com",
+    databaseURL: "https://dnd-5e-e1ad1-default-rtdb.firebaseio.com",
+    projectId: "dnd-5e-e1ad1",
+    storageBucket: "dnd-5e-e1ad1.firebasestorage.app",
+    messagingSenderId: "630611257093",
+    appId: "1:630611257093:web:5fafca4be805d4679bb96c",
+    measurementId: "G-Y4Y25TDECL"
+};
+
+// Initialize Firebase
+let database = null;
+try {
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        console.log('✅ Firebase initialized for Character Sheet');
+    }
+} catch (error) {
+    console.warn('⚠️ Firebase not available, using localStorage fallback');
+}
+
+// Current logged-in character
+let currentCharacterName = null;
+let firebaseListener = null;
+let isUpdatingFromFirebase = false;
+
 // Character data structure
 let characterData = {
     // Identity
@@ -140,13 +169,98 @@ const skillAbilities = {
 document.addEventListener('DOMContentLoaded', () => {
     initializeSheet();
     setupEventListeners();
-    loadCharacterData();
+    checkLoggedInCharacter();
     calculateAllStats();
 });
 
 function initializeSheet() {
     // Always use dark theme to match campaign site
     setTheme('dark');
+}
+
+function checkLoggedInCharacter() {
+    // Check if user is logged in from main campaign page
+    const savedCharacterName = localStorage.getItem('loggedInCharacter');
+    
+    if (savedCharacterName && savedCharacterName !== 'Guest') {
+        currentCharacterName = savedCharacterName;
+        console.log(`📋 Loading character sheet for: ${currentCharacterName}`);
+        loadCharacterFromFirebase(currentCharacterName);
+        setupFirebaseRealtimeSync(currentCharacterName);
+    } else {
+        console.log('📋 No character logged in, using local storage only');
+        loadCharacterData();
+    }
+}
+
+// ===== Firebase Functions =====
+async function loadCharacterFromFirebase(characterName) {
+    if (!database || !characterName) return;
+    
+    const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    try {
+        const snapshot = await database.ref(`characters/${sanitizedName}/characterSheet`).once('value');
+        const data = snapshot.val();
+        if (data) {
+            Object.assign(characterData, data);
+            populateCharacterData(characterData);
+            console.log(`📂 Loaded character sheet for ${characterName} from Firebase`);
+        } else {
+            console.log(`📄 No saved character sheet found for ${characterName}, starting fresh`);
+            loadCharacterData(); // Load from localStorage if available
+        }
+    } catch (error) {
+        console.error('Error loading from Firebase:', error);
+        loadCharacterData(); // Fallback to localStorage
+    }
+}
+
+function setupFirebaseRealtimeSync(characterName) {
+    if (!database || !characterName) return;
+    
+    const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const characterRef = database.ref(`characters/${sanitizedName}/characterSheet`);
+    
+    // Remove any existing listener
+    if (firebaseListener) {
+        firebaseListener.off();
+        firebaseListener = null;
+    }
+    
+    // Set up real-time listener
+    firebaseListener = characterRef;
+    characterRef.on('value', (snapshot) => {
+        if (isUpdatingFromFirebase) return; // Prevent update loops
+        
+        const data = snapshot.val();
+        if (data) {
+            isUpdatingFromFirebase = true;
+            Object.assign(characterData, data);
+            populateCharacterData(characterData);
+            console.log('🔄 Character sheet synced from Firebase');
+            
+            // Reset flag after a short delay
+            setTimeout(() => {
+                isUpdatingFromFirebase = false;
+            }, 100);
+        }
+    });
+    
+    console.log(`🔔 Real-time sync enabled for ${characterName}`);
+}
+
+async function saveCharacterToFirebase() {
+    if (!database || !currentCharacterName || isUpdatingFromFirebase) return;
+    
+    const sanitizedName = currentCharacterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const data = gatherCharacterData();
+    
+    try {
+        await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
+        console.log(`💾 Character sheet saved to Firebase for ${currentCharacterName}`);
+    } catch (error) {
+        console.error('Error saving to Firebase:', error);
+    }
 }
 
 function setupEventListeners() {
@@ -430,6 +544,12 @@ function populateCharacterData(data) {
 function autoSaveCharacterData() {
     const data = gatherCharacterData();
     localStorage.setItem('dnd2024CharacterSheet', JSON.stringify(data));
+    
+    // Also save to Firebase if logged in
+    if (currentCharacterName && currentCharacterName !== 'Guest') {
+        saveCharacterToFirebase();
+    }
+    
     console.log('✅ Character auto-saved');
 }
 
@@ -438,6 +558,11 @@ function saveCharacterData() {
     
     // Save to localStorage
     localStorage.setItem('dnd2024CharacterSheet', JSON.stringify(data));
+    
+    // Save to Firebase if logged in
+    if (currentCharacterName && currentCharacterName !== 'Guest') {
+        saveCharacterToFirebase();
+    }
     
     // Download as JSON file
     const characterName = data.characterName || 'character';
@@ -451,7 +576,10 @@ function saveCharacterData() {
     link.click();
     URL.revokeObjectURL(url);
     
-    showNotification('✅ Character saved and downloaded!');
+    const message = currentCharacterName && currentCharacterName !== 'Guest' 
+        ? '✅ Character saved to Firebase and downloaded!' 
+        : '✅ Character saved and downloaded!';
+    showNotification(message);
 }
 
 function loadCharacterData() {
