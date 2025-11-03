@@ -1228,71 +1228,25 @@ a:active {
     color: var(--text-gold);
 }
 
-/* Shop card title/subtitle styling (clean name + tagline) */
+/* ===== SHOP CARD TITLE - CLEAN AND READABLE ===== */
 .shop-card .shop-card-title {
-    font-family: 'IM Fell English', 'Cinzel', serif;
-    font-size: 1.7rem;
-    letter-spacing: 0.4px;
-    margin-bottom: 0.4rem;
-    background: linear-gradient(135deg, #c8a84c 0%, #ffe9a3 35%, #ffd54f 60%, #fff8e1 85%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.35);
-}
-
-/* Enhanced shop title - Maximum readability with bold solid text */
-.shop-card .shop-card-title {
-    display: inline-block;
-    position: relative;
-    font-weight: 800;
-    /* Use solid gold color instead of gradient for maximum readability */
-    color: #F5D042;
-    /* Strong black outline for crisp edges */
+    font-family: 'Cinzel', 'IM Fell English', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    /* Clean white text with subtle cream tint */
+    color: #FFFEF7;
+    /* Crisp black outline for contrast */
     text-shadow:
-        /* Heavy black outline */
-        -2px -2px 0 #000,
-        2px -2px 0 #000,
-        -2px 2px 0 #000,
-        2px 2px 0 #000,
         -1px -1px 0 #000,
         1px -1px 0 #000,
         -1px 1px 0 #000,
         1px 1px 0 #000,
-        /* Additional shadow layers for depth */
-        0 3px 6px rgba(0, 0, 0, 0.95),
-        0 5px 12px rgba(0, 0, 0, 0.8),
-        /* Slight gold glow for polish */
-        0 0 4px rgba(245, 208, 66, 0.3);
-    /* No filters that could blur the text */
-    filter: none;
-}
-.shop-card .shop-card-title::after {
-    content: '';
-    position: absolute;
-    left: -10%;
-    top: -35%;
-    width: 75%;
-    height: 120%;
-    /* Brighter, more pronounced light reflection */
-    background: linear-gradient(120deg, 
-        rgba(255,255,255,1) 0%, 
-        rgba(255,255,255,0.95) 15%, 
-        rgba(255,255,255,0.7) 30%, 
-        rgba(255,255,255,0) 55%);
-    transform: rotate(-15deg);
-    opacity: 0.85;
-    mix-blend-mode: overlay;
-    border-radius: 50%;
-    pointer-events: none;
-    /* Add animation for subtle shimmer */
-    animation: shimmerReflection 4s ease-in-out infinite;
+        0 2px 4px rgba(0, 0, 0, 0.9),
+        0 4px 8px rgba(0, 0, 0, 0.6);
 }
 
-@keyframes shimmerReflection {
-    0%, 100% { opacity: 0.85; transform: rotate(-15deg) translateX(0); }
-    50% { opacity: 0.95; transform: rotate(-15deg) translateX(3px); }
-}
 .shop-card .shop-card-subtitle {
     color: var(--text-muted);
     font-size: 0.98rem;
