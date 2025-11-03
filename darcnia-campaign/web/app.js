@@ -1218,10 +1218,13 @@ function saveBankToLocalStorage() {
     
     // Also save to Firebase if logged in
     if (state.currentCharacter && state.currentCharacter.name !== 'Guest') {
+        isUpdatingFromFirebase = true; // Prevent loop
         saveCharacterDataToFirebase(state.currentCharacter.name, {
             name: state.currentCharacter.name,
-            bank: state.bank
+            bank: state.bank,
+            cart: state.cart
         });
+        setTimeout(() => { isUpdatingFromFirebase = false; }, 500);
     }
 }
 
@@ -1234,6 +1237,7 @@ async function saveCharacterDataToFirebase(characterName, data) {
         await database.ref(`characters/${sanitizedName}`).set({
             name: data.name,
             bank: data.bank,
+            cart: data.cart || [],
             lastUpdated: Date.now()
         });
         console.log(`💾 Saved ${characterName} to Firebase`);
@@ -1262,6 +1266,7 @@ async function loadCharacterDataFromFirebase(characterName) {
 
 // Real-time listener reference (to unsubscribe later)
 let firebaseListener = null;
+let isUpdatingFromFirebase = false; // Flag to prevent infinite loops
 
 function setupFirebaseRealtimeSync(characterName) {
     // Remove any existing listener
@@ -1274,22 +1279,43 @@ function setupFirebaseRealtimeSync(characterName) {
     
     try {
         const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        firebaseListener = database.ref(`characters/${sanitizedName}/bank`);
+        firebaseListener = database.ref(`characters/${sanitizedName}`);
         
         firebaseListener.on('value', (snapshot) => {
-            const bankData = snapshot.val();
+            const data = snapshot.val();
             
-            if (bankData) {
-                // Only update if data is different (prevent infinite loop)
-                const currentBank = JSON.stringify(state.bank);
-                const newBank = JSON.stringify(bankData);
+            if (data && !isUpdatingFromFirebase) {
+                let hasChanges = false;
                 
-                if (currentBank !== newBank) {
-                    state.bank = { ...bankData };
-                    localStorage.setItem('bankBalance', JSON.stringify(state.bank));
-                    updateBankDisplay();
-                    console.log('🔄 Bank balance synced from Firebase');
-                    showCartNotification('💰 Bank balance updated');
+                // Check bank balance changes
+                if (data.bank) {
+                    const currentBank = JSON.stringify(state.bank);
+                    const newBank = JSON.stringify(data.bank);
+                    
+                    if (currentBank !== newBank) {
+                        state.bank = { ...data.bank };
+                        localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+                        updateBankDisplay();
+                        console.log('🔄 Bank balance synced from Firebase');
+                        hasChanges = true;
+                    }
+                }
+                
+                // Check cart changes
+                if (data.cart) {
+                    const currentCart = JSON.stringify(state.cart);
+                    const newCart = JSON.stringify(data.cart);
+                    
+                    if (currentCart !== newCart) {
+                        state.cart = [...data.cart];
+                        updateCartDisplay();
+                        console.log('� Shopping cart synced from Firebase');
+                        hasChanges = true;
+                    }
+                }
+                
+                if (hasChanges) {
+                    showCartNotification('🔄 Data synchronized');
                 }
             }
         });
@@ -2049,12 +2075,26 @@ function addToCart(itemKey, itemName, itemPrice, shopId) {
     }
     
     updateCartDisplay();
+    saveCartToFirebase();
     showCartNotification(`Added ${itemName} to cart`);
+}
+
+function saveCartToFirebase() {
+    if (state.currentCharacter && state.currentCharacter.name !== 'Guest') {
+        isUpdatingFromFirebase = true;
+        saveCharacterDataToFirebase(state.currentCharacter.name, {
+            name: state.currentCharacter.name,
+            bank: state.bank,
+            cart: state.cart
+        });
+        setTimeout(() => { isUpdatingFromFirebase = false; }, 500);
+    }
 }
 
 function removeFromCart(itemKey) {
     state.cart = state.cart.filter(item => item.key !== itemKey);
     updateCartDisplay();
+    saveCartToFirebase();
     
     // Refresh the cart modal if it's showing cart content
     const searchResults = document.getElementById('searchResults');
@@ -2077,6 +2117,7 @@ function updateCartQuantity(itemKey, delta) {
             removeFromCart(itemKey);
         } else {
             updateCartDisplay();
+            saveCartToFirebase();
             // Refresh the cart modal if it's showing cart content
             const searchResults = document.getElementById('searchResults');
             if (searchResults && searchResults.innerHTML.includes('🛒 Shopping Cart')) {
