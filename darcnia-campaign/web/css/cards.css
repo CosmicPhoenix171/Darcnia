@@ -14,15 +14,15 @@ div.card,
 div.shop-card,
 .card-grid .card,
 .market-grid .card {
-    /* CLEAR glassmorphism: neutral tone, very low opacity */
-    background: rgba(10, 12, 18, 0.04) !important; /* near-clear */
+    /* TRUE glass: no tint, purely transparent */
+    background: transparent !important;
     /* Hard-stop any later backgrounds from taking over */
-    background-color: rgba(10, 12, 18, 0.04) !important;
+    background-color: transparent !important;
     background-image: none !important;
     background-blend-mode: normal !important;
     mix-blend-mode: normal;
-    backdrop-filter: blur(50px) saturate(140%) brightness(1.08) !important;
-    -webkit-backdrop-filter: blur(50px) saturate(140%) brightness(1.08) !important;
+    backdrop-filter: blur(50px) saturate(140%) brightness(1.06) !important;
+    -webkit-backdrop-filter: blur(50px) saturate(140%) brightness(1.06) !important;
     border: 2px solid rgba(186, 104, 200, 0.5) !important;
     border-top: 2px solid rgba(255, 255, 255, 0.25) !important;
     border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
@@ -70,10 +70,10 @@ div.shop-card,
     border-color: rgba(186, 104, 200, 0.7) !important;
     border-top-color: rgba(255, 255, 255, 0.35) !important;
     /* Hover: slightly more visible for readability */
-    backdrop-filter: blur(45px) saturate(140%) brightness(1.06) !important;
-    -webkit-backdrop-filter: blur(45px) saturate(140%) brightness(1.06) !important;
-    background: rgba(14, 16, 22, 0.10) !important; /* slightly more visible on hover */
-    background-color: rgba(14, 16, 22, 0.10) !important;
+    backdrop-filter: blur(55px) saturate(140%) brightness(1.04) !important; /* more blur, still no tint */
+    -webkit-backdrop-filter: blur(55px) saturate(140%) brightness(1.04) !important;
+    background: transparent !important; /* keep transparent on hover */
+    background-color: transparent !important;
     background-image: none !important;
 }
 
