@@ -39,7 +39,8 @@ const characterDatabase = {
         activeQuests: ['Shadows in the Basement'],
         knownSecrets: [],
         accessLevel: 'player',
-        discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note']
+        discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note'],
+        clearedDungeonLevel: 0
     },
     'dm': {
         name: 'Dungeon Master',
@@ -48,7 +49,8 @@ const characterDatabase = {
         knownGuilds: 'all',
         knownLocations: 'all',
         knownSecrets: 'all',
-        discoveredHandouts: 'all'
+        discoveredHandouts: 'all',
+        clearedDungeonLevel: 20
     },
     'dungeon master': {
         name: 'Dungeon Master',
@@ -57,7 +59,8 @@ const characterDatabase = {
         knownGuilds: 'all',
         knownLocations: 'all',
         knownSecrets: 'all',
-        discoveredHandouts: 'all'
+        discoveredHandouts: 'all',
+        clearedDungeonLevel: 20
     }
 };
 
@@ -68,7 +71,8 @@ const state = {
     content: {},
     searchIndex: [],
     currentCharacter: null,
-    accessLevel: 'guest'
+    accessLevel: 'guest',
+    marketViewLevel: null
 };
 
 // ===== Data Structure =====
@@ -89,7 +93,7 @@ const contentData = {
                     <li><strong>Guilds</strong> - Learn about the 11 factions in Solspire</li>
                     <li><strong>NPCs</strong> - Meet important characters</li>
                     <li><strong>Locations</strong> - Explore key places</li>
-                    <li><strong>Items</strong> - Browse equipment and magic items</li>
+                    <li><strong>Market</strong> - Browse shops, gear, and magic items</li>
                     <li><strong>Quests</strong> - Review available missions</li>
                     <li><strong>Handouts</strong> - Read discovered documents</li>
                     <li><strong>Lore</strong> - Uncover the world's history</li>
@@ -369,6 +373,341 @@ const contentData = {
                 'City protection'
             ],
             location: 'Watch Barracks (fortified station)'
+        }
+    ],
+
+    // Market shops and inventory (player-facing, gated by [L#])
+    marketShops: [
+        {
+            id: 'brass-buckle',
+            name: 'Brass Buckle Outfitters',
+            description: 'General gear and adventuring bundles for every expedition.',
+            categories: [
+                {
+                    name: 'General Gear',
+                    items: [
+                        { name: 'Backpack', level: 0, price: '2 gp' },
+                        { name: 'Bedroll', level: 0, price: '1 gp' },
+                        { name: 'Blanket', level: 0, price: '5 sp' },
+                        { name: 'Candle (1)', level: 0, price: '1 cp' },
+                        { name: 'Clothes, common', level: 0, price: '5 sp' },
+                        { name: 'Clothes, traveler', level: 0, price: '2 gp' },
+                        { name: 'Cloak (sturdy)', level: 0, price: '1 gp' },
+                        { name: 'Crowbar', level: 0, price: '2 gp' },
+                        { name: 'Grappling hook', level: 0, price: '2 gp' },
+                        { name: 'Hammer', level: 0, price: '1 gp' },
+                        { name: "Healer’s kit (10 uses)", level: 0, price: '5 gp' },
+                        { name: 'Herbalism kit', level: 1, price: '5 gp' },
+                        { name: 'Lantern, bullseye', level: 1, price: '10 gp' },
+                        { name: 'Lantern, hooded', level: 0, price: '5 gp' },
+                        { name: 'Lamp', level: 0, price: '5 sp' },
+                        { name: 'Mess kit', level: 0, price: '2 sp' },
+                        { name: 'Oil, flask', level: 0, price: '1 sp' },
+                        { name: 'Piton (iron spike)', level: 0, price: '5 cp' },
+                        { name: 'Pouch (belt)', level: 0, price: '5 sp' },
+                        { name: 'Rations (1 day)', level: 0, price: '5 sp' },
+                        { name: 'Rope, hempen (50 ft)', level: 0, price: '1 gp' },
+                        { name: 'Rope, silk (50 ft)', level: 1, price: '10 gp' },
+                        { name: 'Sack', level: 0, price: '1 cp' },
+                        { name: 'Shovel', level: 0, price: '2 gp' },
+                        { name: 'Soap', level: 0, price: '2 cp' },
+                        { name: 'Tent (2-person)', level: 0, price: '2 gp' },
+                        { name: 'Tinderbox', level: 0, price: '5 sp' },
+                        { name: 'Torch (1)', level: 0, price: '1 cp' },
+                        { name: 'Waterskin', level: 0, price: '2 sp' },
+                    ]
+                },
+                {
+                    name: 'Adventuring Packs (Bundles)',
+                    note: 'Contents follow standard listings; bundles are convenience pricing only.',
+                    items: [
+                        { name: 'Burglar’s Pack', level: 0, price: '16 gp' },
+                        { name: 'Dungeoneer’s Pack', level: 0, price: '12 gp' },
+                        { name: 'Explorer’s Pack', level: 0, price: '10 gp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'three-feathers',
+            name: 'Three Feathers Archery',
+            description: 'Arrows, bolts, quivers, and ranged sundries.',
+            categories: [
+                {
+                    name: 'Ammo & Ranged Supplies',
+                    items: [
+                        { name: 'Arrows (20)', level: 0, price: '1 gp' },
+                        { name: 'Crossbow bolts (20)', level: 0, price: '1 gp' },
+                        { name: 'Quiver (20 arrows)', level: 0, price: '1 gp' },
+                        { name: 'Case, bolt (20 bolts)', level: 0, price: '1 gp' },
+                        { name: 'Bowstring, spare', level: 0, price: '1 sp' },
+                        { name: 'Fletching wax', level: 0, price: '2 sp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'smiths-bench',
+            name: 'Smith’s Bench',
+            description: 'Quality arms and armor; specialty orders available.',
+            categories: [
+                {
+                    name: 'Armor',
+                    items: [
+                        { name: 'Leather', level: 0, price: '10 gp' },
+                        { name: 'Studded leather', level: 1, price: '45 gp' },
+                        { name: 'Chain shirt', level: 1, price: '50 gp' },
+                        { name: 'Shield', level: 0, price: '10 gp' },
+                        { name: 'Hide (medium)', level: 0, price: '10 gp' },
+                        { name: 'Scale mail (medium)', level: 1, price: '50 gp' },
+                        { name: 'Breastplate (medium)', level: 2, price: '400 gp' },
+                        { name: 'Half plate (medium)', level: 3, price: '750 gp' },
+                    ]
+                },
+                {
+                    name: 'Simple & Martial Weapons',
+                    items: [
+                        { name: 'Club', level: 0, price: '1 sp' },
+                        { name: 'Dagger', level: 0, price: '2 gp' },
+                        { name: 'Handaxe', level: 0, price: '5 gp' },
+                        { name: 'Javelin', level: 0, price: '5 sp' },
+                        { name: 'Light crossbow', level: 0, price: '25 gp' },
+                        { name: 'Mace', level: 0, price: '5 gp' },
+                        { name: 'Quarterstaff', level: 0, price: '2 sp' },
+                        { name: 'Rapier', level: 0, price: '25 gp' },
+                        { name: 'Shortbow', level: 0, price: '25 gp' },
+                        { name: 'Shortsword', level: 0, price: '10 gp' },
+                        { name: 'Spear', level: 0, price: '1 gp' },
+                        { name: 'Longsword', level: 0, price: '15 gp' },
+                        { name: 'Scimitar', level: 0, price: '25 gp' },
+                        { name: 'Warhammer', level: 0, price: '15 gp' },
+                        { name: 'Morningstar', level: 0, price: '15 gp' },
+                        { name: 'Longbow', level: 1, price: '50 gp' },
+                        { name: 'Heavy crossbow', level: 1, price: '50 gp' },
+                        { name: 'Hand crossbow', level: 2, price: '75 gp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'rue-and-resin',
+            name: 'Rue & Resin Apothecary',
+            description: 'Tonics, poultices, and alchemical basics.',
+            categories: [
+                {
+                    name: 'Tonics & Basics',
+                    items: [
+                        { name: 'Potion of healing', level: 1, price: '50 gp' },
+                        { name: 'Antitoxin (vial)', level: 1, price: '50 gp' },
+                        { name: 'Bandage roll & salve (kit)', level: 0, price: '1 gp' },
+                        { name: 'Herbal poultice (minor comfort)', level: 0, price: '5 sp' },
+                        { name: 'Acid (vial)', level: 1, price: '25 gp' },
+                        { name: "Alchemist's fire (flask)", level: 1, price: '50 gp' },
+                        { name: 'Holy water (flask)', level: 1, price: '25 gp' },
+                        { name: 'Perfume (vial)', level: 0, price: '5 gp' },
+                        { name: 'Basic poison (vial)', level: 2, price: '100 gp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'stables-services',
+            name: 'Stables & Services',
+            description: 'Food, lodging, stabling, and basic city services.',
+            categories: [
+                {
+                    name: 'Services',
+                    items: [
+                        { name: 'Meal (modest)', level: 0, price: '3 sp' },
+                        { name: 'Lodging, common room (per night)', level: 0, price: '5 sp' },
+                        { name: 'Lodging, private modest room (per night)', level: 0, price: '1 gp' },
+                        { name: 'Bath & laundry', level: 0, price: '5 sp' },
+                        { name: 'Stabling (per day)', level: 0, price: '5 sp' },
+                        { name: 'Messenger in-city (same day)', level: 0, price: '2 sp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'south-gate-stables',
+            name: 'South Gate Stables & Wheels',
+            description: 'Mounts and overland vehicles at the city’s south gate.',
+            categories: [
+                {
+                    name: 'Mounts & Vehicles',
+                    items: [
+                        { name: 'Donkey/Mule', level: 0, price: '8 gp' },
+                        { name: 'Pony', level: 0, price: '30 gp' },
+                        { name: 'Riding horse', level: 0, price: '75 gp' },
+                        { name: 'Draft horse', level: 0, price: '50 gp' },
+                        { name: 'Camel', level: 1, price: '50 gp' },
+                        { name: 'Cart', level: 0, price: '15 gp' },
+                        { name: 'Wagon', level: 1, price: '35 gp' },
+                        { name: 'Bit & bridle', level: 0, price: '2 gp' },
+                        { name: 'Saddle, pack', level: 0, price: '5 gp' },
+                        { name: 'Saddle, riding', level: 0, price: '10 gp' },
+                        { name: 'Saddlebags', level: 0, price: '4 gp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'tinkers-nook',
+            name: 'Tinker’s Nook',
+            description: 'Utility tools, traps, and sneaky gadgets.',
+            categories: [
+                {
+                    name: 'Utility & Traps',
+                    items: [
+                        { name: 'Ball bearings (1,000)', level: 0, price: '1 gp' },
+                        { name: 'Caltrops (20)', level: 0, price: '1 gp' },
+                        { name: 'Hunting trap', level: 0, price: '5 gp' },
+                        { name: 'Lock', level: 0, price: '10 gp' },
+                        { name: 'Manacles', level: 0, price: '2 gp' },
+                        { name: 'Mirror, steel', level: 0, price: '5 gp' },
+                        { name: 'Signal whistle', level: 0, price: '5 cp' },
+                        { name: 'Horn, signal', level: 0, price: '3 gp' },
+                        { name: 'Hourglass', level: 1, price: '25 gp' },
+                        { name: 'Crowbar (reinforced)', level: 1, price: '3 gp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'scribe-and-sealery',
+            name: 'Scribe & Sealery',
+            description: 'Paper, ink, and sealing supplies.',
+            categories: [
+                {
+                    name: 'Paper & Ink',
+                    items: [
+                        { name: 'Ink (1 oz)', level: 0, price: '10 gp' },
+                        { name: 'Ink pen', level: 0, price: '2 cp' },
+                        { name: 'Parchment (sheet)', level: 0, price: '1 sp' },
+                        { name: 'Paper (sheet)', level: 0, price: '2 sp' },
+                        { name: 'Sealing wax', level: 0, price: '5 sp' },
+                        { name: 'Chalk (1 piece)', level: 0, price: '1 cp' },
+                        { name: 'Case, map or scroll', level: 0, price: '1 gp' },
+                        { name: 'Journal/notebook', level: 0, price: '5 sp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'guild-toolwright',
+            name: 'Guild Toolwright',
+            description: 'Proficiency tools and kits for specialists.',
+            categories: [
+                {
+                    name: 'Proficiency Tools',
+                    items: [
+                        { name: 'Thieves’ tools', level: 0, price: '25 gp' },
+                        { name: 'Disguise kit', level: 0, price: '25 gp' },
+                        { name: 'Forgery kit', level: 1, price: '15 gp' },
+                        { name: 'Alchemist’s supplies', level: 1, price: '50 gp' },
+                        { name: 'Tinker’s tools', level: 1, price: '50 gp' },
+                        { name: 'Smith’s tools', level: 0, price: '20 gp' },
+                        { name: 'Poisoner’s kit', level: 2, price: '50 gp' },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'arcane-exchange',
+            name: 'Arcane Exchange',
+            description: 'Magic and rare goods. Availability gated by dungeon level.',
+            categories: [
+                {
+                    name: 'Mystic Armory (Enchanted Weapons & Armor)',
+                    items: [
+                        { name: 'Weapon, +1 (choose type)', level: 3, price: '1,500 gp', rarity: 'Uncommon' },
+                        { name: 'Weapon, +2 (choose type)', level: 7, price: '6,000 gp', rarity: 'Rare' },
+                        { name: 'Weapon, +3 (choose type)', level: 13, price: '30,000 gp', rarity: 'Very Rare' },
+                        { name: 'Armor, +1 (light/medium/shield)', level: 3, price: '1,500 gp', rarity: 'Uncommon' },
+                        { name: 'Armor, +2 (light/medium) or Shield +2', level: 7, price: '6,000 gp', rarity: 'Rare' },
+                        { name: 'Armor, +3 (light/medium) or Shield +3', level: 13, price: '30,000 gp', rarity: 'Very Rare' },
+                        { name: 'Quiver of True Flight', level: 4, price: '600 gp', rarity: 'Uncommon', note: 'Advantage once/short rest on a ranged attack' },
+                        { name: 'Silentstep Boots', level: 4, price: '500 gp', rarity: 'Uncommon', note: 'Advantage on one Stealth check per short rest' },
+                    ]
+                },
+                {
+                    name: 'Rune Fletchery (Enchanted Ammunition)',
+                    items: [
+                        { name: 'Ammunition +1 (20)', level: 3, price: '250 gp', rarity: 'Uncommon' },
+                        { name: 'Ammunition +2 (10)', level: 7, price: '1,000 gp', rarity: 'Rare' },
+                        { name: 'Ammunition +3 (5)', level: 13, price: '5,000 gp', rarity: 'Very Rare' },
+                        { name: 'Bursting Arrowheads (10)', level: 4, price: '400 gp', rarity: 'Uncommon', note: '1d6 force burst (DC 12 Dex half)' },
+                        { name: 'Tetherline Bolts (5)', level: 4, price: '300 gp', rarity: 'Uncommon', note: 'Deploys 50 ft line on hit' },
+                    ]
+                },
+                {
+                    name: 'Wondrous Curios (Utility & Defense)',
+                    items: [
+                        { name: 'Traveler’s Satchel', level: 4, price: '800 gp', rarity: 'Uncommon', note: 'Bag-of-holding–like, 2 ft cube, 100 lb' },
+                        { name: 'Cloak of the Watchful', level: 4, price: '600 gp', rarity: 'Uncommon', note: '+1 to initiative (non-stacking)' },
+                        { name: 'Ring of Surefooting', level: 4, price: '500 gp', rarity: 'Uncommon', note: 'Advantage vs being knocked prone 1/rest' },
+                        { name: 'Brace of Sparks', level: 4, price: '650 gp', rarity: 'Uncommon', note: 'Once/short rest add 1d4 lightning to a hit' },
+                        { name: 'Whisperband', level: 2, price: '90 gp', rarity: 'Common', note: 'Message cantrip 3/day' },
+                        { name: 'Lantern of Revealing Motes', level: 5, price: '700 gp', rarity: 'Uncommon', note: 'Outline faint invisibility in 10 ft' },
+                        { name: 'Bracelet of Second Wind', level: 5, price: '750 gp', rarity: 'Uncommon', note: 'Bonus action heal 1d6+2, 1/long rest' },
+                        { name: 'Veil of Quiet Footfalls', level: 5, price: '700 gp', rarity: 'Uncommon', note: 'Advantage to move silently' },
+                    ]
+                },
+                {
+                    name: 'Relics of Crystalia (Greater Items)',
+                    items: [
+                        { name: 'Crest-Linked Aegis', level: 8, price: '4,500 gp', rarity: 'Rare', note: 'Reaction +3 AC vs one attack, 1/day' },
+                        { name: 'Starlit Dagger', level: 8, price: '5,000 gp', rarity: 'Rare', note: '+2d6 radiant 1/day; sheds dim light' },
+                        { name: 'Echo-Twine Cloak', level: 9, price: '6,500 gp', rarity: 'Rare', note: 'Advantage on one save per long rest' },
+                        { name: 'Heartbound Locket', level: 9, price: '3,500 gp', rarity: 'Rare', note: 'Stabilize adjacent ally as bonus action, 3/day' },
+                        { name: 'Mirrorstep Boots', level: 12, price: '24,000 gp', rarity: 'Very Rare', note: 'Bonus action teleport 10 ft, 3/day' },
+                        { name: 'Ring of Three Breaths', level: 14, price: '36,000 gp', rarity: 'Very Rare', note: 'Store up to 3 reactions/day' },
+                    ]
+                },
+                {
+                    name: 'Greater Armaments (Endgame)',
+                    items: [
+                        { name: 'Weapon, bane-forged', level: 15, price: '40,000 gp', rarity: 'Very Rare', note: '+2d6 vs chosen type, attunement' },
+                        { name: 'Armor of the Vigil', level: 16, price: '45,000 gp', rarity: 'Very Rare', note: 'Resistance vs chosen damage type (daily)' },
+                        { name: 'Ring of Spellward', level: 16, price: '48,000 gp', rarity: 'Very Rare', note: 'Advantage vs spells; resists spell dmg by 3' },
+                        { name: 'Weapon, mythic +3 with stored strike', level: 18, price: '120,000 gp', rarity: 'Legendary', note: 'Bank a critical effect 1/week' },
+                    ]
+                },
+                {
+                    name: 'Potions & Elixirs (Upgrades)',
+                    items: [
+                        { name: 'Healing Potion (Greater)', level: 3, price: '150 gp', rarity: 'Uncommon' },
+                        { name: 'Healing Potion (Superior)', level: 7, price: '1,000 gp', rarity: 'Rare' },
+                        { name: 'Healing Potion (Supreme)', level: 13, price: '5,000 gp', rarity: 'Very Rare' },
+                        { name: 'Elixir of Fleetstep', level: 4, price: '300 gp', rarity: 'Uncommon', note: 'Dash as bonus action for 1 minute (conc.)' },
+                        { name: 'Elixir of Stoneskin', level: 9, price: '3,000 gp', rarity: 'Rare', note: 'Resist nonmagical B/P/S for 1 hour' },
+                        { name: 'Draught of Mindshield', level: 5, price: '350 gp', rarity: 'Uncommon', note: 'Advantage vs charm/fear for 1 hour' },
+                    ]
+                },
+                {
+                    name: 'Spell Scripts (Scrolls)',
+                    items: [
+                        { name: '1st‑tier spell script (choose tradition)', level: 2, price: '75 gp', rarity: 'Common' },
+                        { name: '2nd‑tier spell script', level: 3, price: '150 gp', rarity: 'Uncommon' },
+                        { name: '3rd‑tier spell script', level: 5, price: '300 gp', rarity: 'Uncommon' },
+                        { name: '4th‑tier spell script', level: 7, price: '1,000 gp', rarity: 'Rare' },
+                        { name: '5th‑tier spell script', level: 9, price: '2,500 gp', rarity: 'Rare' },
+                        { name: '6th‑tier spell script', level: 11, price: '10,000 gp', rarity: 'Very Rare' },
+                        { name: '7th‑tier spell script', level: 13, price: '25,000 gp', rarity: 'Very Rare' },
+                        { name: '8th‑tier spell script', level: 15, price: '50,000 gp', rarity: 'Legendary', note: 'By commission' },
+                        { name: '9th‑tier spell script', level: 17, price: '100,000+ gp', rarity: 'Legendary', note: 'Restricted' },
+                    ]
+                },
+                {
+                    name: 'Components & Reagents',
+                    items: [
+                        { name: 'Diamond dust (100 gp portions)', level: 5, price: '100 gp' },
+                        { name: 'Rare ink set (ritual diagrams)', level: 4, price: '250 gp' },
+                        { name: 'Focus crystal, tuned (arcane focus)', level: 3, price: '50 gp' },
+                        { name: 'Sanctified oil (ceremonial)', level: 4, price: '50 gp' },
+                    ]
+                }
+            ]
         }
     ],
 
@@ -793,8 +1132,8 @@ function loadContent(tab) {
         case 'locations':
             contentArea.innerHTML = renderLocations();
             break;
-        case 'items':
-            contentArea.innerHTML = renderItems();
+        case 'market':
+            contentArea.innerHTML = renderMarket();
             break;
         case 'quests':
             contentArea.innerHTML = renderQuests();
@@ -979,6 +1318,118 @@ function renderLocations() {
     return html;
 }
 
+// ===== Market Rendering =====
+function getMarketViewLevel() {
+    // DM can override; otherwise use character's cleared level
+    if (state.marketViewLevel !== null && state.currentCharacter?.accessLevel === 'dm') return state.marketViewLevel;
+    const lvl = state.currentCharacter?.clearedDungeonLevel;
+    return typeof lvl === 'number' ? lvl : 0;
+}
+
+function setMarketViewLevel(level) {
+    const parsed = parseInt(level, 10);
+    state.marketViewLevel = isNaN(parsed) ? 0 : parsed;
+    // Re-render market or open shop detail depending on visible content
+    if (state.currentTab === 'market') {
+        document.getElementById('contentArea').innerHTML = renderMarket();
+    }
+}
+
+function filterItemsByLevel(items, level, isDM) {
+    if (isDM) return items; // DM sees all by default
+    return items.filter(it => (typeof it.level !== 'number') ? true : it.level <= level);
+}
+
+function renderMarket() {
+    const character = state.currentCharacter;
+    const isDM = character?.accessLevel === 'dm';
+    const viewLevel = getMarketViewLevel();
+    
+    let html = '<h2>🛒 Bluebrick Market</h2>';
+    html += '<p>Browse shops and check stock based on your cleared dungeon level.</p>';
+    
+    // Controls
+    if (isDM) {
+        html += `
+            <div class="card">
+                <div class="stat-line"><span class="stat-label">Viewing as Dungeon Level:</span>
+                <select onchange="setMarketViewLevel(this.value)">
+                    ${Array.from({length: 21}, (_, i) => `<option value="${i}" ${i===viewLevel?'selected':''}>L${i}</option>`).join('')}
+                </select>
+                <span class="tag">DM View</span>
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="card">
+                <div class="stat-line"><span class="stat-label">Availability:</span> <span class="stat-value">Dungeon L${viewLevel}</span></div>
+                <div class="card-meta">Items show only up to your cleared level.</div>
+            </div>
+        `;
+    }
+    
+    // Shop grid
+    html += '<div class="card-grid">';
+    html += contentData.marketShops.map(shop => renderShopCard(shop)).join('');
+    html += '</div>';
+    
+    return html;
+}
+
+function renderShopCard(shop) {
+    // Count available items for quick glance
+    const isDM = state.currentCharacter?.accessLevel === 'dm';
+    const viewLevel = getMarketViewLevel();
+    const total = shop.categories.reduce((sum, c) => sum + c.items.length, 0);
+    const available = shop.categories.reduce((sum, c) => sum + filterItemsByLevel(c.items, viewLevel, isDM).length, 0);
+    
+    return `
+        <div class="card" onclick="showShopDetail('${shop.id}')">
+            <h3>${shop.name}</h3>
+            <p>${shop.description || ''}</p>
+            <div class="card-tags">
+                <span class="tag">${available}/${total} available</span>
+            </div>
+        </div>
+    `;
+}
+
+function showShopDetail(shopId) {
+    const shop = contentData.marketShops.find(s => s.id === shopId);
+    if (!shop) return;
+    const isDM = state.currentCharacter?.accessLevel === 'dm';
+    const viewLevel = getMarketViewLevel();
+    
+    let html = `<h2>${shop.name}</h2>`;
+    if (shop.description) html += `<p>${shop.description}</p>`;
+    html += `<div class="card-meta">Showing items up to L${viewLevel}${isDM ? ' (DM adjustable)' : ''}</div>`;
+    
+    shop.categories.forEach(cat => {
+        const items = filterItemsByLevel(cat.items, viewLevel, isDM);
+        const locked = cat.items.length - items.length;
+        html += `<h3>${cat.name}</h3>`;
+        if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
+        if (items.length === 0) {
+            html += '<p>No items available at your current dungeon level.</p>';
+        } else {
+            html += '<ul>' + items.map(it => {
+                const lvlTag = (typeof it.level === 'number') ? ` <span class="tag">L${it.level}</span>` : '';
+                const rarityTag = it.rarity ? ` <span class="tag">${it.rarity}</span>` : '';
+                const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
+                return `<li><strong>${it.name}</strong>${lvlTag}${rarityTag}: ${it.price}${note}</li>`;
+            }).join('') + '</ul>';
+        }
+        if (locked > 0) {
+            html += `<div class="card-meta">${locked} item(s) locked at higher levels.</div>`;
+        }
+    });
+    
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
+}
+
 function renderItems() {
     let html = '<h2>⚔️ Items & Equipment</h2>';
     html += contentData.items.map(item => `
@@ -1080,6 +1531,14 @@ function updateSidebar(tab) {
     let links = [];
     
     switch(tab) {
+        case 'market':
+            links = [
+                { text: 'Market Directory', action: () => switchTab('market') },
+                { text: 'Brass Buckle Outfitters', action: () => showShopDetail('brass-buckle') },
+                { text: 'Smith’s Bench', action: () => showShopDetail('smiths-bench') },
+                { text: 'Arcane Exchange', action: () => showShopDetail('arcane-exchange') }
+            ];
+            break;
         case 'guilds':
             links = [
                 { text: 'Guild Crystalia (Your Guild)', action: () => showGuildDetail('guild-crystalia') },
@@ -1154,15 +1613,42 @@ function buildSearchIndex() {
     });
     
     // Index items, quests, etc. (items and quests are generally accessible)
-    contentData.items.forEach(item => {
-        state.searchIndex.push({
-            type: 'Item',
-            title: item.name,
-            content: item.description,
-            data: item,
-            showFunction: () => { switchTab('items'); }
+    // Legacy items index (keep for compatibility if any)
+    if (Array.isArray(contentData.items)) {
+        contentData.items.forEach(item => {
+            state.searchIndex.push({
+                type: 'Item',
+                title: item.name,
+                content: item.description || '',
+                data: item,
+                showFunction: () => { switchTab('market'); }
+            });
         });
-    });
+    }
+    // Index market shops and items
+    if (Array.isArray(contentData.marketShops)) {
+        contentData.marketShops.forEach(shop => {
+            state.searchIndex.push({
+                type: 'Shop',
+                title: shop.name,
+                content: shop.description || '',
+                data: shop,
+                showFunction: () => { switchTab('market'); showShopDetail(shop.id); }
+            });
+            // Items per category
+            shop.categories.forEach(cat => {
+                cat.items.forEach(it => {
+                    state.searchIndex.push({
+                        type: 'Market Item',
+                        title: it.name,
+                        content: `${shop.name} ${cat.name} ${it.price} L${typeof it.level==='number'?it.level:'-'}`,
+                        data: { shopId: shop.id, category: cat.name, item: it },
+                        showFunction: () => { switchTab('market'); showShopDetail(shop.id); }
+                    });
+                });
+            });
+        });
+    }
     
     contentData.quests.forEach(quest => {
         // Only show quests if the character knows them or is DM

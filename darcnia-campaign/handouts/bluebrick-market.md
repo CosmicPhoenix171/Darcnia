@@ -1,0 +1,246 @@
+# Handout: Bluebrick Market — General Goods & Prices
+
+Player-facing price list for common adventuring gear, ammo, basic arms/armor, and services. No haggling rules baked in; your DM may adjust for scarcity.
+
+Currency: 10 cp = 1 sp; 10 sp = 1 gp; 10 gp = 1 pp
+
+Availability rule
+- Items show a [L#] tag for the minimum dungeon level cleared required (e.g., [L0], [L1], [L2]).
+- You may purchase any item with a tag up to your highest cleared dungeon level.
+- Services are available to all (no level tag).
+
+---
+
+## Brass Buckle Outfitters (General Gear)
+- Backpack [L0]: 2 gp
+- Bedroll [L0]: 1 gp
+- Blanket [L0]: 5 sp
+- Candle (1) [L0]: 1 cp
+- Clothes, common [L0]: 5 sp
+- Clothes, traveler [L0]: 2 gp
+- Cloak (sturdy) [L0]: 1 gp
+- Crowbar [L0]: 2 gp
+- Grappling hook [L0]: 2 gp
+- Hammer [L0]: 1 gp
+- Healer’s kit (10 uses) [L0]: 5 gp
+- Herbalism kit [L1]: 5 gp
+- Lantern, bullseye [L1]: 10 gp
+- Lantern, hooded [L0]: 5 gp
+- Lamp [L0]: 5 sp
+- Mess kit [L0]: 2 sp
+- Oil, flask [L0]: 1 sp
+- Piton (iron spike) [L0]: 5 cp
+- Pouch (belt) [L0]: 5 sp
+- Rations (1 day) [L0]: 5 sp
+- Rope, hempen (50 ft) [L0]: 1 gp
+- Rope, silk (50 ft) [L1]: 10 gp
+- Sack [L0]: 1 cp
+- Shovel [L0]: 2 gp
+- Soap [L0]: 2 cp
+- Tent (2-person) [L0]: 2 gp
+- Tinderbox [L0]: 5 sp
+- Torch (1) [L0]: 1 cp
+- Waterskin [L0]: 2 sp
+
+## Three Feathers Archery (Ammo & Ranged Supplies)
+- Arrows (20) [L0]: 1 gp
+- Crossbow bolts (20) [L0]: 1 gp
+- Quiver (20 arrows) [L0]: 1 gp
+- Case, bolt (20 bolts) [L0]: 1 gp
+- Bowstring, spare [L0]: 1 sp
+- Fletching wax [L0]: 2 sp
+
+## Smith’s Bench (Basic Arms & Armor)
+Light/Medium Armor and common weapons only; specialty gear by order.
+
+- Armor
+  - Leather [L0]: 10 gp
+  - Studded leather [L1]: 45 gp
+  - Chain shirt [L1]: 50 gp
+  - Shield [L0]: 10 gp
+  - Hide (medium) [L0]: 10 gp
+  - Scale mail (medium) [L1]: 50 gp
+  - Breastplate (medium) [L2]: 400 gp
+  - Half plate (medium) [L3]: 750 gp
+
+- Simple/Martial Weapons (common stock)
+  - Club [L0]: 1 sp
+  - Dagger [L0]: 2 gp
+  - Handaxe [L0]: 5 gp
+  - Javelin [L0]: 5 sp
+  - Light crossbow [L0]: 25 gp
+  - Mace [L0]: 5 gp
+  - Quarterstaff [L0]: 2 sp
+  - Rapier [L0]: 25 gp
+  - Shortbow [L0]: 25 gp
+  - Shortsword [L0]: 10 gp
+  - Spear [L0]: 1 gp
+  - Longsword [L0]: 15 gp
+  - Scimitar [L0]: 25 gp
+  - Warhammer [L0]: 15 gp
+  - Morningstar [L0]: 15 gp
+  - Longbow [L1]: 50 gp
+  - Heavy crossbow [L1]: 50 gp
+  - Hand crossbow [L2]: 75 gp
+
+## Rue & Resin Apothecary (Tonics & Basics)
+- Potion of healing [L1]: 50 gp
+- Antitoxin (vial) [L1]: 50 gp
+- Bandage roll & salve (kit) [L0]: 1 gp
+- Herbal poultice (minor comfort) [L0]: 5 sp
+ - Acid (vial) [L1]: 25 gp
+ - Alchemist's fire (flask) [L1]: 50 gp
+ - Holy water (flask) [L1]: 25 gp
+ - Perfume (vial) [L0]: 5 gp
+ - Basic poison (vial) [L2]: 100 gp
+
+## Stables & Services
+- Meal (modest): 3 sp
+- Lodging, common room (per night): 5 sp
+- Lodging, private modest room (per night): 1 gp
+- Bath & laundry: 5 sp
+- Stabling (per day): 5 sp
+- Messenger in-city (same day): 2 sp
+
+## Tinker’s Nook (Utility & Traps)
+- Ball bearings (1,000) [L0]: 1 gp
+- Caltrops (20) [L0]: 1 gp
+- Hunting trap [L0]: 5 gp
+- Lock [L0]: 10 gp
+- Manacles [L0]: 2 gp
+- Mirror, steel [L0]: 5 gp
+- Signal whistle [L0]: 5 cp
+- Horn, signal [L0]: 3 gp
+- Hourglass [L1]: 25 gp
+- Crowbar (reinforced) [L1]: 3 gp
+
+## Scribe & Sealery (Paper & Ink)
+- Ink (1 oz) [L0]: 10 gp
+- Ink pen [L0]: 2 cp
+- Parchment (sheet) [L0]: 1 sp
+- Paper (sheet) [L0]: 2 sp
+- Sealing wax [L0]: 5 sp
+- Chalk (1 piece) [L0]: 1 cp
+- Case, map or scroll [L0]: 1 gp
+- Journal/notebook [L0]: 5 sp
+
+## Guild Toolwright (Proficiency Tools)
+- Thieves’ tools [L0]: 25 gp
+- Disguise kit [L0]: 25 gp
+- Forgery kit [L1]: 15 gp
+- Alchemist’s supplies [L1]: 50 gp
+- Tinker’s tools [L1]: 50 gp
+- Smith’s tools [L0]: 20 gp
+- Poisoner’s kit [L2]: 50 gp
+
+## South Gate Stables & Wheels (Mounts & Vehicles)
+- Donkey/Mule [L0]: 8 gp
+- Pony [L0]: 30 gp
+- Riding horse [L0]: 75 gp
+- Draft horse [L0]: 50 gp
+- Camel [L1]: 50 gp
+- Cart [L0]: 15 gp
+- Wagon [L1]: 35 gp
+- Bit & bridle [L0]: 2 gp
+- Saddle, pack [L0]: 5 gp
+- Saddle, riding [L0]: 10 gp
+- Saddlebags [L0]: 4 gp
+
+## Brass Buckle Outfitters — Adventuring Packs (Bundles)
+- Burglar’s Pack [L0]: 16 gp
+- Dungeoneer’s Pack [L0]: 12 gp
+- Explorer’s Pack [L0]: 10 gp
+Contents follow standard listings; bundles are for convenience pricing only.
+
+---
+
+## Arcane Exchange — Magic & Rare Goods
+Player-facing list of magical and rare items. Availability is gated by dungeon level cleared. Prices are typical guild rates and may vary with reputation or scarcity.
+
+Rarity guide and typical price bands (for reference)
+- Common: 50–100 gp
+- Uncommon: 250–750 gp
+- Rare: 2,500–7,500 gp
+- Very Rare: 20,000–50,000 gp
+- Legendary: 100,000+ gp (usually by commission only)
+
+Policy
+- Items include [L#] tags. You may buy items up to the highest dungeon level you have cleared.
+- Some items require attunement (counts toward your attunement limit).
+
+### Arcane Exchange — Mystic Armory (Enchanted Weapons & Armor)
+- Weapon, +1 (choose type) [Uncommon, L3]: 1,500 gp
+- Weapon, +2 (choose type) [Rare, L7]: 6,000 gp
+- Weapon, +3 (choose type) [Very Rare, L13]: 30,000 gp
+- Armor, +1 (light/medium/shield) [Uncommon, L3]: 1,500 gp
+- Armor, +2 (light/medium) or Shield +2 [Rare, L7]: 6,000 gp
+- Armor, +3 (light/medium) or Shield +3 [Very Rare, L13]: 30,000 gp
+- Quiver of True Flight (advantage once/short rest on a ranged attack) [Uncommon, L4]: 600 gp
+- Silentstep Boots (advantage on one Stealth check per short rest) [Uncommon, L4]: 500 gp
+
+### Arcane Exchange — Rune Fletchery (Enchanted Ammunition)
+- Ammunition +1 (20) [Uncommon, L3]: 250 gp
+- Ammunition +2 (10) [Rare, L7]: 1,000 gp
+- Ammunition +3 (5) [Very Rare, L13]: 5,000 gp
+- Bursting Arrowheads (10) — small blast on hit (1d6 force, DC 12 Dex half) [Uncommon, L4]: 400 gp
+- Tetherline Bolts (5) — deploys 50 ft line on hit [Uncommon, L4]: 300 gp
+
+### Arcane Exchange — Wondrous Curios (Utility & Defense)
+- Traveler’s Satchel (bag-of-holding–like, 2 ft cube, 100 lb) [Uncommon, L4]: 800 gp
+- Cloak of the Watchful (add +1 to initiative; not stacking with other bonuses) [Uncommon, L4]: 600 gp
+- Ring of Surefooting (advantage vs being knocked prone 1/rest) [Uncommon, L4]: 500 gp
+- Brace of Sparks (once/short rest: add 1d4 lightning to a weapon hit) [Uncommon, L4]: 650 gp
+- Whisperband (message cantrip 3/day) [Common, L2]: 90 gp
+- Lantern of Revealing Motes (outline faint invisibility in 10 ft while lit) [Uncommon, L5]: 700 gp
+- Bracelet of Second Wind (bonus action heal 1d6+2, 1/long rest) [Uncommon, L5]: 750 gp
+- Veil of Quiet Footfalls (advantage on checks to move silently) [Uncommon, L5]: 700 gp
+
+### Arcane Exchange — Relics of Crystalia (Greater Items)
+- Crest-Linked Aegis (once/day: reaction to add +3 AC to self for one attack) [Rare, L8]: 4,500 gp
+- Starlit Dagger (finesse; bonus action: shed dim light; once/day: +2d6 radiant) [Rare, L8]: 5,000 gp
+- Echo-Twine Cloak (gain advantage on one saving throw per long rest) [Rare, L9]: 6,500 gp
+- Heartbound Locket (stabilize adjacent ally as bonus action, 3/day) [Rare, L9]: 3,500 gp
+- Mirrorstep Boots (bonus action short teleport 10 ft, 3/day) [Very Rare, L12]: 24,000 gp
+- Ring of Three Breaths (store up to 3 reactions/day to use for OA/Shield-like effects) [Very Rare, L14]: 36,000 gp
+
+### Arcane Exchange — Greater Armaments (Endgame)
+- Weapon, bane-forged (choose a creature type; +2d6 vs that type, attunement) [Very Rare, L15]: 40,000 gp
+- Armor of the Vigil (resistance vs one damage type chosen at dawn) [Very Rare, L16]: 45,000 gp
+- Ring of Spellward (advantage on saves vs spells; resists spell damage by 3) [Very Rare, L16]: 48,000 gp
+- Weapon, mythic +3 with stored strike (bank a critical effect 1/week) [Legendary, L18]: 120,000 gp
+
+### Arcane Exchange — Potions & Elixirs (Upgrades)
+- Healing Potion (Greater) [Uncommon, L3]: 150 gp
+- Healing Potion (Superior) [Rare, L7]: 1,000 gp
+- Healing Potion (Supreme) [Very Rare, L13]: 5,000 gp
+- Elixir of Fleetstep (Dash as bonus action for 1 minute, conc.) [Uncommon, L4]: 300 gp
+- Elixir of Stoneskin (resist nonmagical B/P/S for 1 hour) [Rare, L9]: 3,000 gp
+- Draught of Mindshield (advantage vs charm/fear for 1 hour) [Uncommon, L5]: 350 gp
+
+### Arcane Exchange — Spell Scripts (Scrolls)
+- 1st‑tier spell script (choose tradition) [Common, L2]: 75 gp
+- 2nd‑tier spell script [Uncommon, L3]: 150 gp
+- 3rd‑tier spell script [Uncommon, L5]: 300 gp
+- 4th‑tier spell script [Rare, L7]: 1,000 gp
+- 5th‑tier spell script [Rare, L9]: 2,500 gp
+- 6th‑tier spell script [Very Rare, L11]: 10,000 gp
+- 7th‑tier spell script [Very Rare, L13]: 25,000 gp
+- 8th‑tier spell script [Legendary, L15]: 50,000 gp (by commission)
+- 9th‑tier spell script [Legendary, L17]: 100,000+ gp (restricted)
+
+### Arcane Exchange — Components & Reagents
+- Diamond dust (100 gp portions) [L5]: 100 gp
+- Rare ink set (ritual diagrams) [L4]: 250 gp
+- Focus crystal, tuned (arcane focus) [L3]: 50 gp
+- Sanctified oil (ceremonial) [L4]: 50 gp
+
+Notes
+- These items are vetted through Guild Crystalia vendors; some require guild sponsorship at higher tiers.
+- Stock rotates. Commissioned work may take days to weeks, and prices can rise with urgency.
+
+---
+
+Notes
+- Stock is typical for an urban market. Rare or restricted items may require guild approval or special order.
+- Prices reflect standard guild rates; reputable members may see small discounts or bundled deals.
+- Repairs (mundane gear): usually half the item’s price, at the smith’s discretion.

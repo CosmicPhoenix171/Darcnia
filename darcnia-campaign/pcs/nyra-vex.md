@@ -1,4 +1,6 @@
-# Nyra Vex
+find /workspaces/Darcnia -type f \( -name "*.md" -o -name "*.html" -o -name "*.css" -o -name "*.js" \) -print0 \
+| sort -z \
+| xargs -0 -I{} sh -c 'printf "\n===== FILE: %s =====\n\n" "{}"; cat "{}"'# Nyra Vex
 
 ## Basic Information
 - **Race:** Human
@@ -276,6 +278,15 @@ She gestures for Nyra to follow.
 
 **Tessa:** "Come on, I'll show you to the barracks. You get a bunk, a chest, and a wall hook that probably won't fall off in your sleep. Fair warning, the guy two beds over snores like a collapsing dragon."
 
+### Scene 8: Corridor Coffee
+Tessa catches you in the corridor, balancing two steaming mugs and a stack of folders with her hip and arm.
+
+**Tessa:** "Morning, you. Barracks treat you kind enough? I confiscated the snorer's whistle." She hands you a mug. "Chicory and orange peel. Trust me."
+
+She walks with you a few steps, lowering her voice just a touch — but it's all business-casual, nothing spooky. "Couple easy things today: Thorne wants a quick check-in when you've eaten."
+
+She tilts her head, ready to move when you are. "So — café or kitchen, and do you want me to pencil Thorne before or after we eat?"
+
 ---
 
 ## Event Log
@@ -293,3 +304,14 @@ She gestures for Nyra to follow.
 - Thorne reacted with fear when asked about the voice
 - Mission scroll remains sealed until she proves herself
 - Moved into guild barracks (free lodging)
+
+### Long Rest: Guild Barracks (Night after Scene 7)
+- Location: Guild Crystalia barracks (free bunk; Tessa’s tour; loud snorer two beds over).
+- Effects (5e):
+  - Hit Points restored to 8/8.
+  - Conditions cleared.
+  - Hit Dice available: 1/1 (regained on long rest; total 1d8).
+  - Lucky (Wayfarer) points restored to 3.
+  - Heroic Inspiration refreshed (Resourceful): set to 1.
+  - Reset any expended class features and abilities.
+- Dream fragment: In half-sleep, a cool light fractures like crystal; a whisper crosses the cracks — “Do not look away.” The crest warms; a faint heartbeat under stone. Nyra wakes with the sense the Heart Plaza statue was listening.
