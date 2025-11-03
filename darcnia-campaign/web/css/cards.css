@@ -16,6 +16,11 @@ div.shop-card,
 .market-grid .card {
     /* ULTRA transparent glassmorphism - starfield must show through! */
     background: rgba(30, 15, 50, 0.05) !important;
+    /* Hard-stop any later backgrounds from taking over */
+    background-color: rgba(30, 15, 50, 0.05) !important;
+    background-image: none !important;
+    background-blend-mode: normal !important;
+    mix-blend-mode: normal;
     backdrop-filter: blur(50px) saturate(200%) brightness(1.2) !important;
     -webkit-backdrop-filter: blur(50px) saturate(200%) brightness(1.2) !important;
     border: 2px solid rgba(186, 104, 200, 0.5) !important;
@@ -28,7 +33,11 @@ div.shop-card,
         0 8px 32px rgba(0, 0, 0, 0.6),
         inset 0 1px 2px rgba(255, 255, 255, 0.15),
         0 0 20px rgba(186, 104, 200, 0.2) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Avoid animating background so late overrides don't appear as a fade */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                backdrop-filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     /* Enable 3D transforms */
@@ -64,6 +73,8 @@ div.shop-card,
     backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
     -webkit-backdrop-filter: blur(45px) saturate(200%) brightness(1.15) !important;
     background: rgba(40, 20, 60, 0.18) !important;
+    background-color: rgba(40, 20, 60, 0.18) !important;
+    background-image: none !important;
 }
 
 .card:hover::before {
