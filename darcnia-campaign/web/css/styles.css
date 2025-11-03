@@ -9,9 +9,6 @@
     /* Fantasy color palette - deep purples, golds, mystical blues */
     --primary-bg: linear-gradient(135deg, #1a0b2e 0%, #2d1b3d 50%, #1a0b2e 100%);
     --header-gradient: linear-gradient(135deg, #4a148c 0%, #7b1fa2 50%, #9c27b0 100%);
-    --card-bg: linear-gradient(145deg, rgba(45, 27, 61, 0.9), rgba(26, 11, 46, 0.95));
-    --card-border: rgba(156, 39, 176, 0.3);
-    --card-glow: rgba(186, 104, 200, 0.2);
     --accent-gold: #ffd700;
     --accent-purple: #ba68c8;
     --accent-cyan: #00e5ff;
