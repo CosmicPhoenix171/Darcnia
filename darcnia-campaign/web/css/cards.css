@@ -60,10 +60,13 @@ div.shop-card,
 .shop-card:hover {
     transform: translateY(-8px) translateZ(20px) rotateX(2deg);
     box-shadow: 
+        0 0 25px rgba(186, 104, 200, 0.6),
+        0 0 50px rgba(186, 104, 200, 0.4),
+        0 0 75px rgba(156, 39, 176, 0.3),
         0 16px 36px rgba(0, 0, 0, 0.45),
         inset 0 1px 2px rgba(255, 255, 255, 0.18);
-    border-color: var(--card-border) !important;
-    border-top-color: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(186, 104, 200, 0.5) !important;
+    border-top-color: rgba(255, 255, 255, 0.4) !important;
     /* Hover: slightly more visible for readability */
     backdrop-filter: blur(var(--glass-blur-hover)) saturate(var(--glass-saturate-hover)) brightness(var(--glass-brightness-hover)) !important; /* gentle blur */
     -webkit-backdrop-filter: blur(var(--glass-blur-hover)) saturate(var(--glass-saturate-hover)) brightness(var(--glass-brightness-hover)) !important;
