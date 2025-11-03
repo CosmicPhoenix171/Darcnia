@@ -28,7 +28,7 @@
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Crimson Text', serif;
+    font-family: 'Crimson Text', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Georgia, serif;
     background: var(--primary-bg);
     background-attachment: fixed;
     color: var(--text-primary);
@@ -139,7 +139,7 @@ header h1::before {
 }
 
 .subtitle {
-    font-family: 'Cinzel', serif;
+    font-family: 'IM Fell English', 'Cinzel', serif;
     color: var(--text-gold);
     font-size: 1.1rem;
     font-style: italic;
@@ -293,7 +293,7 @@ main {
 }
 
 h2 {
-    font-family: 'Cinzel', serif;
+    font-family: 'IM Fell English', 'Cinzel', serif;
     font-size: 2rem;
     margin-bottom: 1rem;
     color: var(--accent-gold);
@@ -311,7 +311,7 @@ h2::before, h2::after {
 }
 
 h3 {
-    font-family: 'Cinzel', serif;
+    font-family: 'IM Fell English', 'Cinzel', serif;
 }
 
 h3 {
@@ -413,7 +413,7 @@ h3 {
     background: linear-gradient(135deg, rgba(123, 31, 162, 0.6), rgba(156, 39, 176, 0.6));
     color: var(--text-primary);
     border-radius: 12px;
-    font-size: 0.85rem;
+    font-family: 'IM Fell English SC', 'Cinzel', serif;
     font-weight: 600;
     border: 1px solid var(--accent-purple);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -565,7 +565,7 @@ footer {
 .markdown h1, .markdown h2, .markdown h3 { 
     margin: 1rem 0 0.5rem;
     color: var(--accent-purple);
-    font-family: 'Cinzel', serif;
+    font-family: 'IM Fell English', 'Cinzel', serif;
 }
 .markdown ul { margin: 0.5rem 1.25rem; }
 .markdown li { margin: 0.25rem 0; }
