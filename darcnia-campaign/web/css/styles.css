@@ -320,7 +320,8 @@ html::before {
     margin: 0 auto;
     padding: 0 2rem;
     position: relative;
-    z-index: 1;
+    /* z-index removed - was creating stacking context that isolated cards from star background */
+    /* Cards need to be in the same stacking context as stars for backdrop-filter to work */
 }
 
 /* ===== HEADER ===== */

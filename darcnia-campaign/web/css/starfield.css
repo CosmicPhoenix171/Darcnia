@@ -46,7 +46,7 @@ body::before {
     z-index: 0;
     background-attachment: fixed;
     filter: blur(0.4px);
-    opacity: 0.6;
+    opacity: 0.85; /* Increased from 0.6 to make stars more visible through glass cards */
     animation: distantStarsDrift 80s linear infinite, distantStarsPulse 6s ease-in-out infinite;
     will-change: transform, opacity;
 }
@@ -57,8 +57,8 @@ body::before {
 }
 
 @keyframes distantStarsPulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 0.7; }
+    0%, 100% { opacity: 0.75; } /* Increased from 0.5 */
+    50% { opacity: 0.95; } /* Increased from 0.7 */
 }
 
 /* Floating mystical runes layer */

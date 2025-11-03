@@ -6,9 +6,9 @@
     --card-bg: transparent; /* not used by cards in test mode */
     --card-border: rgba(255, 255, 255, 0.18); /* neutral, no purple */
     --card-glow: rgba(255, 255, 255, 0); /* disabled */
-    /* Glass tuning — low blur so stars remain visible */
-    --glass-blur: 4px;
-    --glass-blur-hover: 6px;
+    /* Glass tuning — minimal blur so stars remain sharp and visible */
+    --glass-blur: 2px; /* Reduced from 4px to let stars shine through more clearly */
+    --glass-blur-hover: 3px; /* Reduced from 6px */
     --glass-saturate: 100%;
     --glass-saturate-hover: 100%;
     --glass-brightness: 1.0;
@@ -28,6 +28,8 @@ div.shop-card,
     background-image: none !important;
     background-blend-mode: normal !important;
     mix-blend-mode: normal;
+    /* CRITICAL: isolation must be auto to allow backdrop-filter to see through to stars */
+    isolation: auto !important;
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) !important;
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) !important;
     border: 2px solid var(--card-border) !important;
