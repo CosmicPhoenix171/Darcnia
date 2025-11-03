@@ -1144,9 +1144,13 @@ function initializeApp() {
     // Update theme toggle icon
     updateThemeIcon();
     
-    // Load bank balance from character
-    if (state.currentCharacter && state.currentCharacter.bank) {
+    // Load bank balance from localStorage first, then from character as fallback
+    const savedBank = localStorage.getItem('bankBalance');
+    if (savedBank) {
+        state.bank = JSON.parse(savedBank);
+    } else if (state.currentCharacter && state.currentCharacter.bank) {
         state.bank = { ...state.currentCharacter.bank };
+        saveBankToLocalStorage();
     }
     
     // Setup event listeners
@@ -1163,6 +1167,10 @@ function initializeApp() {
     
     // Log success
     logSuccess();
+}
+
+function saveBankToLocalStorage() {
+    localStorage.setItem('bankBalance', JSON.stringify(state.bank));
 }
 
 // ===== Theme Management =====
