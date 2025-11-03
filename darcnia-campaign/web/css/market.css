@@ -1,0 +1,23 @@
+/* ===== MARKET / SHOP CARD STYLES ===== */
+
+/* ===== SHOP CARD TITLE - CLEAN AND READABLE ===== */
+.shop-card .shop-card-title {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    color: var(--text-gold);
+    text-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 2px 8px rgba(0, 0, 0, 0.9);
+    /* Ensure text stays on top of any overlays */
+    position: relative;
+    z-index: 10;
+}
+
+.shop-card .shop-card-subtitle {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    margin-bottom: 0.6rem;
+}

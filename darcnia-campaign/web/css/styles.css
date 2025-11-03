@@ -1,3 +1,8 @@
+/* ===== MODULE IMPORTS ===== */
+@import url('starfield.css');
+@import url('market.css');
+@import url('dice-roller.css');
+
 /* ===== FANTASY THEME - ROOT VARIABLES ===== */
 :root {
     /* Fantasy color palette - deep purples, golds, mystical blues */
