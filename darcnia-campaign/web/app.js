@@ -1897,6 +1897,17 @@ function addToCart(itemKey, itemName, itemPrice, shopId) {
 function removeFromCart(itemKey) {
     state.cart = state.cart.filter(item => item.key !== itemKey);
     updateCartDisplay();
+    
+    // Refresh the cart modal if it's open
+    const modal = document.getElementById('searchModal');
+    if (modal && !modal.classList.contains('hidden')) {
+        if (state.cart.length > 0) {
+            showCart();
+        } else {
+            modal.classList.add('hidden');
+            alert('Your cart is now empty!');
+        }
+    }
 }
 
 function updateCartQuantity(itemKey, delta) {
@@ -1907,6 +1918,11 @@ function updateCartQuantity(itemKey, delta) {
             removeFromCart(itemKey);
         } else {
             updateCartDisplay();
+            // Refresh the cart modal if it's open
+            const modal = document.getElementById('searchModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                showCart();
+            }
         }
     }
 }
