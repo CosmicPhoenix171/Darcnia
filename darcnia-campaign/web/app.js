@@ -72,7 +72,12 @@ const state = {
     searchIndex: [],
     currentCharacter: null,
     accessLevel: 'guest',
-    marketViewLevel: null
+    marketViewLevel: null,
+    shopFilters: {},
+    dice: {
+        mode: 'normal', // 'normal' | 'adv' | 'dis'
+        history: []     // keep last 10 results
+    }
 };
 
 // ===== Data Structure =====
@@ -1050,6 +1055,9 @@ function initializeApp() {
     // Load initial content
     loadContent('market');
     
+    // Inject dice roller tray (5e feel)
+    injectDiceTray();
+    
     // Log success
     logSuccess();
 }
@@ -1100,6 +1108,15 @@ function setupEventListeners() {
     if (modalClose) modalClose.addEventListener('click', closeModal);
     if (searchModal) searchModal.addEventListener('click', (e) => {
         if (e.target.id === 'searchModal') closeModal();
+    });
+
+    // Keyboard shortcuts for dice tray
+    window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if (e.key.toLowerCase() === 'a') setDiceMode('adv');
+        if (e.key.toLowerCase() === 'd') setDiceMode('dis');
+        if (e.key.toLowerCase() === 'n') setDiceMode('normal');
+        if (e.key.toLowerCase() === 'r') rollFromFormula('1d20');
     });
 }
 
@@ -1512,7 +1529,7 @@ function parseBluebrickMarketMarkdown(md) {
 
 function parseItem(label, price) {
     // Extract bracket content e.g., [L0] or [Uncommon, L3]
-    let level = 0; let rarity = null; let name = label.trim(); let note = null;
+    let level = 0; let rarity = null; let name = label.trim(); let note = null; let attunement = false;
     const bracket = name.match(/\[(.*?)\]/);
     if (bracket) {
         const inside = bracket[1];
@@ -1522,6 +1539,8 @@ function parseItem(label, price) {
         // Identify rarity
         const rMatch = inside.match(/(Common|Uncommon|Rare|Very Rare|Legendary)/i);
         if (rMatch) rarity = capitalizeWords(rMatch[1]);
+        // Attunement flag
+        if (/attunement/i.test(inside)) attunement = true;
         name = name.replace(/\s*\[.*?\]\s*/, ' ').trim();
     }
     // Detect em-dash or dash style notes appended to price line (e.g., "— small blast ...")
@@ -1531,7 +1550,10 @@ function parseItem(label, price) {
         note = noteMatch[1].trim();
         finalPrice = finalPrice.replace(/\s*[—-].*$/, '').trim();
     }
-    return { name, price: finalPrice, level, rarity, note };
+    // If label text mentions attunement
+    if (!attunement && /attunement/i.test(name)) attunement = true;
+    if (!attunement && note && /attunement/i.test(note)) attunement = true;
+    return { name, price: finalPrice, level, rarity, note, attunement };
 }
 
 function slugify(str) {
@@ -1612,13 +1634,41 @@ function showShopDetail(shopId) {
     if (!shop) return;
     const isDM = state.currentCharacter?.accessLevel === 'dm';
     const stockSet = (state._currentMarketStock || generateDailyStock(shops))[shop.id] || new Set();
+        const ALL_RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary'];
+        const filters = state.shopFilters[shop.id] || { q: '', inStockOnly: false, rarities: new Set() };
     
-    let html = `<h2>${shop.name}</h2>`;
+        let html = `<h2>${shop.name}</h2>`;
     if (shop.description) html += `<p>${shop.description}</p>`;
-    html += `<div class="card-meta">Showing today's stock (daily rotation). L0 items are always available.</div>`;
+        html += `<div class="card-meta">Showing today's stock (daily rotation). L0 items are always available.</div>`;
+
+        // Filter bar
+        html += `
+            <div class="shop-filters card">
+                <div class="filters-row">
+                    <input type="search" id="shop-q" placeholder="Search in ${shop.name}..." value="${filters.q?.replace(/"/g,'&quot;')||''}" />
+                    <label class="checkbox">
+                        <input type="checkbox" id="shop-instock" ${filters.inStockOnly ? 'checked' : ''}/> In stock only
+                    </label>
+                </div>
+                <div class="filters-row rarity-chips">
+                    ${ALL_RARITIES.map(r => {
+                        const on = filters.rarities instanceof Set ? filters.rarities.has(r) : false;
+                        return `<button class="chip ${on?'on':''}" data-rarity="${r}">${r}</button>`;
+                    }).join('')}
+                    <button class="chip clear" id="rarity-clear">Clear</button>
+                </div>
+            </div>`;
     
     shop.categories.forEach(cat => {
-        const items = (cat.items || []);
+                const items = (cat.items || []).filter(it => {
+                        const req = Number(it.level ?? 0);
+                        const inStock = req <= 0 || stockSet.has(it._key);
+                        const rarity = it.rarity ? it.rarity : getItemRarity(it);
+                        if (filters.inStockOnly && !inStock) return false;
+                        if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) return false;
+                        if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) return false;
+                        return true;
+                });
         let shown = 0;
         html += `<h3>${cat.name}</h3>`;
         if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
@@ -1631,9 +1681,10 @@ function showShopDetail(shopId) {
             // Show all items to all users; dim and label out-of-stock ones
             const badge = (!inStock && req > 0 ? 'Out of stock' : `L${req}`);
             const lvlTag = ` <span class="tag">${badge}</span>`;
-            const rarityTag = rarity ? ` <span class="tag">${rarity}</span>` : '';
+                        const rarityTag = rarity ? ` <span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
+                        const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
             const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
-            html += `<li class="${cls}"><strong>${it.name}</strong>${lvlTag}${rarityTag}: ${it.price}${note}</li>`;
+                        html += `<li class="${cls}"><strong>${it.name}</strong>${lvlTag}${rarityTag}${attuneTag}: ${it.price}${note}</li>`;
             shown++;
         });
         html += '</ul>';
@@ -1645,6 +1696,9 @@ function showShopDetail(shopId) {
     const modal = document.getElementById('searchModal');
     document.getElementById('searchResults').innerHTML = html;
     modal.classList.remove('hidden');
+
+        // Wire up filters
+        wireShopFilters(shop.id);
 }
 
 function resolveShop(targetId, shops) {
@@ -1655,6 +1709,122 @@ function resolveShop(targetId, shops) {
     if (s) return s;
     s = shops.find(x => x.name.toLowerCase().startsWith(lower.replace(/-/g, ' ')));
     return s;
+}
+
+// Shop filter wiring
+function wireShopFilters(shopId) {
+    const filters = state.shopFilters[shopId] || { q: '', inStockOnly: false, rarities: new Set() };
+    const qEl = document.getElementById('shop-q');
+    const inEl = document.getElementById('shop-instock');
+    const chipEls = Array.from(document.querySelectorAll('.rarity-chips .chip[data-rarity]'));
+    const clearEl = document.getElementById('rarity-clear');
+    const ensure = (v) => (v instanceof Set ? v : new Set(Array.isArray(v)?v:[]));
+    filters.rarities = ensure(filters.rarities);
+    state.shopFilters[shopId] = filters;
+    
+    if (qEl) qEl.addEventListener('input', () => {
+        filters.q = qEl.value || '';
+        showShopDetail(shopId);
+    });
+    if (inEl) inEl.addEventListener('change', () => {
+        filters.inStockOnly = !!inEl.checked;
+        showShopDetail(shopId);
+    });
+    chipEls.forEach(ch => ch.addEventListener('click', () => {
+        const r = ch.getAttribute('data-rarity');
+        if (filters.rarities.has(r)) filters.rarities.delete(r); else filters.rarities.add(r);
+        showShopDetail(shopId);
+    }));
+    if (clearEl) clearEl.addEventListener('click', () => {
+        filters.rarities.clear();
+        showShopDetail(shopId);
+    });
+}
+
+// ===== Dice Roller =====
+function injectDiceTray() {
+    if (document.getElementById('diceTray')) return;
+    const tray = document.createElement('div');
+    tray.id = 'diceTray';
+    tray.innerHTML = `
+      <div class="dice-header">
+        <span>Dice</span>
+        <div class="mode">
+          <button class="mode-btn" data-mode="normal" title="Normal (N)">N</button>
+          <button class="mode-btn" data-mode="adv" title="Advantage (A)">Adv</button>
+          <button class="mode-btn" data-mode="dis" title="Disadvantage (D)">Dis</button>
+        </div>
+      </div>
+      <div class="dice-buttons">
+        ${[4,6,8,10,12,20,100].map(s=>`<button class="die" data-sides="${s}">d${s}</button>`).join('')}
+      </div>
+      <div class="dice-custom">
+        <input id="diceFormula" placeholder="e.g., 2d6+3" />
+        <button id="rollCustom">Roll</button>
+      </div>
+      <div class="dice-log" id="diceLog"></div>
+    `;
+    document.body.appendChild(tray);
+    updateDiceModeButtons();
+    tray.querySelectorAll('.die').forEach(btn => btn.addEventListener('click', () => {
+        const sides = parseInt(btn.getAttribute('data-sides'),10);
+        if (sides === 20) rollFromFormula('1d20'); else rollFromFormula(`1d${sides}`);
+    }));
+    tray.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
+        setDiceMode(btn.getAttribute('data-mode'));
+    }));
+    const rollBtn = tray.querySelector('#rollCustom');
+    const input = tray.querySelector('#diceFormula');
+    rollBtn.addEventListener('click', () => rollFromFormula(input.value || '1d20'));
+    input.addEventListener('keypress', (e) => { if (e.key==='Enter') rollFromFormula(input.value||'1d20'); });
+}
+
+function setDiceMode(mode) {
+    state.dice.mode = ['normal','adv','dis'].includes(mode) ? mode : 'normal';
+    updateDiceModeButtons();
+}
+
+function updateDiceModeButtons() {
+    document.querySelectorAll('#diceTray .mode-btn').forEach(btn => {
+        const active = btn.getAttribute('data-mode') === state.dice.mode;
+        btn.classList.toggle('active', active);
+    });
+}
+
+function rollFromFormula(formula) {
+    const f = (formula || '1d20').toLowerCase().replace(/\s+/g, '');
+    const m = f.match(/^(\d*)d(\d+)([+\-]\d+)?$/);
+    if (!m) return logDice(`❓ Invalid formula: ${formula}`);
+    const n = parseInt(m[1] || '1', 10);
+    const sides = parseInt(m[2], 10);
+    const mod = parseInt(m[3] || '0', 10);
+    rollDice(n, sides, mod, state.dice.mode);
+}
+
+function rollDice(n, sides, mod = 0, mode = 'normal') {
+    const results = [];
+    if ((mode === 'adv' || mode === 'dis') && n === 1 && sides === 20) {
+        const a = rollDie(20); const b = rollDie(20);
+        const picked = mode === 'adv' ? Math.max(a,b) : Math.min(a,b);
+        const total = picked + mod;
+        logDice(`d20 ${mode === 'adv' ? 'adv' : 'dis'}: [${a}, ${b}] ⇒ ${picked}${mod?` ${mod>=0?'+':''}${mod}`:''} = <strong>${total}</strong>`);
+        return;
+    }
+    for (let i=0; i<n; i++) results.push(rollDie(sides));
+    const sum = results.reduce((a,b)=>a+b,0);
+    const total = sum + mod;
+    logDice(`${n}d${sides}${mod?` ${mod>=0?'+':''}${mod}`:''}: [${results.join(', ')}] = <strong>${total}</strong>`);
+}
+
+function rollDie(sides) { return 1 + Math.floor(Math.random() * sides); }
+
+function logDice(message) {
+    state.dice.history.unshift({ t: Date.now(), msg: message });
+    state.dice.history = state.dice.history.slice(0, 10);
+    const log = document.getElementById('diceLog');
+    if (log) {
+        log.innerHTML = state.dice.history.map(h => `<div class="dice-line">${h.msg}</div>`).join('');
+    }
 }
 
 function renderItems() {
