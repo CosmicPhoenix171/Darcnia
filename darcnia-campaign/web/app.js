@@ -2105,7 +2105,8 @@ function checkout() {
     state.bank.silver = remainingCopper % 10;
     state.bank.gold = Math.floor(remainingCopper / 10);
     
-    // Save to character database
+    // Save to localStorage and character database
+    saveBankToLocalStorage();
     if (state.currentCharacter && state.currentCharacter.bank) {
         state.currentCharacter.bank = { ...state.bank };
     }
@@ -2210,7 +2211,8 @@ function depositFunds() {
     state.bank.gold += Math.floor(state.bank.silver / 10);
     state.bank.silver = state.bank.silver % 10;
     
-    // Save to character
+    // Save to localStorage and character
+    saveBankToLocalStorage();
     if (state.currentCharacter && state.currentCharacter.bank) {
         state.currentCharacter.bank = { ...state.bank };
     }
@@ -2247,7 +2249,8 @@ function withdrawFunds() {
     state.bank.silver = remainingCopper % 10;
     state.bank.gold = Math.floor(remainingCopper / 10);
     
-    // Save to character
+    // Save to localStorage and character
+    saveBankToLocalStorage();
     if (state.currentCharacter && state.currentCharacter.bank) {
         state.currentCharacter.bank = { ...state.bank };
     }
