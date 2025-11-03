@@ -2262,8 +2262,9 @@ function withdrawFunds() {
 
 // ===== Login System =====
 function showLogin() {
+    console.log('showLogin called');
     const loginBtn = document.getElementById('loginBtn');
-    const isLoggedIn = loginBtn.classList.contains('logged-in');
+    const isLoggedIn = loginBtn && loginBtn.classList.contains('logged-in');
     
     if (isLoggedIn) {
         // Logout
