@@ -1036,13 +1036,23 @@ const contentData = {
 
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
-    // No login screen — initialize the app directly with a guest user
-    state.currentCharacter = { 
-        name: 'Guest', 
-        accessLevel: 'player', 
-        clearedDungeonLevel: 0,
-        bank: { gold: 0, silver: 0, copper: 0 }
-    };
+    // Check for saved logged-in character
+    const savedCharacterName = localStorage.getItem('loggedInCharacter');
+    
+    if (savedCharacterName && characterDatabase[savedCharacterName]) {
+        // Restore logged-in character
+        state.currentCharacter = characterDatabase[savedCharacterName];
+        state.accessLevel = state.currentCharacter.accessLevel || 'player';
+    } else {
+        // Default to guest user
+        state.currentCharacter = { 
+            name: 'Guest', 
+            accessLevel: 'player', 
+            clearedDungeonLevel: 0,
+            bank: { gold: 0, silver: 0, copper: 0 }
+        };
+    }
+    
     initializeApp();
     
     // ===== Enhanced UI Features =====
@@ -1151,6 +1161,13 @@ function initializeApp() {
     } else if (state.currentCharacter && state.currentCharacter.bank) {
         state.bank = { ...state.currentCharacter.bank };
         saveBankToLocalStorage();
+    }
+    
+    // Restore login button state if character is logged in
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn && state.currentCharacter.name !== 'Guest') {
+        loginBtn.textContent = `👤 ${state.currentCharacter.name}`;
+        loginBtn.classList.add('logged-in');
     }
     
     // Setup event listeners
@@ -2269,6 +2286,9 @@ function showLogin() {
     if (isLoggedIn) {
         // Logout
         if (confirm('Logout and return to Guest?')) {
+            // Clear saved character from localStorage
+            localStorage.removeItem('loggedInCharacter');
+            
             state.currentCharacter = { 
                 name: 'Guest', 
                 accessLevel: 'player', 
@@ -2295,14 +2315,13 @@ function showLogin() {
     let html = '<h2>🔐 Character Login</h2>';
     html += '<div class="login-form">';
     html += '<label>Character Name:</label>';
-    html += '<input type="text" id="loginUsername" placeholder="e.g., Nyra Vex" />';
+    html += '<input type="text" id="loginUsername" placeholder="Enter character name" />';
     html += '<label>Password:</label>';
-    html += '<input type="password" id="loginPassword" placeholder="Password" />';
+    html += '<input type="password" id="loginPassword" placeholder="Enter password" />';
     html += '<div class="login-actions">';
     html += '<button onclick="attemptLogin()" class="btn-primary">Login</button>';
     html += '<button onclick="closeLoginModal()" class="btn-secondary">Cancel</button>';
     html += '</div>';
-    html += '<div class="login-hint">Default: <em>Nyra Vex</em> / <em>rogue123</em></div>';
     html += '</div>';
     
     const modal = document.getElementById('searchModal');
@@ -2329,6 +2348,9 @@ function attemptLogin() {
     // Successful login
     state.currentCharacter = character;
     state.accessLevel = character.accessLevel || 'player';
+    
+    // Save logged-in character to localStorage
+    localStorage.setItem('loggedInCharacter', username);
     
     // Load character's bank balance
     if (character.bank) {
