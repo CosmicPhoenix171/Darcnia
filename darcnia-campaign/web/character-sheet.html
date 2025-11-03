@@ -4,28 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D 2024 Character Sheet | Darcnia Campaign</title>
-    <link rel="stylesheet" href="css/character-sheet.css">
-    <link rel="stylesheet" href="css/starfield.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Inter:wght@400;500;600;700&family=MedievalSharp&family=Great+Vibes&family=Uncial+Antiqua&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=20251103-CARDSV8">
+    <link rel="stylesheet" href="css/character-sheet.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📋</text></svg>">
 </head>
-<body data-theme="dark">
-    <!-- Header Controls -->
-    <header class="sheet-header">
-        <div class="header-content">
-            <h1>🐉 D&D 2024 Character Sheet</h1>
-            <div class="header-controls">
-                <button id="printBtn" class="control-btn" title="Print Character Sheet">🖨️</button>
-                <button id="saveBtn" class="control-btn" title="Save Character">💾</button>
-                <button id="loadBtn" class="control-btn" title="Load Character">📂</button>
-                <button id="exportPdfBtn" class="control-btn" title="Export as PDF">📄</button>
-                <a href="index.html" class="control-btn" title="Back to Campaign">🏰</a>
+<body>
+    <div class="container">
+        <!-- Header (Same as main page) -->
+        <header>
+            <div class="header-top">
+                <div>
+                    <h1>Darcnia: The Floating Continent</h1>
+                    <p class="subtitle">D&D 2024 Character Sheet</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="printBtn" class="bank-button-header" onclick="window.print()" title="Print Character Sheet">🖨️ Print</button>
+                    <button id="saveBtn" class="cart-button-header" onclick="saveCharacterData()" title="Save Character">💾 Save</button>
+                </div>
             </div>
-        </div>
-    </header>
+            
+            <!-- Action Bar -->
+            <div class="search-container">
+                <button id="loadBtn" class="login-button" onclick="loadFromFile()" title="Load Character">📂 Load Character</button>
+                <div style="flex: 1; text-align: center; color: var(--text-muted); font-style: italic;">
+                    Auto-saves to browser • Download backup with Save button
+                </div>
+                <button id="exportPdfBtn" class="login-button" onclick="exportToPDF()" title="Export as PDF">📄 Export PDF</button>
+            </div>
 
-    <main class="character-sheet">
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="theme-toggle">🌙</button>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <a href="index.html" class="tab-btn" title="Back to Market">🏰 Campaign Home</a>
+            <button class="tab-btn active" disabled style="cursor: default;">📋 Character Sheet</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="character-sheet">
         <!-- Top Identity Section -->
         <section class="identity-section">
             <div class="identity-grid">
@@ -504,11 +525,12 @@
             <h3>Additional Notes & Backstory</h3>
             <textarea id="notes" rows="6" placeholder="Character backstory, campaign notes, and other details..."></textarea>
         </section>
-    </main>
+        </main>
 
-    <footer class="sheet-footer">
-        <p>Darcnia Campaign | D&D 2024 Character Sheet | Auto-saves to browser</p>
-    </footer>
+        <footer class="sheet-footer">
+            <p>Darcnia Campaign | D&D 2024 Character Sheet | Auto-saves to browser</p>
+        </footer>
+    </div>
 
     <script src="js/character-sheet.js"></script>
 </body>
