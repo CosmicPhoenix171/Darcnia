@@ -375,6 +375,36 @@ h3 {
     -webkit-text-fill-color: transparent;
     text-shadow: 0 1px 1px rgba(0,0,0,0.35);
 }
+
+/* Stronger metallic gold effect */
+.shop-card .shop-card-title {
+    display: inline-block;
+    position: relative;
+    font-weight: 700;
+    -webkit-text-stroke: 0.6px rgba(80,50,0,0.6);
+    background: linear-gradient(135deg, #b8860b 0%, #ffd54f 35%, #fff9c4 60%, #f7e7a1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow:
+        0 1px 0 rgba(0,0,0,0.65),
+        0 3px 6px rgba(0,0,0,0.45),
+        0 6px 20px rgba(0,0,0,0.35);
+}
+.shop-card .shop-card-title::after {
+    content: '';
+    position: absolute;
+    left: -5%;
+    top: -20%;
+    width: 50%;
+    height: 80%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,255,255,0.0));
+    transform: rotate(-18deg);
+    opacity: 0.55;
+    mix-blend-mode: screen;
+    border-radius: 50%;
+    pointer-events: none;
+}
 .shop-card .shop-card-subtitle {
     color: var(--text-muted);
     font-size: 0.98rem;
