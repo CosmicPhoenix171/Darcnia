@@ -1616,11 +1616,19 @@ function renderShopCard(shop) {
             if (inStock) available += 1;
         });
     });
-    
+
+    // Display name without parenthetical (e.g., "(Basic Arms & Armor)")
+    const displayName = (shop.name || '').replace(/\s*\([^)]*\)\s*$/, '').trim() || shop.name;
+    // Short tagline: prefer description, otherwise summarize first category or prompt
+    const fallbackTagline = (shop.categories && shop.categories[0]?.name)
+        ? `${shop.categories[0].name}`
+        : 'Browse curated stock and bundles.';
+    const tagline = (shop.description || '').trim() || fallbackTagline;
+
     return `
-        <div class="card" onclick="showShopDetail('${shop.id}')">
-            <h3>${shop.name}</h3>
-            <p>${shop.description || ''}</p>
+        <div class="card shop-card" onclick="showShopDetail('${shop.id}')">
+            <div class="shop-card-title">${displayName}</div>
+            <div class="shop-card-subtitle">${escapeHtml(tagline)}</div>
             <div class="card-tags">
                 <span class="tag">${available}/${total} available</span>
             </div>

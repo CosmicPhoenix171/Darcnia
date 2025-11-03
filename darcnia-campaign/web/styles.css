@@ -363,6 +363,33 @@ h3 {
     color: var(--text-gold);
 }
 
+/* Shop card title/subtitle styling (clean name + tagline) */
+.shop-card .shop-card-title {
+    font-family: 'IM Fell English', 'Cinzel', serif;
+    font-size: 1.35rem;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(135deg, #c8a84c 0%, #ffe9a3 35%, #ffd54f 60%, #fff8e1 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.35);
+}
+.shop-card .shop-card-subtitle {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    margin-bottom: 0.6rem;
+}
+
+/* Metallic gold shop name in modal header */
+.modal-content h2 {
+    background: linear-gradient(135deg, #c8a84c 0%, #ffe9a3 35%, #ffd54f 60%, #fff8e1 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.35);
+}
+
 /* Ornate golden corners on cards */
 .card::after {
     content: '';
