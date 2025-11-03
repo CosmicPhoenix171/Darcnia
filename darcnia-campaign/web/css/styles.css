@@ -502,6 +502,13 @@ header {
     overflow: visible;
 }
 
+.header-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
 .bank-button-header {
     padding: 0.75rem 1.5rem;
     border: 2px solid rgba(255, 215, 0, 0.5);
@@ -525,6 +532,36 @@ header {
     box-shadow: 
         0 6px 16px rgba(0, 0, 0, 0.5),
         0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+.cart-button-header {
+    padding: 0.65rem 1.25rem;
+    border: 2px solid rgba(186, 104, 200, 0.5);
+    border-radius: 15px;
+    background: rgba(26, 11, 46, 0.8);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(186, 104, 200, 0.2);
+    white-space: nowrap;
+}
+
+.cart-button-header:hover {
+    transform: translateY(-2px);
+    background: rgba(186, 104, 200, 0.15);
+    border-color: rgba(186, 104, 200, 0.8);
+    box-shadow: 
+        0 6px 16px rgba(0, 0, 0, 0.5),
+        0 0 25px rgba(186, 104, 200, 0.5);
+}
+
+.cart-button-header.has-items {
+    border-color: rgba(186, 104, 200, 0.8);
+    animation: cartPulse 2s ease-in-out infinite;
 }
 
 /* Magical floating particles around title */
