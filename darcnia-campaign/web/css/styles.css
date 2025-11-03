@@ -594,19 +594,17 @@ header {
 }
 
 header h1 {
-    font-family: 'Uncial Antiqua', 'Cinzel Decorative', 'Cinzel', serif;
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
     font-size: 2.7rem;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), var(--glow-sm);
     letter-spacing: 1px;
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    background: linear-gradient(135deg, var(--accent-gold) 0%, #fff 50%, var(--accent-gold) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 3s infinite;
+    color: var(--text-gold);
+    text-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 header h1::before {
