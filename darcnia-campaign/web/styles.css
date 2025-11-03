@@ -164,7 +164,7 @@ body::after {
     background-size: 100% 100%;
     background-position: 0 0;
     pointer-events: none;
-    z-index: 0;
+    z-index: -2;
     background-attachment: fixed;
     animation: mediumStarsTwinkle1 3s ease-in-out infinite, mediumStarsDrift 50s linear infinite;
     will-change: transform, opacity;
@@ -214,7 +214,7 @@ body::after {
     background-size: 100% 100%;
     background-position: 0 0;
     pointer-events: none;
-    z-index: 0;
+    z-index: -3;
     background-attachment: fixed;
     animation: brightStarsSparkle 4s ease-in-out infinite, brightStarsDrift 35s linear infinite;
     will-change: transform, opacity, filter;
@@ -428,7 +428,7 @@ main::before {
             transparent 65%,
             transparent 100%);
     pointer-events: none;
-    z-index: 0;
+    z-index: -4;
     transform: rotate(-25deg);
     animation: milkyWayShimmer 120s ease-in-out infinite;
     will-change: opacity;
@@ -451,7 +451,7 @@ main::after {
     background-size: cover;
     background-position: center;
     pointer-events: none;
-    z-index: 0;
+    z-index: -5;
     opacity: 0;
     animation: constellationReveal 180s ease-in-out infinite;
 }
@@ -1245,6 +1245,9 @@ a:active {
         1px 1px 0 #000,
         0 2px 4px rgba(0, 0, 0, 0.9),
         0 4px 8px rgba(0, 0, 0, 0.6);
+    /* Ensure text stays on top of any overlays */
+    position: relative;
+    z-index: 10;
 }
 
 .shop-card .shop-card-subtitle {
