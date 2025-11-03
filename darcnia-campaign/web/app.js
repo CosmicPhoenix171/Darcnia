@@ -1036,7 +1036,97 @@ document.addEventListener('DOMContentLoaded', () => {
     // No login screen — initialize the app directly with a guest user
     state.currentCharacter = { name: 'Guest', accessLevel: 'player', clearedDungeonLevel: 0 };
     initializeApp();
+    
+    // ===== Enhanced UI Features =====
+    
+    // Sticky header scroll behavior
+    let lastScrollTop = 0;
+    const header = document.querySelector('header');
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 100) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+        
+        lastScrollTop = scrollTop;
+    }, { passive: true });
+    
+    // Ripple effect on clicks
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.matches('button, .tab-btn, .card, .market-list li')) {
+            createRipple(e, target);
+        }
+    });
+    
+    // Keyboard navigation detection
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            document.body.classList.add('keyboard-nav-active');
+        }
+    });
+    
+    document.addEventListener('mousedown', () => {
+        document.body.classList.remove('keyboard-nav-active');
+    });
+    
+    // Intersection Observer for fade-in animations on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe cards and list items
+    const observeElements = () => {
+        document.querySelectorAll('.card, .market-list li').forEach(el => {
+            observer.observe(el);
+        });
+    };
+    
+    // Initial observation
+    setTimeout(observeElements, 100);
+    
+    // Re-observe when content changes
+    const contentArea = document.getElementById('contentArea');
+    if (contentArea) {
+        const contentObserver = new MutationObserver(observeElements);
+        contentObserver.observe(contentArea, { childList: true, subtree: true });
+    }
 });
+
+// Create ripple effect on click
+function createRipple(event, element) {
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+    
+    const rect = element.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.style.position = 'absolute';
+    
+    element.style.position = element.style.position || 'relative';
+    element.style.overflow = 'hidden';
+    element.appendChild(ripple);
+    
+    setTimeout(() => ripple.remove(), 600);
+}
 
 function initializeApp() {
     // Load saved theme
