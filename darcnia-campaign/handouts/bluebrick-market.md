@@ -16,21 +16,32 @@ Availability rule
 - Bedroll [L0]: 1 gp
 - Blanket [L0]: 5 sp
 - Candle (1) [L0]: 1 cp
+- Abacus [L0]: 2 gp
+- Barrel [L0]: 2 gp
+- Basket [L0]: 4 sp
+- Bell [L0]: 1 gp
 - Clothes, common [L0]: 5 sp
 - Clothes, traveler [L0]: 2 gp
-- Cloak (sturdy) [L0]: 1 gp
+- Clothes, costume [L0]: 5 gp
+- Clothes, fine [L1]: 15 gp
 - Crowbar [L0]: 2 gp
+- Fishing tackle [L0]: 1 gp
+- Flask or tankard [L0]: 2 cp
 - Grappling hook [L0]: 2 gp
 - Hammer [L0]: 1 gp
+- Ladder (10 ft) [L0]: 1 sp
 - Healer’s kit (10 uses) [L0]: 5 gp
 - Herbalism kit [L1]: 5 gp
 - Lantern, bullseye [L1]: 10 gp
 - Lantern, hooded [L0]: 5 gp
 - Lamp [L0]: 5 sp
+- Jug or pitcher [L0]: 2 cp
 - Mess kit [L0]: 2 sp
 - Oil, flask [L0]: 1 sp
 - Piton (iron spike) [L0]: 5 cp
 - Pouch (belt) [L0]: 5 sp
+- Pole (10 ft) [L0]: 5 cp
+- Pot, iron [L0]: 2 gp
 - Rations (1 day) [L0]: 5 sp
 - Rope, hempen (50 ft) [L0]: 1 gp
 - Rope, silk (50 ft) [L1]: 10 gp
@@ -41,19 +52,21 @@ Availability rule
 - Tinderbox [L0]: 5 sp
 - Torch (1) [L0]: 1 cp
 - Waterskin [L0]: 2 sp
+- Whetstone [L0]: 1 cp
 
 ## Three Feathers Archery (Ammo & Ranged Supplies)
 - Arrows (20) [L0]: 1 gp
 - Crossbow bolts (20) [L0]: 1 gp
 - Quiver (20 arrows) [L0]: 1 gp
 - Case, bolt (20 bolts) [L0]: 1 gp
-- Bowstring, spare [L0]: 1 sp
-- Fletching wax [L0]: 2 sp
+- Blowgun needles (50) [L0]: 1 gp
+- Sling bullets (20) [L0]: 4 cp
 
 ## Smith’s Bench (Basic Arms & Armor)
 Light/Medium Armor and common weapons only; specialty gear by order.
 
 - Armor
+  - Padded [L0]: 5 gp
   - Leather [L0]: 10 gp
   - Studded leather [L1]: 45 gp
   - Chain shirt [L1]: 50 gp
@@ -62,15 +75,24 @@ Light/Medium Armor and common weapons only; specialty gear by order.
   - Scale mail (medium) [L1]: 50 gp
   - Breastplate (medium) [L2]: 400 gp
   - Half plate (medium) [L3]: 750 gp
+  - Ring mail (heavy) [L1]: 30 gp
+  - Chain mail (heavy) [L2]: 75 gp
+  - Splint (heavy) [L3]: 200 gp
+  - Plate (heavy) [L4]: 1,500 gp
 
 - Simple/Martial Weapons (common stock)
   - Club [L0]: 1 sp
   - Dagger [L0]: 2 gp
+  - Greatclub [L0]: 2 sp
   - Handaxe [L0]: 5 gp
   - Javelin [L0]: 5 sp
+  - Light hammer [L0]: 2 gp
   - Light crossbow [L0]: 25 gp
   - Mace [L0]: 5 gp
   - Quarterstaff [L0]: 2 sp
+  - Sickle [L0]: 1 gp
+  - Sling [L0]: 1 sp
+  - Dart [L0]: 5 cp
   - Rapier [L0]: 25 gp
   - Shortbow [L0]: 25 gp
   - Shortsword [L0]: 10 gp
@@ -79,32 +101,42 @@ Light/Medium Armor and common weapons only; specialty gear by order.
   - Scimitar [L0]: 25 gp
   - Warhammer [L0]: 15 gp
   - Morningstar [L0]: 15 gp
+  - Flail [L1]: 10 gp
+  - Maul [L1]: 10 gp
+  - Pike [L0]: 5 gp
+  - Trident [L0]: 5 gp
+  - War pick [L0]: 5 gp
+  - Whip [L0]: 2 gp
+  - Battleaxe [L0]: 10 gp
+  - Greataxe [L1]: 30 gp
+  - Greatsword [L1]: 50 gp
+  - Glaive [L1]: 20 gp
+  - Halberd [L1]: 20 gp
   - Longbow [L1]: 50 gp
   - Heavy crossbow [L1]: 50 gp
   - Hand crossbow [L2]: 75 gp
+  - Blowgun [L1]: 10 gp
+  - Net [L0]: 1 gp
 
 ## Rue & Resin Apothecary (Tonics & Basics)
 - Potion of healing [L1]: 50 gp
 - Antitoxin (vial) [L1]: 50 gp
-- Bandage roll & salve (kit) [L0]: 1 gp
-- Herbal poultice (minor comfort) [L0]: 5 sp
  - Acid (vial) [L1]: 25 gp
  - Alchemist's fire (flask) [L1]: 50 gp
  - Holy water (flask) [L1]: 25 gp
  - Perfume (vial) [L0]: 5 gp
  - Basic poison (vial) [L2]: 100 gp
+ - Vial (empty) [L0]: 1 gp
 
-## Stables & Services
-- Meal (modest): 3 sp
-- Lodging, common room (per night): 5 sp
-- Lodging, private modest room (per night): 1 gp
-- Bath & laundry: 5 sp
+## Stables & Services (Official)
+- Meals (per day, modest): 3 sp
+- Inn stay (per day, modest room): 5 sp
 - Stabling (per day): 5 sp
-- Messenger in-city (same day): 2 sp
 
 ## Tinker’s Nook (Utility & Traps)
 - Ball bearings (1,000) [L0]: 1 gp
 - Caltrops (20) [L0]: 1 gp
+- Block and tackle [L0]: 1 gp
 - Hunting trap [L0]: 5 gp
 - Lock [L0]: 10 gp
 - Manacles [L0]: 2 gp
@@ -112,7 +144,11 @@ Light/Medium Armor and common weapons only; specialty gear by order.
 - Signal whistle [L0]: 5 cp
 - Horn, signal [L0]: 3 gp
 - Hourglass [L1]: 25 gp
-- Crowbar (reinforced) [L1]: 3 gp
+- Sledgehammer [L0]: 2 gp
+- Pick, miner’s [L0]: 2 gp
+- Ram, portable [L0]: 4 gp
+- Magnifying glass [L2]: 100 gp
+- Spyglass [L3]: 1,000 gp
 
 ## Scribe & Sealery (Paper & Ink)
 - Ink (1 oz) [L0]: 10 gp
@@ -122,7 +158,23 @@ Light/Medium Armor and common weapons only; specialty gear by order.
 - Sealing wax [L0]: 5 sp
 - Chalk (1 piece) [L0]: 1 cp
 - Case, map or scroll [L0]: 1 gp
-- Journal/notebook [L0]: 5 sp
+- Book [L0]: 25 gp
+- Component pouch [L0]: 25 gp
+- Arcane focus, crystal [L0]: 10 gp
+- Arcane focus, orb [L0]: 20 gp
+- Arcane focus, rod [L0]: 10 gp
+- Arcane focus, staff [L0]: 5 gp
+- Arcane focus, wand [L0]: 10 gp
+- Druidic focus, sprig of mistletoe [L0]: 1 gp
+- Druidic focus, totem [L0]: 1 gp
+- Druidic focus, wooden staff [L0]: 5 gp
+- Druidic focus, yew wand [L0]: 10 gp
+- Holy symbol, amulet [L0]: 5 gp
+- Holy symbol, emblem [L0]: 5 gp
+- Holy symbol, reliquary [L0]: 5 gp
+- Merchant’s scale [L0]: 5 gp
+- Signet ring [L0]: 5 gp
+- Spellbook (blank) [L1]: 50 gp
 
 ## Guild Toolwright (Proficiency Tools)
 - Thieves’ tools [L0]: 25 gp
@@ -132,6 +184,33 @@ Light/Medium Armor and common weapons only; specialty gear by order.
 - Tinker’s tools [L1]: 50 gp
 - Smith’s tools [L0]: 20 gp
 - Poisoner’s kit [L2]: 50 gp
+- Brewer’s supplies [L0]: 20 gp
+- Calligrapher’s supplies [L0]: 10 gp
+- Carpenter’s tools [L0]: 8 gp
+- Cartographer’s tools [L1]: 15 gp
+- Cobbler’s tools [L0]: 5 gp
+- Cook’s utensils [L0]: 1 gp
+- Glassblower’s tools [L1]: 30 gp
+- Jeweler’s tools [L1]: 25 gp
+- Leatherworker’s tools [L0]: 5 gp
+- Mason’s tools [L0]: 10 gp
+- Navigator’s tools [L1]: 25 gp
+- Painter’s supplies [L0]: 10 gp
+- Potter’s tools [L0]: 10 gp
+- Weaver’s tools [L0]: 1 gp
+- Woodcarver’s tools [L0]: 1 gp
+- Gaming set, dice [L0]: 1 sp
+- Gaming set, playing cards [L0]: 5 sp
+- Musical instrument, bagpipes [L1]: 30 gp
+- Musical instrument, drum [L0]: 6 gp
+- Musical instrument, dulcimer [L1]: 25 gp
+- Musical instrument, flute [L0]: 2 gp
+- Musical instrument, lute [L1]: 35 gp
+- Musical instrument, lyre [L1]: 30 gp
+- Musical instrument, horn [L0]: 3 gp
+- Musical instrument, pan flute [L0]: 12 gp
+- Musical instrument, shawm [L0]: 2 gp
+- Musical instrument, viol [L1]: 30 gp
 
 ## South Gate Stables & Wheels (Mounts & Vehicles)
 - Donkey/Mule [L0]: 8 gp
@@ -139,12 +218,29 @@ Light/Medium Armor and common weapons only; specialty gear by order.
 - Riding horse [L0]: 75 gp
 - Draft horse [L0]: 50 gp
 - Camel [L1]: 50 gp
+- Mastiff [L0]: 25 gp
+- Warhorse [L2]: 400 gp
+- Elephant [L3]: 200 gp
 - Cart [L0]: 15 gp
 - Wagon [L1]: 35 gp
+- Carriage [L1]: 100 gp
+- Chariot [L2]: 250 gp
+- Sled [L0]: 20 gp
 - Bit & bridle [L0]: 2 gp
 - Saddle, pack [L0]: 5 gp
 - Saddle, riding [L0]: 10 gp
+- Saddle, military [L1]: 20 gp
+- Saddle, exotic [L1]: 60 gp
 - Saddlebags [L0]: 4 gp
+- Feed (per day) [L0]: 5 cp
+
+Waterborne (by commission via the Docks)
+- Rowboat [L0]: 50 gp
+- Keelboat [L2]: 3,000 gp
+- Longship [L3]: 10,000 gp
+- Sailing ship [L3]: 10,000 gp
+- Warship [L4]: 25,000 gp
+- Galley [L4]: 30,000 gp
 
 ## Brass Buckle Outfitters — Adventuring Packs (Bundles)
 - Burglar’s Pack [L0]: 16 gp
