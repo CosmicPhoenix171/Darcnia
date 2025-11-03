@@ -49,59 +49,126 @@ textarea:focus {
     background: rgba(40, 20, 80, 0.6);
 }
 
-/* ===== Character Login Styles ===== */
-.character-login {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.character-login input[type="text"] {
-    width: 180px;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-    border: 2px solid var(--accent-purple);
-    border-radius: 6px;
-    background: rgba(40, 20, 80, 0.6);
-    backdrop-filter: blur(5px);
-    color: var(--text-primary);
-}
-
-.character-login input[type="text"]::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.login-button,
-.logout-button {
-    padding: 0.5rem 1rem;
-    border: 2px solid var(--accent-purple);
-    border-radius: 6px;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
+/* ===== Login Modal Styles ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(30, 15, 60, 0.95), rgba(20, 10, 40, 0.95));
+    border: 2px solid var(--accent-purple);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 50px rgba(138, 43, 226, 0.3);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    color: var(--accent-gold);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.login-form label {
     color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.login-form input {
+    padding: 0.75rem;
+    border: 2px solid var(--accent-purple);
+    border-radius: 8px;
+    background: rgba(40, 20, 80, 0.4);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.login-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    white-space: nowrap;
 }
 
-.login-button:hover,
-.logout-button:hover {
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.5), rgba(75, 0, 130, 0.5));
+.btn-primary {
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(75, 0, 130, 0.4));
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.6), rgba(75, 0, 130, 0.6));
     border-color: var(--accent-gold);
-    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
     transform: translateY(-2px);
 }
 
-.logged-in-display {
-    padding: 0.5rem 1rem;
-    border: 2px solid var(--accent-gold);
-    border-radius: 6px;
-    background: rgba(255, 215, 0, 0.1);
-    backdrop-filter: blur(5px);
-    color: var(--accent-gold);
-    font-weight: 600;
-    white-space: nowrap;
+.btn-secondary {
+    background: transparent;
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
 }
 
 textarea {

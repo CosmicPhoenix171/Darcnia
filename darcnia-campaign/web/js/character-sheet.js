@@ -29,6 +29,41 @@ let currentCharacterName = null;
 let firebaseListener = null;
 let isUpdatingFromFirebase = false;
 
+// ===== Character Database & Login System =====
+function simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return hash.toString(36);
+}
+
+const characterDatabase = {
+    'nyra vex': {
+        name: 'Nyra Vex',
+        password: simpleHash('rogue123'),
+        race: 'Human',
+        class: 'Rogue',
+        guild: 'Guild Crystalia',
+        accessLevel: 'player',
+        bank: { gold: 0, silver: 0, copper: 0 }
+    },
+    'dm': {
+        name: 'Dungeon Master',
+        password: simpleHash('dmpass2025'),
+        accessLevel: 'dm',
+        bank: { gold: 9999, silver: 99, copper: 99 }
+    },
+    'dungeon master': {
+        name: 'Dungeon Master',
+        password: simpleHash('dmpass2025'),
+        accessLevel: 'dm',
+        bank: { gold: 9999, silver: 99, copper: 99 }
+    }
+};
+
 // Character data structure
 let characterData = {
     // Identity
@@ -182,18 +217,26 @@ function checkLoggedInCharacter() {
     // Check if user is logged in from main campaign page
     const savedCharacterName = localStorage.getItem('loggedInCharacter');
     
-    if (savedCharacterName && savedCharacterName !== 'Guest') {
-        currentCharacterName = savedCharacterName;
+    if (savedCharacterName && characterDatabase[savedCharacterName]) {
+        const character = characterDatabase[savedCharacterName];
+        currentCharacterName = character.name;
+        
         console.log(`📋 Loading character sheet for: ${currentCharacterName}`);
+        
+        // Update login button
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.textContent = `👤 ${character.name}`;
+            loginBtn.classList.add('logged-in');
+        }
+        
+        // Load from Firebase
         loadCharacterFromFirebase(currentCharacterName);
         setupFirebaseRealtimeSync(currentCharacterName);
     } else {
         console.log('📋 No character logged in, using local storage only');
         loadCharacterData();
     }
-    
-    // Update login UI
-    updateLoginDisplay();
 }
 
 // ===== Firebase Functions =====
@@ -266,81 +309,113 @@ async function saveCharacterToFirebase() {
     }
 }
 
-// ===== Login/Logout Functions =====
-function handleLogin() {
-    const nameInput = document.getElementById('characterNameLogin');
-    const characterName = nameInput.value.trim();
+// ===== Login/Logout Functions (Modal-based like main page) =====
+function showLogin() {
+    console.log('showLogin called');
+    const loginBtn = document.getElementById('loginBtn');
+    const isLoggedIn = loginBtn && loginBtn.classList.contains('logged-in');
     
-    if (!characterName) {
-        showNotification('❌ Please enter a character name');
+    if (isLoggedIn) {
+        // Logout
+        if (confirm('Logout and return to Guest?')) {
+            // Stop real-time sync
+            if (firebaseListener) {
+                firebaseListener.off();
+                firebaseListener = null;
+            }
+            
+            // Clear saved character from localStorage
+            localStorage.removeItem('loggedInCharacter');
+            currentCharacterName = null;
+            
+            loginBtn.textContent = '👤 Login';
+            loginBtn.classList.remove('logged-in');
+            
+            // Clear character sheet
+            loadCharacterData();
+            
+            showNotification('👋 Logged out');
+        }
         return;
     }
     
-    // Save to localStorage
-    localStorage.setItem('loggedInCharacter', characterName);
-    currentCharacterName = characterName;
+    // Login modal
+    let html = '<h2>🔐 Character Login</h2>';
+    html += '<div class="login-form">';
+    html += '<label>Character Name:</label>';
+    html += '<input type="text" id="loginUsername" placeholder="Enter character name" />';
+    html += '<label>Password:</label>';
+    html += '<input type="password" id="loginPassword" placeholder="Enter password" />';
+    html += '<div class="login-actions">';
+    html += '<button onclick="attemptLogin()" class="btn-primary">Login</button>';
+    html += '<button onclick="closeLoginModal()" class="btn-secondary">Cancel</button>';
+    html += '</div>';
+    html += '</div>';
     
-    // Update UI
-    updateLoginDisplay();
-    
-    // Load character data from Firebase
-    loadCharacterFromFirebase(characterName);
-    setupFirebaseRealtimeSync(characterName);
-    
-    showNotification(`✅ Logged in as ${characterName}`);
-    console.log(`🔓 Logged in as: ${characterName}`);
+    const modal = document.getElementById('loginModal');
+    document.getElementById('loginModalContent').innerHTML = html;
+    modal.classList.remove('hidden');
 }
 
-function handleLogout() {
-    // Remove Firebase listener
-    if (firebaseListener) {
-        firebaseListener.off();
-        firebaseListener = null;
+async function attemptLogin() {
+    const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    
+    const character = characterDatabase[username];
+    
+    if (!character) {
+        alert('Character not found!');
+        return;
     }
     
-    // Clear localStorage
-    localStorage.removeItem('loggedInCharacter');
-    currentCharacterName = null;
+    if (character.password !== simpleHash(password)) {
+        alert('Incorrect password!');
+        return;
+    }
     
-    // Update UI
-    updateLoginDisplay();
+    // Successful login
+    currentCharacterName = character.name;
     
-    // Clear character sheet
-    loadCharacterData(); // Load empty/default data
+    // Save logged-in character to localStorage
+    localStorage.setItem('loggedInCharacter', username);
     
-    showNotification('👋 Logged out');
-    console.log('🔒 Logged out');
-}
-
-function updateLoginDisplay() {
-    const nameInput = document.getElementById('characterNameLogin');
     const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const display = document.getElementById('loggedInDisplay');
+    loginBtn.textContent = `👤 ${character.name}`;
+    loginBtn.classList.add('logged-in');
     
-    if (currentCharacterName && currentCharacterName !== 'Guest') {
-        // Logged in state
-        nameInput.style.display = 'none';
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-        display.textContent = `👤 ${currentCharacterName}`;
-        display.style.display = 'inline-block';
-    } else {
-        // Logged out state
-        nameInput.style.display = 'inline-block';
-        loginBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
-        display.style.display = 'none';
-        nameInput.value = '';
-    }
+    // Load character sheet from Firebase
+    await loadCharacterFromFirebase(character.name);
+    
+    // Setup real-time sync for this character
+    setupFirebaseRealtimeSync(character.name);
+    
+    // Close modal
+    const modal = document.getElementById('loginModal');
+    modal.classList.add('hidden');
+    
+    showNotification(`✅ Welcome, ${character.name}!`);
+}
+
+function closeLoginModal() {
+    const modal = document.getElementById('loginModal');
+    modal.classList.add('hidden');
 }
 
 function setupEventListeners() {
-    // Login/Logout buttons
-    document.getElementById('loginBtn').addEventListener('click', handleLogin);
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    document.getElementById('characterNameLogin').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
+    // Login button
+    document.getElementById('loginBtn').addEventListener('click', showLogin);
+    
+    // Modal close button
+    const modalClose = document.querySelector('#loginModal .modal-close');
+    if (modalClose) {
+        modalClose.addEventListener('click', closeLoginModal);
+    }
+    
+    // Click outside modal to close
+    document.getElementById('loginModal').addEventListener('click', (e) => {
+        if (e.target.id === 'loginModal') {
+            closeLoginModal();
+        }
     });
     
     // Ability score changes

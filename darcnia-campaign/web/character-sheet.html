@@ -25,12 +25,9 @@
                     <p class="subtitle">D&D 2024 Character Sheet</p>
                 </div>
                 <div class="header-buttons">
-                    <!-- Character Login -->
-                    <div class="character-login">
-                        <input type="text" id="characterNameLogin" placeholder="Character Name" />
-                        <button id="loginBtn" class="login-button">Login</button>
-                        <button id="logoutBtn" class="logout-button" style="display: none;">Logout</button>
-                        <span id="loggedInDisplay" class="logged-in-display"></span>
+                    <!-- Search Bar -->
+                    <div class="search-container">
+                        <button id="loginBtn" class="login-button">👤 Login</button>
                     </div>
                 </div>
             </div>
@@ -532,6 +529,14 @@
         <footer class="sheet-footer">
             <p>Darcnia Campaign | D&D 2024 Character Sheet | Auto-saves to browser</p>
         </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div id="loginModalContent"></div>
+        </div>
     </div>
 
     <script src="js/character-sheet.js"></script>
