@@ -60,12 +60,12 @@ div.shop-card,
 
 .card:hover,
 .shop-card:hover {
-    transform: translateY(-8px) translateZ(20px) rotateX(2deg);
+    transform: translateY(-10px); /* Simple lift up effect */
     box-shadow: 
         0 0 30px rgba(186, 104, 200, 0.8),
         0 0 60px rgba(186, 104, 200, 0.6),
         0 0 90px rgba(156, 39, 176, 0.4),
-        0 16px 36px rgba(0, 0, 0, 0.45),
+        0 20px 40px rgba(0, 0, 0, 0.5), /* Increased shadow when lifted */
         inset 0 1px 2px rgba(255, 255, 255, 0.18) !important;
     border-color: rgba(186, 104, 200, 0.7) !important;
     border-top-color: rgba(186, 104, 200, 0.9) !important;
@@ -96,22 +96,7 @@ div.shop-card,
     border-left-color: rgba(186, 104, 200, 0.8) !important;
 }
 
-/* Subtle tilt effect based on mouse position (can be enhanced with JS) */
-@media (hover: hover) and (pointer: fine) {
-    .card {
-        transition: all 0.15s ease-out;
-    }
-    
-    .card:hover {
-        /* Will look even better with JS-driven tilt based on mouse position */
-        animation: cardFloat 3s ease-in-out infinite;
-    }
-}
-
-@keyframes cardFloat {
-    0%, 100% { transform: translateY(-8px) translateZ(20px) rotateX(2deg) rotateY(0deg); }
-    50% { transform: translateY(-10px) translateZ(22px) rotateX(2deg) rotateY(1deg); }
-}
+/* Removed complex animations - simple lift effect only */
 
 .card h3 {
     margin-top: 0;
