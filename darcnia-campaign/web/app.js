@@ -1,3 +1,26 @@
+// ===== Firebase Configuration =====
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+let database = null;
+try {
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        console.log('✅ Firebase initialized');
+    }
+} catch (error) {
+    console.warn('⚠️ Firebase not available, using localStorage fallback');
+}
+
 // ===== Configuration =====
 const CONFIG = {
     campaignPath: '../', // Path to campaign files
@@ -1188,6 +1211,49 @@ function initializeApp() {
 
 function saveBankToLocalStorage() {
     localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+    
+    // Also save to Firebase if logged in
+    if (state.currentCharacter && state.currentCharacter.name !== 'Guest') {
+        saveCharacterDataToFirebase(state.currentCharacter.name, {
+            name: state.currentCharacter.name,
+            bank: state.bank
+        });
+    }
+}
+
+// ===== Firebase Data Management =====
+async function saveCharacterDataToFirebase(characterName, data) {
+    if (!database || !characterName || characterName === 'Guest') return;
+    
+    try {
+        const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        await database.ref(`characters/${sanitizedName}`).set({
+            name: data.name,
+            bank: data.bank,
+            lastUpdated: Date.now()
+        });
+        console.log(`💾 Saved ${characterName} to Firebase`);
+    } catch (error) {
+        console.error('Firebase save error:', error);
+    }
+}
+
+async function loadCharacterDataFromFirebase(characterName) {
+    if (!database || !characterName || characterName === 'Guest') return null;
+    
+    try {
+        const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const snapshot = await database.ref(`characters/${sanitizedName}`).once('value');
+        const data = snapshot.val();
+        
+        if (data) {
+            console.log(`📂 Loaded ${characterName} from Firebase`);
+            return data;
+        }
+    } catch (error) {
+        console.error('Firebase load error:', error);
+    }
+    return null;
 }
 
 // ===== Theme Management =====
@@ -2329,7 +2395,7 @@ function showLogin() {
     modal.classList.remove('hidden');
 }
 
-function attemptLogin() {
+async function attemptLogin() {
     const username = document.getElementById('loginUsername').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
     
@@ -2352,11 +2418,20 @@ function attemptLogin() {
     // Save logged-in character to localStorage
     localStorage.setItem('loggedInCharacter', username);
     
-    // Load character's bank balance
-    if (character.bank) {
+    // Try to load from Firebase first, fall back to character default
+    const firebaseData = await loadCharacterDataFromFirebase(character.name);
+    
+    if (firebaseData && firebaseData.bank) {
+        // Use Firebase data (most recent save)
+        state.bank = { ...firebaseData.bank };
+        console.log('📥 Loaded bank from Firebase');
+    } else if (character.bank) {
+        // Use character default
         state.bank = { ...character.bank };
-        saveBankToLocalStorage();
+        console.log('📦 Using default bank balance');
     }
+    
+    saveBankToLocalStorage();
     
     const loginBtn = document.getElementById('loginBtn');
     loginBtn.textContent = `👤 ${character.name}`;
