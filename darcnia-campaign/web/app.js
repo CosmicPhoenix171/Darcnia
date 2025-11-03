@@ -1731,16 +1731,16 @@ function getShopTagline(shop) {
     }
     const key = slugify(shop?.name || shop?.id || '').toLowerCase();
     const DEFAULT_SHOP_TAGLINES = {
-        'brass-buckle-outfitters': 'General gear and adventuring bundles',
-        'three-feathers-archery': 'Arrows, bolts, quivers, and ranged supplies',
-        'smiths-bench': 'Quality arms and armor; specialty orders available',
-        'rue-resin-apothecary': 'Tonics, poultices, and alchemical basics',
-        'stables-services': 'Food, lodging, stabling, and basic services',
-        'south-gate-stables-wheels': 'Mounts and overland vehicles',
-        'tinkers-nook': 'Utility tools, traps, and gadgets',
-        'scribe-sealery': 'Paper, ink, and sealing supplies',
-        'guild-toolwright': 'Proficiency tools and specialist kits',
-        'arcane-exchange': 'Magic items and rare curios (rotating stock)'
+        'brass-buckle-outfitters': 'Everyday adventuring gear and affordable bundles to outfit any expedition.',
+        'three-feathers-archery': 'Arrows, bolts, quivers, and bow care for ranged specialists.',
+        'smiths-bench': 'Light/Medium Armor and common weapons only; specialty gear by order.',
+        'rue-resin-apothecary': 'Potions of healing, basic remedies, and practical alchemical supplies.',
+        'stables-services': 'Meals, lodging, baths, stabling, and in‑city messenger services.',
+        'south-gate-stables-wheels': 'Mounts, tack, and simple overland carts and wagons.',
+        'tinkers-nook': 'Locks, traps, bearings, and sneaky tools for problem solving.',
+        'scribe-sealery': 'Paper, parchment, inks, journals, and wax seals for proper correspondence.',
+        'guild-toolwright': 'Proficiency tools and kits for craftsmen, rogues, and specialists.',
+        'arcane-exchange': 'Rotating stock of magical arms, curios, potions, and scrolls.'
     };
     if (DEFAULT_SHOP_TAGLINES[key]) return DEFAULT_SHOP_TAGLINES[key];
     // Fallback: synthesize from first 1–2 category names
