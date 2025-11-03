@@ -870,6 +870,26 @@ main {
     background: linear-gradient(135deg, #9c27b0, #ba68c8);
 }
 
+.bank-button {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid rgba(255, 215, 0, 0.4);
+    border-radius: 25px;
+    background: rgba(26, 11, 46, 0.8);
+    color: var(--text-gold);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-deep);
+    white-space: nowrap;
+}
+
+.bank-button:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 215, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.7);
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
+}
+
 /* Theme toggle */
 .theme-toggle {
     position: fixed;
