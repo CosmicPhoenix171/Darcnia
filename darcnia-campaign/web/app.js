@@ -1695,6 +1695,8 @@ function renderMarket() {
 }
 
 function renderShopCard(shop) {
+    // Compute a concise tagline for the card subtitle
+    const tagline = getShopTagline(shop);
     // Count available items for quick glance using daily stock
     const stockSet = state._currentMarketStock?.[shop.id] || new Set();
     let total = 0;
@@ -1710,11 +1712,6 @@ function renderShopCard(shop) {
 
     // Display name without parenthetical (e.g., "(Basic Arms & Armor)")
     const displayName = (shop.name || '').replace(/\s*\([^)]*\)\s*$/, '').trim() || shop.name;
-    // Short tagline: prefer description, otherwise summarize first category or prompt
-    const fallbackTagline = (shop.categories && shop.categories[0]?.name)
-        ? `${shop.categories[0].name}`
-        : 'Browse curated stock and bundles.';
-    const tagline = (shop.description || '').trim() || fallbackTagline;
 
     return `
         <div class="card shop-card" onclick="showShopDetail('${shop.id}')">
@@ -1725,6 +1722,34 @@ function renderShopCard(shop) {
             </div>
         </div>
     `;
+}
+
+// Provide short, human-friendly shop taglines even when markdown lacks descriptions
+function getShopTagline(shop) {
+    if (shop && typeof shop.description === 'string' && shop.description.trim().length > 0) {
+        return shop.description.trim();
+    }
+    const key = slugify(shop?.name || shop?.id || '').toLowerCase();
+    const DEFAULT_SHOP_TAGLINES = {
+        'brass-buckle-outfitters': 'General gear and adventuring bundles',
+        'three-feathers-archery': 'Arrows, bolts, quivers, and ranged supplies',
+        'smiths-bench': 'Quality arms and armor; specialty orders available',
+        'rue-resin-apothecary': 'Tonics, poultices, and alchemical basics',
+        'stables-services': 'Food, lodging, stabling, and basic services',
+        'south-gate-stables-wheels': 'Mounts and overland vehicles',
+        'tinkers-nook': 'Utility tools, traps, and gadgets',
+        'scribe-sealery': 'Paper, ink, and sealing supplies',
+        'guild-toolwright': 'Proficiency tools and specialist kits',
+        'arcane-exchange': 'Magic items and rare curios (rotating stock)'
+    };
+    if (DEFAULT_SHOP_TAGLINES[key]) return DEFAULT_SHOP_TAGLINES[key];
+    // Fallback: synthesize from first 1–2 category names
+    const cats = (shop?.categories || []).map(c => c?.name).filter(Boolean);
+    if (cats.length > 0) {
+        if (cats.length === 1) return cats[0];
+        return cats.slice(0, 2).join(' • ');
+    }
+    return 'Browse curated stock and bundles.';
 }
 
 function showShopDetail(shopId) {
