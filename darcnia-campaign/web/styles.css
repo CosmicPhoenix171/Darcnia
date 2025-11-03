@@ -890,51 +890,43 @@ a:active {
     text-shadow: 0 1px 1px rgba(0,0,0,0.35);
 }
 
-/* Enhanced metallic gold effect with superior contrast and depth */
+/* Enhanced metallic gold effect with superior contrast and readability */
 .shop-card .shop-card-title {
     display: inline-block;
     position: relative;
     font-weight: 700;
-    /* Stronger stroke for definition */
-    -webkit-text-stroke: 0.8px rgba(101, 67, 33, 0.8);
-    /* Multi-layered ultra-bright gold gradient with enhanced whites */
+    /* Stronger stroke for crisp definition */
+    -webkit-text-stroke: 1px rgba(60, 40, 20, 0.9);
+    /* Cleaner metallic gold gradient optimized for readability */
     background-image:
-        /* Brushed metal texture */
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.25) 0 1px, rgba(255,255,255,0) 1px 3px),
-        /* Vertical shine bands */
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.15) 0 2px, rgba(255,255,255,0) 2px 6px),
-        /* Ultra-bright metallic gold gradient */
+        /* Subtle brushed metal texture */
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0 1px, rgba(255,255,255,0) 1px 3px),
+        /* Metallic gold gradient with better contrast */
         linear-gradient(115deg, 
-            #8B6914 0%,     /* Deep gold shadow */
-            #B8860B 6%,     /* Dark goldenrod */
-            #DAA520 12%,    /* Goldenrod */
-            #FFD700 18%,    /* Pure gold */
-            #FFED4E 24%,    /* Bright yellow-gold */
-            #FFF176 30%,    /* Light yellow */
-            #FFFACD 36%,    /* Lemon chiffon */
-            #FFFFF0 42%,    /* Ivory highlight peak */
-            #FFFFFF 48%,    /* Pure white center */
-            #FFFFF0 54%,    /* Ivory */
-            #FFFACD 60%,    /* Lemon chiffon */
-            #FFF176 66%,    /* Light yellow */
-            #FFED4E 72%,    /* Bright yellow-gold */
-            #FFD700 78%,    /* Pure gold */
-            #DAA520 84%,    /* Goldenrod */
-            #B8860B 92%,    /* Dark goldenrod */
-            #8B6914 100%);  /* Deep gold shadow */
+            #996515 0%,     /* Rich dark gold */
+            #B8860B 10%,    /* Dark goldenrod */
+            #DAA520 20%,    /* Goldenrod */
+            #FFD700 30%,    /* Pure gold */
+            #FFED4E 40%,    /* Bright yellow-gold */
+            #FFF59D 50%,    /* Light yellow center */
+            #FFED4E 60%,    /* Bright yellow-gold */
+            #FFD700 70%,    /* Pure gold */
+            #DAA520 80%,    /* Goldenrod */
+            #B8860B 90%,    /* Dark goldenrod */
+            #996515 100%);  /* Rich dark gold */
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    /* Maximum visibility with ultra-bright filter */
-    filter: brightness(1.5) saturate(1.6) contrast(1.3) drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
-    /* Enhanced multi-layer shadows for depth and glow */
+    /* Reduced brightness for better readability */
+    filter: brightness(1.25) saturate(1.4) contrast(1.2) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9));
+    /* Tighter, more focused shadows - less blur, more definition */
     text-shadow:
-        0 0 12px rgba(255, 215, 0, 0.9),
-        0 0 24px rgba(255, 215, 0, 0.6),
-        0 2px 4px rgba(0, 0, 0, 0.9),
-        0 4px 12px rgba(255, 215, 0, 0.5),
-        0 -1px 0 rgba(255, 255, 255, 0.8),
-        2px 2px 0 rgba(139, 69, 19, 0.7);
+        0 0 8px rgba(255, 215, 0, 0.5),
+        0 2px 6px rgba(0, 0, 0, 0.95),
+        0 4px 8px rgba(255, 215, 0, 0.3),
+        0 -1px 0 rgba(255, 255, 220, 0.6),
+        1px 1px 0 rgba(100, 60, 20, 0.8),
+        2px 2px 0 rgba(60, 40, 15, 0.6);
 }
 .shop-card .shop-card-title::after {
     content: '';
