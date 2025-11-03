@@ -2092,7 +2092,12 @@ function saveCartToFirebase() {
 }
 
 function removeFromCart(itemKey) {
+    console.log('Removing item from cart:', itemKey);
+    const beforeCount = state.cart.length;
     state.cart = state.cart.filter(item => item.key !== itemKey);
+    const afterCount = state.cart.length;
+    console.log(`Cart count: ${beforeCount} -> ${afterCount}`);
+    
     updateCartDisplay();
     saveCartToFirebase();
     
@@ -2172,10 +2177,10 @@ function showCart() {
                     <div class="cart-item-subtotal">Subtotal: ${subtotal}</div>
                 </div>
                 <div class="cart-item-controls">
-                    <button onclick="updateCartQuantity('${item.key}', -1)" class="cart-qty-btn">−</button>
+                    <button onclick="updateCartQuantity(\`${item.key}\`, -1)" class="cart-qty-btn">−</button>
                     <span class="cart-qty">${item.quantity}</span>
-                    <button onclick="updateCartQuantity('${item.key}', 1)" class="cart-qty-btn">+</button>
-                    <button onclick="removeFromCart('${item.key}')" class="cart-remove-btn">🗑️</button>
+                    <button onclick="updateCartQuantity(\`${item.key}\`, 1)" class="cart-qty-btn">+</button>
+                    <button onclick="removeFromCart(\`${item.key}\`)" class="cart-remove-btn">🗑️</button>
                 </div>
             </div>
         `;
@@ -2236,7 +2241,12 @@ function clearCart() {
     if (confirm('Clear all items from cart?')) {
         state.cart = [];
         updateCartDisplay();
-        showCart();
+        saveCartToFirebase();
+        
+        // Close the modal since cart is empty
+        const modal = document.getElementById('searchModal');
+        if (modal) modal.classList.add('hidden');
+        alert('Cart cleared!');
     }
 }
 
