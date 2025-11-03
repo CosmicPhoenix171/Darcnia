@@ -1908,6 +1908,7 @@ function renderLore() {
 // ===== Sidebar =====
 function updateSidebar(tab) {
     const sidebar = document.querySelector('.quick-links');
+    if (!sidebar) { return; }
     let links = [];
     
     switch(tab) {
