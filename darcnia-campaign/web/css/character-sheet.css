@@ -6,13 +6,6 @@
     --accent-purple-light: #ba68c8;
 }
 
-/* Tab styling override for character sheet */
-.tab-btn[disabled] {
-    opacity: 1;
-    background: linear-gradient(135deg, #7b1fa2, #9c27b0);
-    border-color: var(--accent-gold);
-}
-
 /* ===== Main Character Sheet ===== */
 .character-sheet {
     padding: 2rem;
