@@ -1041,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
         name: 'Guest', 
         accessLevel: 'player', 
         clearedDungeonLevel: 0,
-        bank: { gold: 100, silver: 50, copper: 25 }
+        bank: { gold: 0, silver: 0, copper: 0 }
     };
     initializeApp();
     
