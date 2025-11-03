@@ -1898,13 +1898,14 @@ function removeFromCart(itemKey) {
     state.cart = state.cart.filter(item => item.key !== itemKey);
     updateCartDisplay();
     
-    // Refresh the cart modal if it's open
-    const modal = document.getElementById('searchModal');
-    if (modal && !modal.classList.contains('hidden')) {
+    // Refresh the cart modal if it's showing cart content
+    const searchResults = document.getElementById('searchResults');
+    if (searchResults && searchResults.innerHTML.includes('🛒 Shopping Cart')) {
         if (state.cart.length > 0) {
             showCart();
         } else {
-            modal.classList.add('hidden');
+            const modal = document.getElementById('searchModal');
+            if (modal) modal.classList.add('hidden');
             alert('Your cart is now empty!');
         }
     }
@@ -1918,9 +1919,9 @@ function updateCartQuantity(itemKey, delta) {
             removeFromCart(itemKey);
         } else {
             updateCartDisplay();
-            // Refresh the cart modal if it's open
-            const modal = document.getElementById('searchModal');
-            if (modal && !modal.classList.contains('hidden')) {
+            // Refresh the cart modal if it's showing cart content
+            const searchResults = document.getElementById('searchResults');
+            if (searchResults && searchResults.innerHTML.includes('🛒 Shopping Cart')) {
                 showCart();
             }
         }
