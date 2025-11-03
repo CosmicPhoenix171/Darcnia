@@ -3,16 +3,16 @@
 
 /* Card-specific CSS variables */
 :root {
-    --card-bg: linear-gradient(145deg, rgba(45, 27, 61, 0.9), rgba(26, 11, 46, 0.95));
-    --card-border: rgba(156, 39, 176, 0.3);
-    --card-glow: rgba(186, 104, 200, 0.2);
-    /* Glass tuning */
-    --glass-blur: 10px;
-    --glass-blur-hover: 14px;
-    --glass-saturate: 110%;
-    --glass-saturate-hover: 115%;
-    --glass-brightness: 1.02;
-    --glass-brightness-hover: 1.02;
+    --card-bg: transparent; /* not used by cards in test mode */
+    --card-border: rgba(255, 255, 255, 0.18); /* neutral, no purple */
+    --card-glow: rgba(255, 255, 255, 0); /* disabled */
+    /* Glass tuning — low blur so stars remain visible */
+    --glass-blur: 4px;
+    --glass-blur-hover: 6px;
+    --glass-saturate: 100%;
+    --glass-saturate-hover: 100%;
+    --glass-brightness: 1.0;
+    --glass-brightness-hover: 1.0;
 }
 
 .card,
@@ -30,16 +30,15 @@ div.shop-card,
     mix-blend-mode: normal;
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) !important;
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) !important;
-    border: 2px solid rgba(186, 104, 200, 0.5) !important;
+    border: 2px solid var(--card-border) !important;
     border-top: 2px solid rgba(255, 255, 255, 0.25) !important;
     border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 15px !important;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.6),
-        inset 0 1px 2px rgba(255, 255, 255, 0.15),
-        0 0 20px rgba(186, 104, 200, 0.2) !important;
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.12);
     /* Avoid animating background so late overrides don't appear as a fade */
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
                 box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
@@ -52,30 +51,17 @@ div.shop-card,
     perspective: 1000px;
 }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(135deg, transparent, var(--card-glow), transparent);
-    border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: -1;
-}
+/* Disable gradient glow overlay (removes any tint) */
+.card::before { display: none; }
 
 .card:hover,
 .shop-card:hover {
     transform: translateY(-8px) translateZ(20px) rotateX(2deg);
     box-shadow: 
-        var(--glow-md),
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 30px rgba(186, 104, 200, 0.5),
-        inset 0 1px 2px rgba(255, 255, 255, 0.2);
-    border-color: rgba(186, 104, 200, 0.7) !important;
-    border-top-color: rgba(255, 255, 255, 0.35) !important;
+        0 16px 36px rgba(0, 0, 0, 0.45),
+        inset 0 1px 2px rgba(255, 255, 255, 0.18);
+    border-color: var(--card-border) !important;
+    border-top-color: rgba(255, 255, 255, 0.28) !important;
     /* Hover: slightly more visible for readability */
     backdrop-filter: blur(var(--glass-blur-hover)) saturate(var(--glass-saturate-hover)) brightness(var(--glass-brightness-hover)) !important; /* gentle blur */
     -webkit-backdrop-filter: blur(var(--glass-blur-hover)) saturate(var(--glass-saturate-hover)) brightness(var(--glass-brightness-hover)) !important;
@@ -127,22 +113,8 @@ div.shop-card,
 .card:nth-child(10) { animation-delay: 0.5s; }
 
 /* Ornate golden corners on cards */
-.card::after {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    pointer-events: none;
-    background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M2,14 Q2,2 14,2' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>"),
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M26,2 Q38,2 38,14' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>"),
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M2,26 Q2,38 14,38' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>"),
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><path d='M26,38 Q38,38 38,26' stroke='%23ffd700' stroke-width='2.5' fill='none'/></svg>");
-    background-repeat: no-repeat;
-    background-position: top left, top right, bottom left, bottom right;
-    background-size: 32px 32px;
-    opacity: 0.85;
-    filter: drop-shadow(0 0 3px rgba(255,215,0,0.4));
-}
+/* Disable ornate corners during color test to avoid overlaying pixels */
+.card::after { display: none; }
 
 .card-grid {
     display: grid;
@@ -151,10 +123,8 @@ div.shop-card,
     margin: 1.5rem 0;
 }
 
-/* Pink left accent like the screenshot */
-.card {
-    border-left: 4px solid rgba(255,105,180,0.7) !important;
-}
+/* Remove left accent for neutral test */
+.card { border-left: 0 !important; }
 
 .card p { 
     color: var(--text-muted); 
@@ -183,25 +153,8 @@ div.shop-card,
     color: var(--text-muted);
 }
 
-/* Rarity-based card accents */
-.card[data-rarity="Uncommon"] { 
-    border-left-color: rgba(102, 187, 106, 0.7) !important; 
-}
-
-.card[data-rarity="Rare"] { 
-    border-left-color: rgba(66, 165, 245, 0.7) !important; 
-}
-
-.card[data-rarity="Very Rare"] { 
-    border-left-color: rgba(171, 71, 188, 0.7) !important; 
-}
-
-.card[data-rarity="Legendary"] {
-    border-left-color: rgba(255, 215, 0, 0.9) !important;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.6),
-        0 0 30px rgba(255, 215, 0, 0.4) !important;
-}
+/* Disable rarity accent colors for test */
+.card[data-rarity] { border-left: 0 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important; }
 
 /* Card focus states for keyboard navigation */
 .card:focus-visible,
