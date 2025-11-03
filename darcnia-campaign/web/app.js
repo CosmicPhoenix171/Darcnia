@@ -77,7 +77,8 @@ const state = {
     dice: {
         mode: 'normal', // 'normal' | 'adv' | 'dis'
         history: []     // keep last 10 results
-    }
+    },
+    cart: [] // Shopping cart: [{key, name, price, shop, quantity}]
 };
 
 // ===== Data Structure =====
@@ -1815,7 +1816,9 @@ function showShopDetail(shopId) {
                         const rarityTag = rarity ? ` <span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
                         const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
             const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
-                        html += `<li class="${cls}"><strong>${it.name}</strong>${lvlTag}${rarityTag}${attuneTag}: ${it.price}${note}</li>`;
+            const itemKey = `${shopId}-${cat.name}-${it.name}`;
+            const cartBtn = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${it.price}', '${shopId}')" title="Add to cart">🛒</button>`;
+                        html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${lvlTag}${rarityTag}${attuneTag}: ${it.price}${note}</div>${cartBtn}</li>`;
             shown++;
         });
         html += '</ul>';
@@ -1868,6 +1871,124 @@ function wireShopFilters(shopId) {
         filters.rarities.clear();
         showShopDetail(shopId);
     });
+}
+
+// ===== Shopping Cart =====
+function addToCart(itemKey, itemName, itemPrice, shopId) {
+    // Check if item already in cart
+    const existingItem = state.cart.find(item => item.key === itemKey);
+    
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        state.cart.push({
+            key: itemKey,
+            name: itemName,
+            price: itemPrice,
+            shop: shopId,
+            quantity: 1
+        });
+    }
+    
+    updateCartDisplay();
+    showCartNotification(`Added ${itemName} to cart`);
+}
+
+function removeFromCart(itemKey) {
+    state.cart = state.cart.filter(item => item.key !== itemKey);
+    updateCartDisplay();
+}
+
+function updateCartQuantity(itemKey, delta) {
+    const item = state.cart.find(i => i.key === itemKey);
+    if (item) {
+        item.quantity += delta;
+        if (item.quantity <= 0) {
+            removeFromCart(itemKey);
+        } else {
+            updateCartDisplay();
+        }
+    }
+}
+
+function updateCartDisplay() {
+    const cartBtn = document.getElementById('cartButton');
+    const cartCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+    
+    if (cartBtn) {
+        cartBtn.textContent = `🛒 Cart (${cartCount})`;
+        if (cartCount > 0) {
+            cartBtn.classList.add('has-items');
+        } else {
+            cartBtn.classList.remove('has-items');
+        }
+    }
+}
+
+function showCart() {
+    if (state.cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+    
+    let html = '<h2>🛒 Shopping Cart</h2>';
+    html += '<div class="cart-items">';
+    
+    state.cart.forEach(item => {
+        html += `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <strong>${item.name}</strong>
+                    <div class="cart-item-price">${item.price} each</div>
+                </div>
+                <div class="cart-item-controls">
+                    <button onclick="updateCartQuantity('${item.key}', -1)" class="cart-qty-btn">−</button>
+                    <span class="cart-qty">${item.quantity}</span>
+                    <button onclick="updateCartQuantity('${item.key}', 1)" class="cart-qty-btn">+</button>
+                    <button onclick="removeFromCart('${item.key}')" class="cart-remove-btn">🗑️</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    html += '<div class="cart-actions">';
+    html += `<button onclick="clearCart()" class="btn-secondary">Clear Cart</button>`;
+    html += `<button onclick="checkout()" class="btn-primary">Checkout</button>`;
+    html += '</div>';
+    
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
+}
+
+function clearCart() {
+    if (confirm('Clear all items from cart?')) {
+        state.cart = [];
+        updateCartDisplay();
+        showCart();
+    }
+}
+
+function checkout() {
+    const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+    alert(`Checkout feature coming soon!\n\nYou have ${totalItems} items in your cart.`);
+}
+
+function showCartNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'cart-notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 2000);
 }
 
 // ===== Dice Roller =====
