@@ -2691,6 +2691,23 @@ function updateRestockCountdown() {
     if (diff <= 0) {
         countdownElement.textContent = 'Restocking...';
         countdownElement.classList.add('restock-imminent');
+        
+        // Auto-clear cart on restock
+        if (state.cart.length > 0) {
+            const itemCount = state.cart.length;
+            state.cart = [];
+            updateCartDisplay();
+            showCartNotification(`🔄 Market restocked! ${itemCount} item(s) removed from cart.`);
+        }
+        
+        // Reload market view to show new stock
+        if (state.currentTab === 'market') {
+            setTimeout(() => {
+                document.getElementById('contentArea').innerHTML = renderMarket();
+                startRestockCountdown();
+            }, 2000);
+        }
+        
         return;
     }
     
@@ -2709,6 +2726,11 @@ function updateRestockCountdown() {
     // Add visual feedback when close to restock
     if (hours === 0 && minutes < 5) {
         countdownElement.classList.add('restock-soon');
+        
+        // Warning notification at 5 minutes
+        if (minutes === 4 && seconds === 59 && state.cart.length > 0) {
+            showCartNotification('⚠️ Market restocks in 5 minutes! Your cart will be cleared.');
+        }
     } else {
         countdownElement.classList.remove('restock-soon');
     }
