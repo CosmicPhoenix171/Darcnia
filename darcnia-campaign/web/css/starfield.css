@@ -566,24 +566,9 @@ header::after {
 }
 
 /* ===== SHOOTING STARS FROM LEFT SIDE ===== */
-.container {
-    position: relative;
-}
+/* Using content area and search elements for left-side stars */
 
-.container::before::before,
-.container::after::before {
-    content: '';
-    position: fixed;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9) 50%, transparent);
-    box-shadow: 0 0 6px rgba(255,255,255,0.8);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0;
-}
-
-/* Create additional layers for left-side shooting stars using :before and :after on body and html */
-html::after {
+#contentArea::before {
     content: '';
     position: fixed;
     width: 85px;
@@ -618,11 +603,7 @@ html::after {
 }
 
 /* Shooting star from top-left */
-body {
-    position: relative;
-}
-
-body::before::after {
+#contentArea::after {
     content: '';
     position: fixed;
     width: 100px;
