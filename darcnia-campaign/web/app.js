@@ -1340,10 +1340,10 @@ function seededRng(seed) {
     };
 }
 
-// Build a numeric seed from the current date and the view level (stable per day)
-function buildDailySeed(viewLevel) {
+// Build a numeric seed from the current date (stable per day for all users)
+function buildDailySeed() {
     const d = new Date();
-    const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}-L${viewLevel}`;
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     let h = 2166136261; // FNV-like
     for (let i = 0; i < key.length; i++) {
         h ^= key.charCodeAt(i);
@@ -1373,9 +1373,8 @@ function levelAppearanceFactor(requiredLevel) {
     return Math.max(0.15, 1 - 0.05 * Math.max(0, requiredLevel));
 }
 
-function itemInStock(rng, item, viewLevel) {
+function itemInStock(rng, item) {
     const req = Number(item.level ?? 0);
-    if (req > viewLevel) return false;
     if (req <= 0) return true; // L0 always available
     const base = RARITY_BASE_RATE[getItemRarity(item)] ?? 0.3;
     const p = base * levelAppearanceFactor(req);
@@ -1394,15 +1393,15 @@ function assignItemKeys(shops) {
     return shops;
 }
 
-function generateDailyStock(shops, viewLevel) {
-    const seed = buildDailySeed(viewLevel);
+function generateDailyStock(shops) {
+    const seed = buildDailySeed();
     const rng = seededRng(seed);
     const stock = {};
     shops.forEach(shop => {
         const set = new Set();
         (shop.categories || []).forEach(cat => {
             (cat.items || []).forEach(it => {
-                if (itemInStock(rng, it, viewLevel)) {
+                if (itemInStock(rng, it)) {
                     set.add(it._key);
                 }
             });
@@ -1565,34 +1564,14 @@ function filterItemsByLevel(items, level, isDM) {
 function renderMarket() {
     const character = state.currentCharacter;
     const isDM = character?.accessLevel === 'dm';
-    const viewLevel = getMarketViewLevel();
     const shops = assignItemKeys(getMarketShops());
-    const dailyStock = generateDailyStock(shops, viewLevel);
+    const dailyStock = generateDailyStock(shops);
     state._currentMarketStock = dailyStock;
     
     let html = '<h2>🛒 Bluebrick Market</h2>';
-    html += '<p>Browse shops and check stock based on your cleared dungeon level.</p>';
+    html += '<p>Browse shops. Stock rotates daily. Items tagged [L0] are always in stock; higher-level and rarer items appear less often.</p>';
     
-    // Controls
-    if (isDM) {
-        html += `
-            <div class="card">
-                <div class="stat-line"><span class="stat-label">Viewing as Dungeon Level:</span>
-                <select onchange="setMarketViewLevel(this.value)">
-                    ${Array.from({length: 21}, (_, i) => `<option value="${i}" ${i===viewLevel?'selected':''}>L${i}</option>`).join('')}
-                </select>
-                <span class="tag">DM View</span>
-                </div>
-            </div>
-        `;
-    } else {
-        html += `
-            <div class="card">
-                <div class="stat-line"><span class="stat-label">Availability:</span> <span class="stat-value">Dungeon L${viewLevel}</span></div>
-                <div class="card-meta">Items show only up to your cleared level.</div>
-            </div>
-        `;
-    }
+    // Controls removed (no level gating)
     
     // Shop grid
     html += '<div class="card-grid">';
@@ -1604,7 +1583,6 @@ function renderMarket() {
 
 function renderShopCard(shop) {
     // Count available items for quick glance using daily stock
-    const viewLevel = getMarketViewLevel();
     const stockSet = state._currentMarketStock?.[shop.id] || new Set();
     let total = 0;
     let available = 0;
@@ -1612,8 +1590,7 @@ function renderShopCard(shop) {
         (c.items || []).forEach(it => {
             total += 1;
             const req = Number(it.level ?? 0);
-            const eligible = req <= viewLevel;
-            const inStock = req <= 0 || (eligible && stockSet.has(it._key));
+            const inStock = req <= 0 || stockSet.has(it._key);
             if (inStock) available += 1;
         });
     });
@@ -1634,12 +1611,11 @@ function showShopDetail(shopId) {
     const shop = resolveShop(shopId, shops);
     if (!shop) return;
     const isDM = state.currentCharacter?.accessLevel === 'dm';
-    const viewLevel = getMarketViewLevel();
-    const stockSet = generateDailyStock(shops, viewLevel)[shop.id] || new Set();
+    const stockSet = (state._currentMarketStock || generateDailyStock(shops))[shop.id] || new Set();
     
     let html = `<h2>${shop.name}</h2>`;
     if (shop.description) html += `<p>${shop.description}</p>`;
-    html += `<div class="card-meta">Showing items up to L${viewLevel}${isDM ? ' (DM adjustable)' : ''}</div>`;
+    html += `<div class="card-meta">Showing today's stock (daily rotation). L0 items are always available.</div>`;
     
     shop.categories.forEach(cat => {
         const items = (cat.items || []);
@@ -1649,19 +1625,16 @@ function showShopDetail(shopId) {
         html += '<ul class="market-list">';
         items.forEach(it => {
             const req = Number(it.level ?? 0);
-            const eligible = req <= viewLevel;
-            const inStock = req <= 0 || (eligible && stockSet.has(it._key));
+            const inStock = req <= 0 || stockSet.has(it._key);
             const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            const cls = (!inStock && isDM) ? 'item-dim' : '';
-            // Player sees only in-stock items; DM sees all (dimmed when OOS/locked)
-            if (inStock || isDM) {
-                const badge = (!eligible ? `Locked L${req}` : (!inStock && req > 0 ? 'Out of stock' : `L${req}`));
-                const lvlTag = ` <span class="tag">${badge}</span>`;
-                const rarityTag = rarity ? ` <span class="tag">${rarity}</span>` : '';
-                const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
-                html += `<li class="${cls}"><strong>${it.name}</strong>${lvlTag}${rarityTag}: ${it.price}${note}</li>`;
-                shown++;
-            }
+            const cls = (!inStock && req > 0) ? 'item-dim' : '';
+            // Show all items to all users; dim and label out-of-stock ones
+            const badge = (!inStock && req > 0 ? 'Out of stock' : `L${req}`);
+            const lvlTag = ` <span class="tag">${badge}</span>`;
+            const rarityTag = rarity ? ` <span class="tag">${rarity}</span>` : '';
+            const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
+            html += `<li class="${cls}"><strong>${it.name}</strong>${lvlTag}${rarityTag}: ${it.price}${note}</li>`;
+            shown++;
         });
         html += '</ul>';
         if (shown === 0) {
@@ -1832,16 +1805,13 @@ function buildSearchIndex() {
     }
     
     contentData.quests.forEach(quest => {
-        // Only show quests if the character knows them or is DM
-        if (state.currentCharacter?.accessLevel === 'dm' || state.currentCharacter?.activeQuests?.includes(quest.name) || quest.isPublic) {
-            state.searchIndex.push({
-                type: 'Quest',
-                title: quest.name,
-                content: `${quest.description} ${quest.objectives.join(' ')}`,
-                data: quest,
-                showFunction: () => { switchTab('quests'); }
-            });
-        }
+        state.searchIndex.push({
+            type: 'Quest',
+            title: quest.name,
+            content: `${quest.description} ${quest.objectives.join(' ')}`,
+            data: quest,
+            showFunction: () => { switchTab('quests'); }
+        });
     });
 }
 
