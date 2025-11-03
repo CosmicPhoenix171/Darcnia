@@ -376,30 +376,37 @@ h3 {
     text-shadow: 0 1px 1px rgba(0,0,0,0.35);
 }
 
-/* Stronger metallic gold effect */
+/* Stronger metallic gold effect (brushed + high contrast) */
 .shop-card .shop-card-title {
     display: inline-block;
     position: relative;
     font-weight: 700;
-    -webkit-text-stroke: 0.6px rgba(80,50,0,0.6);
-    background: linear-gradient(135deg, #b8860b 0%, #ffd54f 35%, #fff9c4 60%, #f7e7a1 100%);
+    /* dark stroke for carved edge */
+    -webkit-text-stroke: 1px rgba(40,25,0,0.65);
+    /* layered backgrounds: brushed streaks + rich gold gradient with specular bends */
+    background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.09) 0 2px, rgba(255,255,255,0) 2px 6px),
+        linear-gradient(100deg, #2b1f00 0%, #7a4b00 14%, #eecb62 26%, #b57c00 36%, #fff1a5 44%, #e1b647 50%, #fffad1 56%, #a56b00 65%, #ffef9d 74%, #6a4300 86%, #2b1f00 100%);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* punchier contrast and subtle warm saturation */
+    filter: saturate(1.15) contrast(1.18);
     text-shadow:
-        0 1px 0 rgba(0,0,0,0.65),
+        0 1px 0 rgba(0,0,0,0.75),
         0 3px 6px rgba(0,0,0,0.45),
-        0 6px 20px rgba(0,0,0,0.35);
+        0 8px 22px rgba(0,0,0,0.35),
+        0 -1px 0 rgba(255,249,224,0.45);
 }
 .shop-card .shop-card-title::after {
     content: '';
     position: absolute;
-    left: -5%;
-    top: -20%;
-    width: 50%;
-    height: 80%;
-    background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,255,255,0.0));
-    transform: rotate(-18deg);
+    left: -6%;
+    top: -25%;
+    width: 60%;
+    height: 90%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(255,255,255,0.0) 60%);
+    transform: rotate(-15deg);
     opacity: 0.55;
     mix-blend-mode: screen;
     border-radius: 50%;
@@ -411,13 +418,23 @@ h3 {
     margin-bottom: 0.6rem;
 }
 
-/* Metallic gold shop name in modal header */
+/* Metallic gold modal header (same brushed effect, no pseudo-element to keep ✦ glyphs) */
 .modal-content h2 {
-    background: linear-gradient(135deg, #c8a84c 0%, #ffe9a3 35%, #ffd54f 60%, #fff8e1 85%);
+    position: relative;
+    font-weight: 700;
+    -webkit-text-stroke: 0.8px rgba(32,20,0,0.6);
+    background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 2px, rgba(255,255,255,0) 2px 6px),
+        linear-gradient(100deg, #2b1f00 0%, #7a4b00 14%, #eecb62 26%, #b57c00 36%, #fff1a5 44%, #e1b647 50%, #fffad1 56%, #a56b00 65%, #ffef9d 74%, #6a4300 86%, #2b1f00 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.35);
+    filter: saturate(1.12) contrast(1.15);
+    text-shadow:
+        0 1px 0 rgba(0,0,0,0.75),
+        0 3px 6px rgba(0,0,0,0.45),
+        0 8px 22px rgba(0,0,0,0.35),
+        0 -1px 0 rgba(255,249,224,0.4);
 }
 
 /* Ornate golden corners on cards */
