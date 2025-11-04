@@ -2681,10 +2681,10 @@ function calculateItemTotal(priceStr, quantity) {
 
 function formatPrice(gold, silver, copper) {
     const parts = [];
-    if (gold > 0) parts.push(`${gold} gp`);
-    if (silver > 0) parts.push(`${silver} sp`);
-    if (copper > 0) parts.push(`${copper} cp`);
-    return parts.length > 0 ? parts.join(', ') : '0 cp';
+    if (gold > 0) parts.push(`<span style="color: #FFD700;">${gold} gp</span>`); // Gold color
+    if (silver > 0) parts.push(`<span style="color: #C0C0C0;">${silver} sp</span>`); // Silver color
+    if (copper > 0) parts.push(`<span style="color: #CD7F32;">${copper} cp</span>`); // Bronze/copper color
+    return parts.length > 0 ? parts.join(', ') : '<span style="color: #CD7F32;">0 cp</span>';
 }
 
 function clearCart() {
