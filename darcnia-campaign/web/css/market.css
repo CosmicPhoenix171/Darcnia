@@ -491,3 +491,91 @@
     font-size: 0.98rem;
     margin-bottom: 0.6rem;
 }
+
+/* ===== Negotiation Styles ===== */
+.btn-negotiate {
+    background: linear-gradient(135deg, #4a148c, #7b1fa2);
+    color: var(--accent-gold);
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--accent-gold);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-negotiate:hover {
+    background: linear-gradient(135deg, #6a1b9a, #9c27b0);
+    box-shadow: 0 6px 16px rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.negotiation-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.negotiation-card {
+    background: rgba(26, 11, 46, 0.6);
+    border: 2px solid rgba(186, 104, 200, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.negotiation-card:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+    transform: translateY(-4px);
+}
+
+.negotiation-card h3 {
+    color: var(--accent-gold);
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+}
+
+.negotiation-card p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.negotiation-result {
+    background: rgba(26, 11, 46, 0.6);
+    border: 2px solid rgba(186, 104, 200, 0.3);
+    border-radius: 16px;
+    padding: 30px;
+    margin: 20px 0;
+}
+
+.dice-roll-display {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.roll-details {
+    font-size: 1.1rem;
+    margin: 10px 0;
+    color: var(--text-primary);
+}
+
+.roll-details strong {
+    color: var(--accent-gold);
+}
+
+.negotiation-outcome {
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.negotiation-outcome p {
+    margin: 12px 0;
+}
+

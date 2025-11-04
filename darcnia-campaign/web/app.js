@@ -2561,12 +2561,27 @@ function showCart() {
     
     // Display grand total
     const grandTotal = formatPrice(totalGold, totalSilver, totalCopper);
+    const negotiationDiscount = state.negotiationDiscount || 0;
+    const negotiationApplied = negotiationDiscount > 0;
+    
     html += `<div class="cart-total">
-        <strong>Total:</strong> <span class="cart-total-price">${grandTotal}</span>
+        <strong>Subtotal:</strong> <span class="cart-total-price">${grandTotal}</span>
     </div>`;
+    
+    // Show negotiation discount if active
+    if (negotiationApplied) {
+        const finalGold = Math.floor(totalGold * (1 - negotiationDiscount));
+        const finalSilver = Math.floor(totalSilver * (1 - negotiationDiscount));
+        const finalCopper = Math.floor(totalCopper * (1 - negotiationDiscount));
+        const finalTotal = formatPrice(finalGold, finalSilver, finalCopper);
+        html += `<div class="cart-total" style="color: var(--success-green);">
+            <strong>Negotiation Discount (-${(negotiationDiscount * 100).toFixed(0)}%):</strong> <span>${finalTotal}</span>
+        </div>`;
+    }
     
     html += '<div class="cart-actions">';
     html += `<button onclick="clearCart()" class="btn-secondary">Clear Cart</button>`;
+    html += `<button onclick="startNegotiation()" class="btn-negotiate" title="Try to negotiate a better price">💬 Negotiate</button>`;
     html += `<button onclick="checkout()" class="btn-primary">Checkout</button>`;
     html += '</div>';
     
@@ -2639,6 +2654,19 @@ function checkout() {
     totalGold += Math.floor(totalSilver / 10);
     totalSilver = totalSilver % 10;
     
+    // Apply negotiation discount/penalty
+    const negotiationDiscount = state.negotiationDiscount || 0;
+    if (negotiationDiscount !== 0) {
+        const totalInCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
+        const adjustedCopper = Math.floor(totalInCopper * (1 - negotiationDiscount));
+        
+        // Recalculate gold/silver/copper from adjusted total
+        totalCopper = adjustedCopper % 10;
+        let remaining = Math.floor(adjustedCopper / 10);
+        totalSilver = remaining % 10;
+        totalGold = Math.floor(remaining / 10);
+    }
+    
     // Convert player's bank balance to copper for comparison
     const playerCopper = (state.bank.gold * 100) + (state.bank.silver * 10) + state.bank.copper;
     const costCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
@@ -2665,8 +2693,18 @@ function checkout() {
     const itemCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPaid = formatPrice(totalGold, totalSilver, totalCopper);
     
-    // Clear cart
+    // Build notification message
+    let notificationMsg = `✅ Purchase complete! Paid ${totalPaid} for ${itemCount} item(s).`;
+    const negotiationDiscount = state.negotiationDiscount || 0;
+    if (negotiationDiscount > 0) {
+        notificationMsg += ` (${(negotiationDiscount * 100).toFixed(0)}% discount applied!)`;
+    } else if (negotiationDiscount < 0) {
+        notificationMsg += ` (${Math.abs(negotiationDiscount * 100).toFixed(0)}% penalty applied)`;
+    }
+    
+    // Clear cart and negotiation
     state.cart = [];
+    state.negotiationDiscount = 0;
     updateCartDisplay();
     updateBankDisplay();
     
@@ -2674,7 +2712,7 @@ function checkout() {
     const modal = document.getElementById('searchModal');
     if (modal) modal.classList.add('hidden');
     
-    showCartNotification(`✅ Purchase complete! Paid ${totalPaid} for ${itemCount} item(s).`);
+    showCartNotification(notificationMsg);
 }
 
 function showCartNotification(message) {
@@ -2691,6 +2729,129 @@ function showCartNotification(message) {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 2000);
+}
+
+function startNegotiation() {
+    const modal = document.getElementById('searchModal');
+    const resultsDiv = document.getElementById('searchResults');
+    
+    let html = '<h2>💬 Negotiate with Shopkeeper</h2>';
+    html += '<p style="margin-bottom: 20px;">Try to convince the shopkeeper to lower their prices. Choose your approach:</p>';
+    
+    html += '<div class="negotiation-options">';
+    
+    // Persuasion option
+    html += '<div class="negotiation-card">';
+    html += '<h3>🎭 Persuasion (Charisma)</h3>';
+    html += '<p>Use charm, logic, and friendly banter to convince the merchant you deserve a better deal.</p>';
+    html += '<button onclick="attemptNegotiation(\'persuasion\')" class="btn-primary">Roll Persuasion</button>';
+    html += '</div>';
+    
+    // Intimidation option
+    html += '<div class="negotiation-card">';
+    html += '<h3>😠 Intimidation (Charisma)</h3>';
+    html += '<p>Use threats, menacing presence, or implied consequences to pressure the merchant into a discount.</p>';
+    html += '<button onclick="attemptNegotiation(\'intimidation\')" class="btn-primary">Roll Intimidation</button>';
+    html += '</div>';
+    
+    html += '</div>';
+    
+    html += '<div style="margin-top: 20px;">';
+    html += '<button onclick="showCart()" class="btn-secondary">← Back to Cart</button>';
+    html += '</div>';
+    
+    resultsDiv.innerHTML = html;
+}
+
+function attemptNegotiation(skillType) {
+    // Get character's charisma modifier
+    const charismaMod = state.currentCharacter?.charisma 
+        ? Math.floor((state.currentCharacter.charisma - 10) / 2) 
+        : 0;
+    
+    // Roll d20 + modifier
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const total = roll + charismaMod;
+    
+    // Shopkeeper's DC (variable based on relationship/difficulty)
+    const shopkeeperDC = 12 + Math.floor(Math.random() * 4); // DC 12-15
+    
+    const skillName = skillType === 'persuasion' ? 'Persuasion' : 'Intimidation';
+    const success = total >= shopkeeperDC;
+    
+    let discount = 0;
+    let resultText = '';
+    let resultEmoji = '';
+    
+    if (success) {
+        // Critical success
+        if (roll === 20) {
+            discount = 0.20; // 20% off
+            resultEmoji = '🎉';
+            resultText = `<strong>Critical Success!</strong> The shopkeeper is thoroughly impressed!`;
+        }
+        // Regular success
+        else {
+            const margin = total - shopkeeperDC;
+            discount = 0.05 + (margin * 0.02); // 5% + 2% per point over DC
+            discount = Math.min(discount, 0.25); // Cap at 25%
+            resultEmoji = '✅';
+            resultText = `<strong>Success!</strong> Your ${skillType} works!`;
+        }
+    } else {
+        // Critical failure
+        if (roll === 1) {
+            discount = -0.10; // 10% price INCREASE (offended merchant)
+            resultEmoji = '💢';
+            resultText = `<strong>Critical Failure!</strong> You've offended the shopkeeper!`;
+        }
+        // Regular failure
+        else {
+            discount = 0;
+            resultEmoji = '❌';
+            resultText = `<strong>Failure.</strong> The shopkeeper is unmoved.`;
+        }
+    }
+    
+    // Store discount
+    state.negotiationDiscount = discount;
+    
+    // Build result display
+    const modal = document.getElementById('searchModal');
+    const resultsDiv = document.getElementById('searchResults');
+    
+    let html = `<h2>${resultEmoji} Negotiation Result</h2>`;
+    
+    html += '<div class="negotiation-result">';
+    html += `<div class="dice-roll-display">`;
+    html += `<div class="roll-details">`;
+    html += `<strong>${skillName} Check:</strong> 1d20 (${roll}) + ${charismaMod} = <strong>${total}</strong>`;
+    html += `</div>`;
+    html += `<div class="roll-details">`;
+    html += `<strong>Shopkeeper DC:</strong> ${shopkeeperDC}`;
+    html += `</div>`;
+    html += `</div>`;
+    
+    html += `<div class="negotiation-outcome">`;
+    html += `<p>${resultText}</p>`;
+    
+    if (discount > 0) {
+        html += `<p style="color: var(--success-green); font-size: 1.2em; font-weight: 700;">🎁 ${(discount * 100).toFixed(0)}% Discount Applied!</p>`;
+    } else if (discount < 0) {
+        html += `<p style="color: var(--error-red); font-size: 1.2em; font-weight: 700;">⚠️ ${Math.abs(discount * 100).toFixed(0)}% Price Increase!</p>`;
+        html += `<p style="font-size: 0.9em; font-style: italic;">The merchant is insulted and raises their prices.</p>`;
+    } else {
+        html += `<p style="color: var(--text-muted);">No discount. The merchant holds firm on their prices.</p>`;
+    }
+    
+    html += `</div>`;
+    html += '</div>';
+    
+    html += '<div class="cart-actions" style="margin-top: 30px;">';
+    html += '<button onclick="showCart()" class="btn-primary">← Back to Cart</button>';
+    html += '</div>';
+    
+    resultsDiv.innerHTML = html;
 }
 
 // ===== Bank Management =====

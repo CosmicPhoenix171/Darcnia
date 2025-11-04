@@ -1,6 +1,6 @@
 # Darcnia Campaign - Version History
 
-## Current Version: 1.28
+## Current Version: 1.29
 
 ### 🎉 Auto-Versioning System Active!
 
@@ -38,6 +38,39 @@ When making changes, increment the version number and update it in these locatio
 ---
 
 ## Changelog
+
+### v1.29 - November 4, 2025
+**Major Feature: Negotiation System! 💬**
+- ✨ **Added "Negotiate" button to shopping cart**
+- Players can attempt to negotiate with shopkeepers for discounts
+- Two skill options: Persuasion or Intimidation (both use Charisma)
+- Roll 1d20 + Charisma modifier vs Shopkeeper DC (12-15)
+
+**Negotiation Outcomes:**
+- 🎉 Critical Success (Nat 20): 20% discount
+- ✅ Success: 5% + 2% per point above DC (max 25% discount)
+- ❌ Failure: No discount
+- 💢 Critical Failure (Nat 1): 10% price INCREASE (offended merchant!)
+
+**Discount applies to entire cart**
+- Success shows discount percentage in cart total
+- Final price calculated at checkout
+- One negotiation attempt per cart
+- Discount resets after purchase
+
+**Technical Changes:**
+- Added `startNegotiation()` and `attemptNegotiation()` functions
+- Cart displays subtotal and discounted total
+- Shopkeeper DC varies (12-15 randomly)
+- Uses character's Charisma modifier from character sheet
+- Beautiful dice roll display with emoji feedback
+
+**UI/UX:**
+- New negotiation modal with skill selection cards
+- Color-coded results (green for discount, red for penalty)
+- Shows d20 roll breakdown and DC comparison
+- Purchase notification includes discount info
+- Added `.btn-negotiate`, `.negotiation-card`, `.negotiation-result` styles
 
 ### v1.28 - November 4, 2025
 **UI Enhancement:**
