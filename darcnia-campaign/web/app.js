@@ -2695,7 +2695,7 @@ function checkout() {
     
     // Build notification message
     let notificationMsg = `✅ Purchase complete! Paid ${totalPaid} for ${itemCount} item(s).`;
-    const negotiationDiscount = state.negotiationDiscount || 0;
+    // negotiationDiscount already declared above, just reuse it
     if (negotiationDiscount > 0) {
         notificationMsg += ` (${(negotiationDiscount * 100).toFixed(0)}% discount applied!)`;
     } else if (negotiationDiscount < 0) {
