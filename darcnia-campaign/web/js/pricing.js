@@ -1,6 +1,6 @@
 // ===== Dynamic Pricing Engine for Bluebrick Market =====
 // Implements realistic price fluctuations using 2d6 bell curves
-console.log('💵 Pricing.js loaded - v1.22 - CURRENCY FIX');
+console.log('💵 Pricing.js loaded - v1.23 - FORMAT DEBUG');
 
 /**
  * Roll 2d6 and return the sum (2-12, centered on 7)
@@ -229,11 +229,14 @@ function copperToPrice(totalCopper) {
  * Format a price object to string
  */
 function formatPrice(priceObj) {
+    console.log('🔍 formatPrice input:', priceObj);
     const parts = [];
     if (priceObj.gp > 0) parts.push(`${priceObj.gp.toLocaleString()} gp`);
     if (priceObj.sp > 0) parts.push(`${priceObj.sp} sp`);
     if (priceObj.cp > 0) parts.push(`${priceObj.cp} cp`);
-    return parts.length > 0 ? parts.join(', ') : '0 cp';
+    const result = parts.length > 0 ? parts.join(', ') : '0 cp';
+    console.log('🔍 formatPrice output:', result, 'parts:', parts);
+    return result;
 }
 
 /**
