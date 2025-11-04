@@ -2230,10 +2230,13 @@ function renderShopCard(shop) {
 
 // Provide short, human-friendly shop taglines even when markdown lacks descriptions
 function getShopTagline(shop) {
+    console.log('🏪 getShopTagline called for:', shop?.name, 'Description:', shop?.description);
     if (shop && typeof shop.description === 'string' && shop.description.trim().length > 0) {
+        console.log('✅ Using shop.description:', shop.description.trim());
         return shop.description.trim();
     }
     const key = slugify(shop?.name || shop?.id || '').toLowerCase();
+    console.log('🔑 Tagline key:', key);
     const DEFAULT_SHOP_TAGLINES = {
         'brass-buckle-outfitters': 'Everyday adventuring gear and affordable bundles to outfit any expedition.',
         'three-feathers-archery': 'Arrows, bolts, quivers, and bow care for ranged specialists.',
