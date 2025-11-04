@@ -2255,7 +2255,11 @@ function getShopTagline(shop) {
 async function showShopDetail(shopId) {
     const shops = assignItemKeys(getMarketShops());
     const shop = resolveShop(shopId, shops);
-    if (!shop) return;
+    if (!shop) {
+        console.error('❌ Shop not found:', shopId);
+        return;
+    }
+    console.log('🏪 Shop resolved:', shop.id, shop.name, 'Categories:', shop.categories);
     const isDM = state.currentCharacter?.accessLevel === 'dm';
     const stockSet = (state._currentMarketStock || generateDailyStock(shops))[shop.id] || new Set();
         const ALL_RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary'];
@@ -2281,7 +2285,9 @@ async function showShopDetail(shopId) {
             </div>`;
     
     // Build initial HTML with all items (showing loading icons for prices)
+    console.log(`🏪 Loading shop ${shopId}, categories:`, shop.categories?.length || 0);
     for (const cat of shop.categories) {
+        console.log(`📦 Category: ${cat.name}, items:`, cat.items?.length || 0);
         const items = (cat.items || []).filter(it => {
             const req = Number(it.level ?? 0);
             const inStock = req <= 0 || stockSet.has(it._key);
@@ -2292,6 +2298,7 @@ async function showShopDetail(shopId) {
             return true;
         });
         
+        console.log(`✅ Filtered items for ${cat.name}:`, items.length);
         let shown = 0;
         html += `<h3>${cat.name}</h3>`;
         if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
