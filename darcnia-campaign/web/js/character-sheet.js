@@ -303,10 +303,11 @@ async function saveCharacterToFirebase() {
     const data = gatherCharacterData();
     
     try {
+        console.log(`💾 Saving character sheet with level ${data.level} to Firebase for ${currentCharacterName}`);
         await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
         // Also update level in main character node for market access
         await database.ref(`characters/${sanitizedName}/level`).set(data.level || 1);
-        console.log(`💾 Character sheet saved to Firebase for ${currentCharacterName}`);
+        console.log(`✅ Character sheet saved to Firebase for ${currentCharacterName}`);
     } catch (error) {
         console.error('Error saving to Firebase:', error);
     }
@@ -520,7 +521,9 @@ function calculateAllStats() {
 function gatherCharacterData() {
     // Identity
     characterData.characterName = document.getElementById('characterName').value;
-    characterData.level = parseInt(document.getElementById('level').value) || 1;
+    const levelInput = document.getElementById('level');
+    characterData.level = levelInput ? parseInt(levelInput.value) || 1 : 1;
+    console.log('📊 Gathering character data - Level:', characterData.level);
     characterData.class = document.getElementById('class').value;
     characterData.background = document.getElementById('background').value;
     characterData.species = document.getElementById('species').value;
@@ -604,7 +607,11 @@ function gatherCharacterData() {
 function populateCharacterData(data) {
     // Identity
     document.getElementById('characterName').value = data.characterName || '';
-    document.getElementById('level').value = data.level || 1;
+    const levelInput = document.getElementById('level');
+    if (levelInput) {
+        levelInput.value = data.level || 1;
+        console.log('📊 Populated level field with:', data.level || 1);
+    }
     document.getElementById('class').value = data.class || '';
     document.getElementById('background').value = data.background || '';
     document.getElementById('species').value = data.species || '';
