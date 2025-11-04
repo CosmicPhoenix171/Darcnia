@@ -1,6 +1,6 @@
 // ===== Dynamic Pricing Engine for Bluebrick Market =====
 // Implements realistic price fluctuations using 2d6 bell curves
-console.log('💵 Pricing.js loaded -', window.APP_VERSION || 'v1.25');
+console.log('💵 Pricing.js loaded -', window.APP_VERSION); // Single source of truth from version.js
 
 /**
  * Roll 2d6 and return the sum (2-12, centered on 7)

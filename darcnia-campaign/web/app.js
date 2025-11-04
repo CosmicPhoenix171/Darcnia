@@ -3950,7 +3950,7 @@ async function dmShowPriceInfo() {
 // ===== Utility Functions =====
 // Wait to log until after login
 function logSuccess() {
-    const version = window.APP_VERSION || 'v1.25';
+    const version = window.APP_VERSION; // Single source of truth from version.js
     const buildTime = window.BUILD_TIME ? new Date(window.BUILD_TIME).toLocaleString() : 'Unknown';
     const commit = window.GIT_COMMIT_SHORT || 'manual';
     
@@ -3967,7 +3967,7 @@ function logSuccess() {
 function updateVersionDisplay() {
     const versionDisplay = document.querySelector('.version-display');
     if (versionDisplay) {
-        const version = window.APP_VERSION || 'v1.25';
+        const version = window.APP_VERSION; // Single source of truth from version.js
         const commit = window.GIT_COMMIT_SHORT || '';
         versionDisplay.textContent = version;
         versionDisplay.title = `Build: ${commit}\nTime: ${window.BUILD_TIME || 'Unknown'}`;

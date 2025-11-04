@@ -1,26 +1,24 @@
 # Darcnia Campaign - Version History
 
-## Current Version: 1.29
+## Current Version: 1.30 (Centralized)
 
-### 🎉 Auto-Versioning System Active!
+### � Centralized Version System!
 
-**No manual updates needed!** Versions are now generated automatically from Git commits.
+**Single Source of Truth:** All version numbers now come from ONE file: `web/js/version.js`
 
-- **Format**: `v1.26-a3f2b1c` (base version + commit hash)
-- **Updated by**: GitHub Actions on every push to `main`
-- **See**: [AUTO-VERSIONING.md](AUTO-VERSIONING.md) for full documentation
+- **Update ONLY**: `web/js/version.js` → Change `window.APP_VERSION = 'v1.30'`
+- **Everything else automatically updates**: pricing.js, app.js, index.html
+- **No more**: Updating multiple files with hardcoded versions
 
-### How to Update Version (Automatic)
+### How to Update Version (One File Only!)
 
-Just commit and push - that's it! 🚀
+Edit **`web/js/version.js`** and change the version number:
 
-```bash
-git add .
-git commit -m "Your changes"
-git push
+```javascript
+window.APP_VERSION = 'v1.31'; // ← Change only this line!
 ```
 
-The version will automatically update to include your commit hash.
+Then commit and push. All other files will automatically use the new version! 🎉
 
 ### Legacy Manual Updates (v1.21-v1.25 only)
 
@@ -38,6 +36,26 @@ When making changes, increment the version number and update it in these locatio
 ---
 
 ## Changelog
+
+### v1.30 - November 4, 2025
+**System Improvement: Centralized Version Management! 🎯**
+- ✨ **Single source of truth for version numbers**
+- All version references now read from `web/js/version.js`
+- No more updating multiple files manually!
+
+**What Changed:**
+- `web/js/version.js` - Now clearly marked as single source of truth
+- `web/app.js` - Removed hardcoded fallback versions (`|| 'v1.25'`)
+- `web/js/pricing.js` - Removed hardcoded fallback version
+- `web/index.html` - Version display now populated by JavaScript
+- Removed `?v=` cache-busting query parameters (no longer needed)
+
+**To Update Version:**
+1. Edit `web/js/version.js` only
+2. Change `window.APP_VERSION = 'v1.31'`
+3. Commit and push - done!
+
+All files automatically use the new version. No manual updates to multiple locations! 🚀
 
 ### v1.29 - November 4, 2025
 **Major Feature: Negotiation System! 💬**
