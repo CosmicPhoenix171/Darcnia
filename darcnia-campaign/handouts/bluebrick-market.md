@@ -115,6 +115,9 @@ Apply EventAdj only if something notable is happening (DM discretion).
 ---
 
 ## Brass Buckle Outfitters (General Gear)
+
+Backpacks, bedrolls, rope, lanterns, rations, torches, and pre-packed adventuring bundles.
+
 - Backpack [L0]: 2 gp
 - Bedroll [L0]: 1 gp
 - Blanket [L0]: 5 sp
@@ -162,6 +165,9 @@ Apply EventAdj only if something notable is happening (DM discretion).
  - Robes [L0]: 1 gp
 
 ## Three Feathers Archery (Ammo & Ranged Supplies)
+
+Arrows, crossbow bolts, quivers, bolt cases, bowstrings, and fletching supplies.
+
 - Arrows (20) [L0]: 1 gp
 - Crossbow bolts (20) [L0]: 1 gp
 - Quiver (20 arrows) [L0]: 1 gp
@@ -227,6 +233,9 @@ Light/Medium Armor and common weapons only; specialty gear by order.
   - Net [L0]: 1 gp
 
 ## Rue & Resin Apothecary (Tonics & Basics)
+
+Healing potions, antitoxin, alchemist's fire, acid, holy water, poultices, and poisons.
+
 - Potion of healing [L1]: 50 gp
 - Antitoxin (vial) [L1]: 50 gp
  - Acid (vial) [L1]: 25 gp
@@ -254,11 +263,15 @@ Sale requires guild authorization and discreet handling; harmful misuse is illeg
 - Wyvern poison (injury) [L3]: 1,200 gp
 
 ## Stables & Services (Official)
+
+Meals, lodging (common or private rooms), baths, horse stabling, and in-city messengers.
+
 - Meals (per day, modest): 3 sp
 - Inn stay (per day, modest room): 5 sp
 - Stabling (per day): 5 sp
 
 ## Guild Services & Trade
+
 Citywide guild counters handle common services, lodging, fares, and commodity exchange at posted rates.
 
 - Food, Drink, and Lodging
@@ -302,7 +315,10 @@ Citywide guild counters handle common services, lodging, fares, and commodity ex
   - 5 gp = 1 lb silver or 1 sq. yd. linen; 10 gp = 1 sq. yd. silk or one cow; 15 gp = 1 lb saffron or one ox
   - 50 gp = 1 lb gold; 500 gp = 1 lb platinum
 
-## Tinker’s Nook (Utility & Traps)
+## Tinker's Nook (Utility & Traps)
+
+Ball bearings, caltrops, hunting traps, locks, manacles, mirrors, and signal whistles.
+
 - Ball bearings (1,000) [L0]: 1 gp
 - Caltrops (20) [L0]: 1 gp
 - Block and tackle [L0]: 1 gp
@@ -323,6 +339,9 @@ Citywide guild counters handle common services, lodging, fares, and commodity ex
  - Spikes, iron (10) [L0]: 1 gp
 
 ## Scribe & Sealery (Paper & Ink)
+
+Ink, pens, parchment, paper, sealing wax, chalk, scroll cases, and journals.
+
 - Ink (1 oz) [L0]: 10 gp
 - Ink pen [L0]: 2 cp
 - Parchment (sheet) [L0]: 1 sp
@@ -346,10 +365,13 @@ Citywide guild counters handle common services, lodging, fares, and commodity ex
 - Holy symbol, reliquary [L0]: 5 gp
 - Merchant’s scale [L0]: 5 gp
 - Signet ring [L0]: 5 gp
-- Spellbook (blank) [L1]: 50 gp
+ - Spellbook (blank) [L1]: 50 gp
 
 ## Guild Toolwright (Proficiency Tools)
-- Thieves’ tools [L0]: 25 gp
+
+Thieves' tools, disguise kits, forgery kits, alchemist's supplies, and specialist toolsets.
+
+- Thieves' tools [L0]: 25 gp
 - Disguise kit [L0]: 25 gp
 - Forgery kit [L1]: 15 gp
 - Alchemist’s supplies [L1]: 50 gp
@@ -382,9 +404,12 @@ Citywide guild counters handle common services, lodging, fares, and commodity ex
 - Musical instrument, horn [L0]: 3 gp
 - Musical instrument, pan flute [L0]: 12 gp
 - Musical instrument, shawm [L0]: 2 gp
-- Musical instrument, viol [L1]: 30 gp
+ - Musical instrument, viol [L1]: 30 gp
 
 ## South Gate Stables & Wheels (Mounts & Vehicles)
+
+Mounts and overland vehicles at the city's south gate.
+
 - Donkey/Mule [L0]: 8 gp
 - Pony [L0]: 30 gp
 - Riding horse [L0]: 75 gp
@@ -423,6 +448,9 @@ Contents follow standard listings; bundles are for convenience pricing only.
 ---
 
 ## Arcane Exchange — Magic & Rare Goods
+
+Enchanted weapons & armor (+1/+2/+3), magic ammunition, wondrous items, and rare relics.
+
 Player-facing list of magical and rare items. Availability is gated by dungeon level cleared. Prices are typical guild rates and may vary with reputation or scarcity.
 
 Rarity guide and typical price bands (for reference)
