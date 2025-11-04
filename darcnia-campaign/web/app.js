@@ -2559,25 +2559,54 @@ function showCart() {
     totalGold += Math.floor(totalSilver / 10);
     totalSilver = totalSilver % 10;
     
-    // Display grand total
-    const grandTotal = formatPrice(totalGold, totalSilver, totalCopper);
+    // Display subtotal
+    const subtotal = formatPrice(totalGold, totalSilver, totalCopper);
     const negotiationDiscount = state.negotiationDiscount || 0;
-    const negotiationApplied = negotiationDiscount > 0;
+    const negotiationApplied = negotiationDiscount !== 0;
     
     html += `<div class="cart-total">
-        <strong>Subtotal:</strong> <span class="cart-total-price">${grandTotal}</span>
+        <strong>SUBTOTAL:</strong> <span class="cart-total-price">${subtotal}</span>
     </div>`;
     
-    // Show negotiation discount if active
+    // Calculate final total with discount/penalty
+    let finalGold = totalGold;
+    let finalSilver = totalSilver;
+    let finalCopper = totalCopper;
+    
     if (negotiationApplied) {
-        const finalGold = Math.floor(totalGold * (1 - negotiationDiscount));
-        const finalSilver = Math.floor(totalSilver * (1 - negotiationDiscount));
-        const finalCopper = Math.floor(totalCopper * (1 - negotiationDiscount));
-        const finalTotal = formatPrice(finalGold, finalSilver, finalCopper);
-        html += `<div class="cart-total" style="color: var(--success-green);">
-            <strong>Negotiation Discount (-${(negotiationDiscount * 100).toFixed(0)}%):</strong> <span>${finalTotal}</span>
+        // Convert to copper for accurate calculation
+        const totalInCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
+        const adjustedCopper = Math.floor(totalInCopper * (1 - negotiationDiscount));
+        const discountAmount = totalInCopper - adjustedCopper;
+        
+        // Convert discount amount back to currency
+        const discountGold = Math.floor(discountAmount / 100);
+        const discountSilverTotal = Math.floor((discountAmount % 100) / 10);
+        const discountCopperFinal = discountAmount % 10;
+        
+        // Show discount/penalty line
+        const discountDisplay = formatPrice(discountGold, discountSilverTotal, discountCopperFinal);
+        const discountColor = negotiationDiscount > 0 ? 'var(--success-green)' : '#ff4444';
+        const discountLabel = negotiationDiscount > 0 
+            ? `Negotiation Discount (-${(negotiationDiscount * 100).toFixed(0)}%)` 
+            : `Negotiation Penalty (+${Math.abs(negotiationDiscount * 100).toFixed(0)}%)`;
+        
+        html += `<div class="cart-total" style="color: ${discountColor};">
+            <strong>${discountLabel}:</strong> <span>${negotiationDiscount > 0 ? '-' : '+'}${discountDisplay}</span>
         </div>`;
+        
+        // Calculate final total
+        finalCopper = adjustedCopper % 10;
+        let remaining = Math.floor(adjustedCopper / 10);
+        finalSilver = remaining % 10;
+        finalGold = Math.floor(remaining / 10);
     }
+    
+    // Show final total
+    const finalTotal = formatPrice(finalGold, finalSilver, finalCopper);
+    html += `<div class="cart-total" style="font-size: 1.2em; border-top: 2px solid var(--primary-color); margin-top: 10px; padding-top: 10px;">
+        <strong>TOTAL:</strong> <span class="cart-total-price">${finalTotal}</span>
+    </div>`;
     
     html += '<div class="cart-actions">';
     html += `<button onclick="clearCart()" class="btn-secondary">Clear Cart</button>`;
