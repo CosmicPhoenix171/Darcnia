@@ -2230,13 +2230,10 @@ function renderShopCard(shop) {
 
 // Provide short, human-friendly shop taglines even when markdown lacks descriptions
 function getShopTagline(shop) {
-    console.log('🏪 getShopTagline called for:', shop?.name, 'Description:', shop?.description);
     if (shop && typeof shop.description === 'string' && shop.description.trim().length > 0) {
-        console.log('✅ Using shop.description:', shop.description.trim());
         return shop.description.trim();
     }
     const key = slugify(shop?.name || shop?.id || '').toLowerCase();
-    console.log('🔑 Tagline key:', key);
     const DEFAULT_SHOP_TAGLINES = {
         'brass-buckle-outfitters': 'Everyday adventuring gear and affordable bundles to outfit any expedition.',
         'three-feathers-archery': 'Arrows, bolts, quivers, and bow care for ranged specialists.',
@@ -2260,14 +2257,12 @@ function getShopTagline(shop) {
 }
 
 async function showShopDetail(shopId) {
-    console.log('🚀 SHOWSHOPDETAIL CALLED WITH:', shopId);
     const shops = assignItemKeys(getMarketShops());
     const shop = resolveShop(shopId, shops);
     if (!shop) {
-        console.error('❌ Shop not found:', shopId);
+        console.error('Shop not found:', shopId);
         return;
     }
-    console.log('🏪 Shop resolved:', shop.id, shop.name, 'Categories:', shop.categories);
     const isDM = state.currentCharacter?.accessLevel === 'dm';
     const stockSet = (state._currentMarketStock || generateDailyStock(shops))[shop.id] || new Set();
         const ALL_RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary'];
