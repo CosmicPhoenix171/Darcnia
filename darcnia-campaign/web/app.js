@@ -2288,7 +2288,9 @@ async function showShopDetail(shopId) {
             const cls = (!inStock || !canAccess) ? 'item-dim' : '';
             
             // Calculate dynamic price
+            console.log(`💰 Calculating price for ${it.name}: base="${it.price}"`);
             const priceData = await calculateItemPrice(it.price, shopId, cat.name, rarity);
+            console.log(`💰 Result for ${it.name}:`, priceData);
             const isPriceChanged = priceData.finalPriceStr !== priceData.basePriceStr;
             
             // Status badge
