@@ -1,4 +1,14 @@
 /* ===== MODULE IMPORTS ===== */
+/* 
+ * IMPORT ORDER IS CRITICAL:
+ * 1. starfield.css - Background animation layer (lowest specificity)
+ * 2. market.css - Market-specific styles (shop cards, pricing)
+ * 3. dice-roller.css - Dice roller component styles
+ * 4. cards.css - Card component overrides (MUST BE LAST)
+ * 
+ * cards.css MUST BE IMPORTED LAST because it contains !important overrides
+ * for glassmorphism effects that need to supersede all other card styles.
+ */
 @import url('starfield.css');
 @import url('market.css');
 @import url('dice-roller.css');
