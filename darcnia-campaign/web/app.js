@@ -2253,6 +2253,7 @@ function getShopTagline(shop) {
 }
 
 async function showShopDetail(shopId) {
+    console.log('🚀 SHOWSHOPDETAIL CALLED WITH:', shopId);
     const shops = assignItemKeys(getMarketShops());
     const shop = resolveShop(shopId, shops);
     if (!shop) {
