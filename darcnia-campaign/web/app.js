@@ -64,6 +64,7 @@ const characterDatabase = {
         password: simpleHash('rogue123'), // Default password: rogue123
         race: 'Human',
         class: 'Rogue',
+        level: 3, // Character level (used for item rarity gating)
         guild: 'Guild Crystalia',
         relationships: ['Eldon Thorne', 'Tessa Windfern'],
         knownLocations: ['Guild Crystalia Hall', 'Heart Plaza', 'Hearthstone Inn'],
@@ -73,28 +74,27 @@ const characterDatabase = {
         knownSecrets: [],
         accessLevel: 'player',
         discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note'],
-        clearedDungeonLevel: 0,
         bank: { gold: 0, silver: 0, copper: 0 } // Starting funds
     },
     'dm': {
         name: 'Dungeon Master',
         password: simpleHash('dmpass2025'), // Default DM password: dmpass2025
         accessLevel: 'dm',
+        level: 20, // Max level for testing
         knownGuilds: 'all',
         knownLocations: 'all',
         knownSecrets: 'all',
-        discoveredHandouts: 'all',
-        clearedDungeonLevel: 20
+        discoveredHandouts: 'all'
     },
     'dungeon master': {
         name: 'Dungeon Master',
         password: simpleHash('dmpass2025'), // Default DM password: dmpass2025
         accessLevel: 'dm',
+        level: 20, // Max level for testing
         knownGuilds: 'all',
         knownLocations: 'all',
         knownSecrets: 'all',
-        discoveredHandouts: 'all',
-        clearedDungeonLevel: 20
+        discoveredHandouts: 'all'
     }
 };
 
@@ -106,7 +106,6 @@ const state = {
     searchIndex: [],
     currentCharacter: null,
     accessLevel: 'guest',
-    marketViewLevel: null,
     shopFilters: {},
     dice: {
         mode: 'normal', // 'normal' | 'adv' | 'dis'
@@ -1551,7 +1550,7 @@ async function forceRerollCategories() {
 /**
  * Calculate final price for an item using all current multipliers
  */
-async function calculateItemPrice(basePrice, shopId, categoryName, itemRarity, itemLevel) {
+async function calculateItemPrice(basePrice, shopId, categoryName, itemRarity) {
     // Get all multipliers
     const wmiData = await getOrCreateWMI();
     const categoryKey = getCategoryKey(shopId, categoryName, itemRarity);
@@ -1560,11 +1559,16 @@ async function calculateItemPrice(basePrice, shopId, categoryName, itemRarity, i
     const activeEvent = await getActiveEvent();
     const eventAdj = EVENT_ADJUSTMENTS[activeEvent] || 1.0;
     
-    // Scarcity adjustment (if item level equals player's cleared level)
+    // Scarcity adjustment (if item is at character's rarity threshold)
     let scarcityAdj = 1.0;
-    const playerLevel = state.currentCharacter?.clearedDungeonLevel || 0;
-    if (itemLevel && itemLevel === playerLevel && itemLevel > 0) {
-        scarcityAdj = 1.05; // 5% premium for edge-of-access items
+    if (itemRarity) {
+        const charLevel = getCharacterLevel();
+        const requiredLevel = getRarityRequirement(itemRarity);
+        
+        // Apply premium if character JUST unlocked this rarity tier
+        if (charLevel === requiredLevel) {
+            scarcityAdj = 1.05; // 5% premium for newly-unlocked rarity
+        }
     }
     
     // Calculate final price
@@ -2082,25 +2086,52 @@ function slugify(str) {
 
 function capitalizeWords(s) { return s.replace(/\b\w/g, c => c.toUpperCase()); }
 
-function getMarketViewLevel() {
-    // DM can override; otherwise use character's cleared level
-    if (state.marketViewLevel !== null && state.currentCharacter?.accessLevel === 'dm') return state.marketViewLevel;
-    const lvl = state.currentCharacter?.clearedDungeonLevel;
-    return typeof lvl === 'number' ? lvl : 0;
+function getCharacterLevel() {
+    // Get character's level for rarity gating
+    const lvl = state.currentCharacter?.level;
+    return typeof lvl === 'number' ? lvl : 1; // Default to level 1
 }
 
-function setMarketViewLevel(level) {
-    const parsed = parseInt(level, 10);
-    state.marketViewLevel = isNaN(parsed) ? 0 : parsed;
-    // Re-render market or open shop detail depending on visible content
-    if (state.currentTab === 'market') {
-        document.getElementById('contentArea').innerHTML = renderMarket();
-    }
+function getRarityRequirement(rarity) {
+    // Map rarity to minimum character level required
+    const rarityMap = {
+        'common': 1,
+        'uncommon': 3,
+        'rare': 9,
+        'very rare': 13,
+        'legendary': 17
+    };
+    const normalizedRarity = (rarity || '').toLowerCase().trim();
+    return rarityMap[normalizedRarity] || 1; // Mundane items default to level 1
 }
 
-function filterItemsByLevel(items, level, isDM) {
+function getRarityNameByLevel(level) {
+    // Get the highest rarity tier accessible at this level
+    if (level >= 17) return 'Legendary';
+    if (level >= 13) return 'Very Rare';
+    if (level >= 9) return 'Rare';
+    if (level >= 3) return 'Uncommon';
+    return 'Common';
+}
+
+function canAccessItemByRarity(item) {
+    const charLevel = getCharacterLevel();
+    const isDM = state.currentCharacter?.accessLevel === 'dm';
+    
+    if (isDM) return true; // DM can access everything
+    
+    // If no rarity specified, it's mundane (always accessible)
+    if (!item.rarity) return true;
+    
+    const requiredLevel = getRarityRequirement(item.rarity);
+    return charLevel >= requiredLevel;
+}
+
+function filterItemsByRarity(items) {
+    const isDM = state.currentCharacter?.accessLevel === 'dm';
     if (isDM) return items; // DM sees all by default
-    return items.filter(it => (typeof it.level !== 'number') ? true : it.level <= level);
+    
+    return items.filter(item => canAccessItemByRarity(item));
 }
 
 function renderMarket() {
@@ -2110,8 +2141,9 @@ function renderMarket() {
     const dailyStock = generateDailyStock(shops);
     state._currentMarketStock = dailyStock;
     
+    const charLevel = getCharacterLevel();
     let html = '<h2>🛒 Bluebrick Market</h2>';
-    html += '<p>Browse shops. Prices fluctuate daily/weekly based on market conditions. Stock rotates daily.</p>';
+    html += `<p>Browse shops. Prices fluctuate daily/weekly based on market conditions. <strong>Your level ${charLevel}</strong> unlocks items up to <strong>${getRarityNameByLevel(charLevel)}</strong> rarity.</p>`;
     
     // DM Admin Controls
     if (isDM) {
@@ -2247,20 +2279,31 @@ async function showShopDetail(shopId) {
         html += '<ul class="market-list">';
         
         for (const it of items) {
-            const req = Number(it.level ?? 0);
-            const inStock = req <= 0 || stockSet.has(it._key);
             const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            const cls = (!inStock && req > 0) ? 'item-dim' : '';
+            const inStock = stockSet.has(it._key) || !it._key; // Mundane items or in daily stock
+            const canAccess = canAccessItemByRarity(it);
+            
+            // Dim if out of stock OR if character can't access this rarity yet
+            const cls = (!inStock || !canAccess) ? 'item-dim' : '';
             
             // Calculate dynamic price
-            const priceData = await calculateItemPrice(it.price, shopId, cat.name, rarity, req);
+            const priceData = await calculateItemPrice(it.price, shopId, cat.name, rarity);
             const isPriceChanged = priceData.finalPriceStr !== priceData.basePriceStr;
             
-            // Show all items to all users; dim and label out-of-stock ones
-            const badge = (!inStock && req > 0 ? 'Out of stock' : `L${req}`);
-            const lvlTag = ` <span class="tag">${badge}</span>`;
-                        const rarityTag = rarity ? ` <span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
-                        const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
+            // Status badge
+            let badge = '';
+            if (!canAccess) {
+                const reqLevel = getRarityRequirement(rarity);
+                badge = `Requires Level ${reqLevel}`;
+            } else if (!inStock) {
+                badge = 'Out of stock';
+            } else {
+                badge = 'Available';
+            }
+            
+            const statusTag = ` <span class="tag">${badge}</span>`;
+            const rarityTag = rarity ? ` <span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
+            const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
             const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
             
             // Display price with base crossed out if changed
@@ -2272,9 +2315,12 @@ async function showShopDetail(shopId) {
             }
             
             const itemKey = `${shopId}-${cat.name}-${it.name}`;
-            // Store final price in data attribute for cart
-            const cartBtn = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${priceData.finalPriceStr}', '${shopId}')" title="Add to cart">🛒</button>`;
-                        html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${lvlTag}${rarityTag}${attuneTag}: ${priceDisplay}${note}</div>${cartBtn}</li>`;
+            // Only show cart button if item is accessible and in stock
+            const cartBtn = (canAccess && inStock) 
+                ? `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${priceData.finalPriceStr}', '${shopId}')" title="Add to cart">🛒</button>`
+                : '';
+            
+            html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${statusTag}${rarityTag}${attuneTag}: ${priceDisplay}${note}</div>${cartBtn}</li>`;
             shown++;
         }
         html += '</ul>';
@@ -2736,7 +2782,7 @@ function showLogin() {
             state.currentCharacter = { 
                 name: 'Guest', 
                 accessLevel: 'player', 
-                clearedDungeonLevel: 0,
+                level: 1, // Guest starts at level 1
                 bank: { gold: 0, silver: 0, copper: 0 }
             };
             loginBtn.textContent = '👤 Login';
