@@ -212,8 +212,9 @@ function parsePriceToCopper(priceStr) {
  */
 function copperToPrice(totalCopper) {
     const gp = Math.floor(totalCopper / 100);
-    const sp = Math.floor((totalCopper % 100) / 10);
-    const cp = totalCopper % 10;
+    const remaining = totalCopper - (gp * 100);
+    const sp = Math.floor(remaining / 10);
+    const cp = remaining % 10;
     return { gp, sp, cp };
 }
 
