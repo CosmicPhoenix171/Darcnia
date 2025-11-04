@@ -3766,9 +3766,27 @@ async function dmShowPriceInfo() {
 // ===== Utility Functions =====
 // Wait to log until after login
 function logSuccess() {
-    console.log('🎲 Darcnia Campaign Reference loaded successfully!');
+    const version = window.APP_VERSION || 'v1.25';
+    const buildTime = window.BUILD_TIME ? new Date(window.BUILD_TIME).toLocaleString() : 'Unknown';
+    const commit = window.GIT_COMMIT_SHORT || 'manual';
+    
+    console.log(`🎲 Darcnia Campaign Reference loaded successfully! (${version})`);
+    console.log(`📦 Build: ${commit} at ${buildTime}`);
     console.log('📚 Search index built with', state.searchIndex.length, 'items');
     console.log('⚔️ Playing as:', state.currentCharacter?.name);
     console.log('🔑 Access level:', state.accessLevel);
+    
+    // Update version display in UI
+    updateVersionDisplay();
+}
+
+function updateVersionDisplay() {
+    const versionDisplay = document.querySelector('.version-display');
+    if (versionDisplay) {
+        const version = window.APP_VERSION || 'v1.25';
+        const commit = window.GIT_COMMIT_SHORT || '';
+        versionDisplay.textContent = version;
+        versionDisplay.title = `Build: ${commit}\nTime: ${window.BUILD_TIME || 'Unknown'}`;
+    }
 }
 
