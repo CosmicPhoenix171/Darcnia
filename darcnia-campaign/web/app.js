@@ -2212,10 +2212,14 @@ function renderShopCard(shop) {
 
     // Display name without parenthetical (e.g., "(Basic Arms & Armor)")
     const displayName = (shop.name || '').replace(/\s*\([^)]*\)\s*$/, '').trim() || shop.name;
+    
+    // Get category type for display
+    const categoryType = shop.categories?.[0]?.name || 'General';
 
     return `
         <div class="card shop-card" onclick="showShopDetail('${shop.id}')">
             <div class="shop-card-title">${displayName}</div>
+            <div class="shop-card-category">${categoryType}</div>
             <div class="shop-card-subtitle">${escapeHtml(tagline)}</div>
             <div class="card-tags">
                 <span class="tag">${available}/${total} available</span>

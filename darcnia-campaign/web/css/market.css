@@ -498,7 +498,7 @@
     font-size: 1.75rem;
     font-weight: 700;
     letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     color: var(--text-gold);
     text-shadow: 
         0 0 20px rgba(255, 215, 0, 0.6),
@@ -508,10 +508,23 @@
     z-index: 10;
 }
 
+.shop-card .shop-card-category {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-purple);
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}
+
 .shop-card .shop-card-subtitle {
-    color: var(--text-muted);
+    color: var(--text-primary);
     font-size: 0.98rem;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    opacity: 0.9;
 }
 
 /* ===== Negotiation Styles ===== */
