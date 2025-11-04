@@ -1586,6 +1586,27 @@ footer {
     border-top: 1px solid var(--card-border);
     margin-top: 3rem;
     font-size: 0.9rem;
+    position: relative;
+}
+
+.version-display {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(74, 20, 140, 0.7);
+    backdrop-filter: blur(10px);
+    color: var(--accent-gold);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'Inter', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(186, 104, 200, 0.3);
+    box-shadow: var(--glow-sm);
+    z-index: 9999;
+    user-select: none;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
 }
 
 /* ===== MARKDOWN CONTENT ===== */
