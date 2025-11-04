@@ -2393,9 +2393,16 @@ async function showShopDetail(shopId) {
                 }
                 priceEl.innerHTML = priceDisplay;
                 
-                // Update cart button
+                // Update cart button (use plain text price, not colored HTML)
                 if (canAccess && inStock) {
-                    cartEl.innerHTML = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${priceData.finalPriceStr}', '${shopId}')" title="Add to cart">🛒</button>`;
+                    // Parse price back to gold/silver/copper and create plain text version
+                    const plainPrice = formatPrice(
+                        Math.floor(priceData.finalCopper / 100),
+                        Math.floor((priceData.finalCopper % 100) / 10),
+                        priceData.finalCopper % 10,
+                        false // No color for onclick attribute
+                    );
+                    cartEl.innerHTML = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${plainPrice}', '${shopId}')" title="Add to cart">🛒</button>`;
                 }
             });
         }
@@ -2680,12 +2687,20 @@ function calculateItemTotal(priceStr, quantity) {
     };
 }
 
-function formatPrice(gold, silver, copper) {
+function formatPrice(gold, silver, copper, colored = true) {
     const parts = [];
-    if (gold > 0) parts.push(`<span style="color: #FFD700;">${gold} gp</span>`); // Gold color
-    if (silver > 0) parts.push(`<span style="color: #C0C0C0;">${silver} sp</span>`); // Silver color
-    if (copper > 0) parts.push(`<span style="color: #CD7F32;">${copper} cp</span>`); // Bronze/copper color
-    return parts.length > 0 ? parts.join(', ') : '<span style="color: #CD7F32;">0 cp</span>';
+    if (colored) {
+        if (gold > 0) parts.push(`<span style="color: #FFD700;">${gold} gp</span>`); // Gold color
+        if (silver > 0) parts.push(`<span style="color: #C0C0C0;">${silver} sp</span>`); // Silver color
+        if (copper > 0) parts.push(`<span style="color: #CD7F32;">${copper} cp</span>`); // Bronze/copper color
+        return parts.length > 0 ? parts.join(', ') : '<span style="color: #CD7F32;">0 cp</span>';
+    } else {
+        // Plain text version for use in attributes
+        if (gold > 0) parts.push(`${gold} gp`);
+        if (silver > 0) parts.push(`${silver} sp`);
+        if (copper > 0) parts.push(`${copper} cp`);
+        return parts.length > 0 ? parts.join(', ') : '0 cp';
+    }
 }
 
 function clearCart() {
@@ -2743,7 +2758,8 @@ function checkout() {
     const costCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
     
     if (costCopper > playerCopper) {
-        alert(`Insufficient funds!\n\nTotal Cost: ${formatPrice(totalGold, totalSilver, totalCopper)}\nYour Balance: ${formatPrice(state.bank.gold, state.bank.silver, state.bank.copper)}`);
+        // Alerts render as plain text; avoid HTML in strings
+        alert(`Insufficient funds!\n\nTotal Cost: ${formatPrice(totalGold, totalSilver, totalCopper, false)}\nYour Balance: ${formatPrice(state.bank.gold, state.bank.silver, state.bank.copper, false)}`);
         return;
     }
     
@@ -2762,7 +2778,8 @@ function checkout() {
     }
     
     const itemCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPaid = formatPrice(totalGold, totalSilver, totalCopper);
+    // Plain text for notification
+    const totalPaid = formatPrice(totalGold, totalSilver, totalCopper, false);
     
     // Build notification message
     let notificationMsg = `✅ Purchase complete! Paid ${totalPaid} for ${itemCount} item(s).`;
@@ -2929,7 +2946,8 @@ function attemptNegotiation(skillType) {
 function updateBankDisplay() {
     const bankBtn = document.getElementById('bankButton');
     if (bankBtn) {
-        const balance = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper);
+        // Use plain text here since we're setting textContent
+        const balance = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper, false);
         bankBtn.textContent = `💰 ${balance}`;
     }
 }
@@ -3002,7 +3020,8 @@ function depositFunds() {
     
     updateBankDisplay();
     showBank();
-    showCartNotification(`✅ Deposited ${formatPrice(gold, silver, copper)}`);
+    // Notification uses textContent; pass plain string
+    showCartNotification(`✅ Deposited ${formatPrice(gold, silver, copper, false)}`);
 }
 
 function withdrawFunds() {
@@ -3040,7 +3059,8 @@ function withdrawFunds() {
     
     updateBankDisplay();
     showBank();
-    showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper)}`);
+    // Notification uses textContent; pass plain string
+    showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper, false)}`);
 }
 
 // ===== Login System =====
