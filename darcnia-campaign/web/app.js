@@ -1991,7 +1991,12 @@ function parseBluebrickMarketMarkdown(md) {
     };
     const addItem = (raw, priceStr) => {
         if (!currentShop) return;
-        if (!currentCategory) startCategory('General');
+        if (!currentCategory) {
+            // Extract category from shop name in parentheses, e.g., "Shop Name (Category Type)"
+            const match = currentShop.name.match(/\(([^)]+)\)$/);
+            const categoryName = match ? match[1] : 'General';
+            startCategory(categoryName);
+        }
         const parsed = parseItem(raw, priceStr);
         currentCategory.items.push(parsed);
     };
