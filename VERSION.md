@@ -1,6 +1,6 @@
 # Darcnia Campaign - Version History
 
-## Current Version: 1.26 (Auto-Versioned)
+## Current Version: 1.27
 
 ### 🎉 Auto-Versioning System Active!
 
@@ -38,6 +38,19 @@ When making changes, increment the version number and update it in these locatio
 ---
 
 ## Changelog
+
+### v1.27 - November 4, 2025
+**Bug Fix:**
+- 🐛 **Fixed: Documentation text showing as market items** 
+- The "Dynamic Pricing System" section was being parsed as shop items
+- Items like "Step: 2% per offset point" were showing with "1 cp" prices
+- Solution: Parser now skips documentation sections (## 📊 emoji headers)
+- Only actual shop sections (## without emojis) are parsed as inventory
+
+**Technical Changes:**
+- Added `inDocsSection` flag to `parseBluebrickMarketMarkdown()`
+- Documentation sections are now properly ignored
+- Cleaner market display without junk entries
 
 ### v1.26 - November 4, 2025
 **AUTO-VERSIONING SYSTEM:**

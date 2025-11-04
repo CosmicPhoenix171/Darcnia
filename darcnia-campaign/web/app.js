@@ -1977,6 +1977,7 @@ function parseBluebrickMarketMarkdown(md) {
     let currentShop = null;
     let currentCategory = null;
     let inHeader = true;
+    let inDocsSection = false; // Skip documentation sections
     
     const pushShop = () => { if (currentShop) shops.push(currentShop); };
     const startShop = (name, description='') => {
@@ -2002,6 +2003,17 @@ function parseBluebrickMarketMarkdown(md) {
         if (!line) continue;
         if (line.startsWith('---')) { inHeader = false; continue; }
         if (inHeader) continue;
+        
+        // Skip documentation sections (Dynamic Pricing System, etc.)
+        if (line.startsWith('## 📊') || line.includes('Dynamic Pricing System')) {
+            inDocsSection = true;
+            continue;
+        }
+        // Exit docs section when we hit a shop header (## without emoji)
+        if (line.startsWith('## ') && !line.startsWith('## 📊') && inDocsSection) {
+            inDocsSection = false;
+        }
+        if (inDocsSection) continue;
         
         // Shop header
         if (line.startsWith('## ')) {
