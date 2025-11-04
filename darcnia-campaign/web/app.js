@@ -2218,29 +2218,25 @@ function renderShopCard(shop) {
     // Display name without parenthetical (e.g., "(Basic Arms & Armor)")
     const displayName = (shop.name || '').replace(/\s*\([^)]*\)\s*$/, '').trim() || shop.name;
     
-    // Get category type for display - use first category that's not generic
+    // Get category type for display - intelligently combine multiple categories
     let categoryType = 'General';
     const categories = shop.categories || [];
     
-    // Try to find a non-generic category name
-    for (const cat of categories) {
-        const catName = cat.name || '';
-        if (catName && !catName.match(/^General\s*(Gear)?$/i)) {
-            categoryType = catName;
-            break;
-        }
-    }
+    // Filter out generic category names
+    const nonGenericCategories = categories
+        .map(c => c.name || '')
+        .filter(name => name && !name.match(/^General\s*(Gear)?$/i));
     
-    // If still generic and we have multiple categories, combine first two
-    if (categoryType === 'General' && categories.length > 1) {
-        const names = categories.slice(0, 2).map(c => c.name).filter(Boolean);
-        if (names.length > 0) {
-            categoryType = names.join(' • ');
+    if (nonGenericCategories.length > 0) {
+        // If we have 2 or fewer specific categories, show them all
+        if (nonGenericCategories.length <= 2) {
+            categoryType = nonGenericCategories.join(' & ');
+        } else {
+            // If more than 2, just show the first one
+            categoryType = nonGenericCategories[0];
         }
-    }
-    
-    // If still generic, use first category or fallback
-    if (categoryType === 'General' && categories.length > 0) {
+    } else if (categories.length > 0) {
+        // Fallback to first category if all are generic
         categoryType = categories[0].name || 'General';
     }
 
