@@ -2280,7 +2280,12 @@ async function showShopDetail(shopId) {
                 </div>
             </div>`;
     
-    // Calculate prices for all items asynchronously
+    // Show modal immediately with loading message
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html + '<div style="text-align: center; padding: 20px;"><p>⏳ Loading prices...</p></div>';
+    modal.classList.remove('hidden');
+    
+    // Calculate prices for all items asynchronously (now in background)
     for (const cat of shop.categories) {
                 const items = (cat.items || []).filter(it => {
                         const req = Number(it.level ?? 0);
@@ -2355,9 +2360,8 @@ async function showShopDetail(shopId) {
         }
     }
     
-    const modal = document.getElementById('searchModal');
+    // Update the already-visible modal with final content
     document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
 
         // Wire up filters
         wireShopFilters(shop.id);
