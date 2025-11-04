@@ -68,6 +68,7 @@ const characterDatabase = {
 let characterData = {
     // Identity
     characterName: '',
+    level: 1,
     class: '',
     background: '',
     species: '',
@@ -303,6 +304,8 @@ async function saveCharacterToFirebase() {
     
     try {
         await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
+        // Also update level in main character node for market access
+        await database.ref(`characters/${sanitizedName}/level`).set(data.level || 1);
         console.log(`💾 Character sheet saved to Firebase for ${currentCharacterName}`);
     } catch (error) {
         console.error('Error saving to Firebase:', error);
@@ -517,6 +520,7 @@ function calculateAllStats() {
 function gatherCharacterData() {
     // Identity
     characterData.characterName = document.getElementById('characterName').value;
+    characterData.level = parseInt(document.getElementById('level').value) || 1;
     characterData.class = document.getElementById('class').value;
     characterData.background = document.getElementById('background').value;
     characterData.species = document.getElementById('species').value;
@@ -600,6 +604,7 @@ function gatherCharacterData() {
 function populateCharacterData(data) {
     // Identity
     document.getElementById('characterName').value = data.characterName || '';
+    document.getElementById('level').value = data.level || 1;
     document.getElementById('class').value = data.class || '';
     document.getElementById('background').value = data.background || '';
     document.getElementById('species').value = data.species || '';

@@ -1244,6 +1244,7 @@ async function saveCharacterDataToFirebase(characterName, data) {
         const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
         await database.ref(`characters/${sanitizedName}`).set({
             name: data.name,
+            level: data.level || 1,
             bank: data.bank,
             cart: data.cart || [],
             lastUpdated: Date.now()
@@ -2377,6 +2378,27 @@ function wireShopFilters(shopId) {
 
 // ===== Shopping Cart =====
 function addToCart(itemKey, itemName, itemPrice, shopId) {
+    // Find the item to check access
+    const shops = assignItemKeys(getMarketShops());
+    let targetItem = null;
+    
+    for (const shop of shops) {
+        if (shop.shopId === shopId) {
+            for (const category of shop.categories) {
+                targetItem = category.items.find(item => item.key === itemKey);
+                if (targetItem) break;
+            }
+            if (targetItem) break;
+        }
+    }
+    
+    // Check if player has access based on level and rarity
+    if (targetItem && !canAccessItemByRarity(targetItem)) {
+        const reqLevel = getRarityRequirement(targetItem.rarity);
+        showCartNotification(`❌ Requires Level ${reqLevel} to purchase this item`);
+        return;
+    }
+    
     // Check if item already in cart
     const existingItem = state.cart.find(item => item.key === itemKey);
     
