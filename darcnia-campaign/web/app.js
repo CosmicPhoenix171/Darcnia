@@ -16,11 +16,20 @@ try {
     if (typeof firebase !== 'undefined') {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
-        console.log('✅ Firebase initialized');
+        console.log('✅ Firebase Realtime Database initialized');
     }
 } catch (error) {
     console.warn('⚠️ Firebase not available, using localStorage fallback');
 }
+
+// ===== Market Pricing State (cached in memory) =====
+const marketState = {
+    wmi: null,           // {week, multiplier, roll}
+    categories: {},      // {categoryKey: {multiplier, roll}}
+    vendors: {},         // {shopId: {date, multiplier, roll}}
+    activeEvent: 'none', // Current event key
+    lastSync: null       // Timestamp of last Firestore sync
+};
 
 // ===== Configuration =====
 const CONFIG = {
@@ -1334,6 +1343,240 @@ function stopFirebaseRealtimeSync() {
     }
 }
 
+// ===== Market Pricing Realtime Database Functions =====
+
+/**
+ * Get or create Weekly Market Index (WMI) from Realtime Database
+ */
+async function getOrCreateWMI() {
+    if (!database) {
+        // Fallback: generate locally
+        const week = getISOWeek();
+        if (!marketState.wmi || marketState.wmi.week !== week) {
+            const result = calculateWMI();
+            marketState.wmi = { week, ...result };
+        }
+        return marketState.wmi;
+    }
+    
+    try {
+        const week = getISOWeek();
+        const ref = database.ref('marketState/wmi');
+        const snapshot = await ref.once('value');
+        const data = snapshot.val();
+        
+        if (data && data.week === week) {
+            // Use existing WMI for this week
+            marketState.wmi = data;
+            return marketState.wmi;
+        } else {
+            // Roll new WMI for the week
+            const result = calculateWMI();
+            const newData = { week, ...result, updatedAt: Date.now() };
+            await ref.set(newData);
+            marketState.wmi = newData;
+            console.log(`📊 New WMI for ${week}: ${result.multiplier.toFixed(2)}x (roll: ${result.roll})`);
+            return newData;
+        }
+    } catch (error) {
+        console.error('Database WMI error:', error);
+        // Fallback to local
+        const result = calculateWMI();
+        return { week: getISOWeek(), ...result };
+    }
+}
+
+/**
+ * Get or create Category Adjustment from Realtime Database
+ */
+async function getOrCreateCategoryAdj(categoryKey) {
+    if (!database) {
+        // Fallback: generate locally
+        const week = getISOWeek();
+        const cacheKey = `${categoryKey}-${week}`;
+        if (!marketState.categories[cacheKey]) {
+            const result = calculateCategoryAdjustment(categoryKey);
+            marketState.categories[cacheKey] = { week, ...result };
+        }
+        return marketState.categories[cacheKey];
+    }
+    
+    try {
+        const week = getISOWeek();
+        const ref = database.ref(`categoryAdjustments/${categoryKey}`);
+        const snapshot = await ref.once('value');
+        const data = snapshot.val();
+        
+        if (data && data.week === week) {
+            return data;
+        } else {
+            // Roll new category adjustment
+            const result = calculateCategoryAdjustment(categoryKey);
+            const newData = { week, categoryKey, ...result, updatedAt: Date.now() };
+            await ref.set(newData);
+            console.log(`📈 New CatAdj for ${categoryKey}: ${result.multiplier.toFixed(2)}x (roll: ${result.roll})`);
+            return newData;
+        }
+    } catch (error) {
+        console.error(`Database CatAdj error for ${categoryKey}:`, error);
+        const result = calculateCategoryAdjustment(categoryKey);
+        return { week: getISOWeek(), categoryKey, ...result };
+    }
+}
+
+/**
+ * Get or create Vendor Adjustment (daily per shop)
+ */
+async function getOrCreateVendorAdj(shopId) {
+    if (!database) {
+        // Fallback: generate locally
+        const date = getDateString();
+        const cacheKey = `${shopId}-${date}`;
+        if (!marketState.vendors[cacheKey]) {
+            const result = calculateVendorAdjustment();
+            marketState.vendors[cacheKey] = { date, ...result };
+        }
+        return marketState.vendors[cacheKey];
+    }
+    
+    try {
+        const date = getDateString();
+        const ref = database.ref(`vendorAdjustments/${shopId}`);
+        const snapshot = await ref.once('value');
+        const data = snapshot.val();
+        
+        if (data && data.date === date) {
+            return data;
+        } else {
+            // Roll new vendor adjustment for today
+            const result = calculateVendorAdjustment();
+            const newData = { date, shopId, ...result, updatedAt: Date.now() };
+            await ref.set(newData);
+            console.log(`🏪 New VendorAdj for ${shopId}: ${result.multiplier.toFixed(2)}x (roll: ${result.roll})`);
+            return newData;
+        }
+    } catch (error) {
+        console.error(`Database VendorAdj error for ${shopId}:`, error);
+        const result = calculateVendorAdjustment();
+        return { date: getDateString(), shopId, ...result };
+    }
+}
+
+/**
+ * Get current active event (DM-controlled)
+ */
+async function getActiveEvent() {
+    if (!database) {
+        return marketState.activeEvent || 'none';
+    }
+    
+    try {
+        const ref = database.ref('marketState/activeEvent');
+        const snapshot = await ref.once('value');
+        const data = snapshot.val();
+        
+        if (data && data.event) {
+            marketState.activeEvent = data.event;
+            return marketState.activeEvent;
+        }
+        return 'none';
+    } catch (error) {
+        console.error('Database event error:', error);
+        return 'none';
+    }
+}
+
+/**
+ * Set active event (DM only)
+ */
+async function setActiveEvent(eventKey) {
+    if (!database) {
+        marketState.activeEvent = eventKey;
+        return;
+    }
+    
+    try {
+        const ref = database.ref('marketState/activeEvent');
+        await ref.set({ event: eventKey, updatedAt: Date.now() });
+        marketState.activeEvent = eventKey;
+        console.log(`🎪 Event set to: ${eventKey}`);
+    } catch (error) {
+        console.error('Database set event error:', error);
+    }
+}
+
+/**
+ * Force reroll of WMI (DM only)
+ */
+async function forceRerollWMI() {
+    if (!database) return;
+    
+    try {
+        const week = getISOWeek();
+        const result = calculateWMI();
+        const data = { week, ...result, updatedAt: Date.now(), forcedReroll: true };
+        await database.ref('marketState/wmi').set(data);
+        marketState.wmi = data;
+        console.log(`🔄 Force rerolled WMI: ${result.multiplier.toFixed(2)}x`);
+        return data;
+    } catch (error) {
+        console.error('Force reroll WMI error:', error);
+    }
+}
+
+/**
+ * Force reroll of all category adjustments (DM only)
+ */
+async function forceRerollCategories() {
+    if (!database) return;
+    
+    try {
+        const week = getISOWeek();
+        const categories = Object.keys(CATEGORY_CONFIG);
+        const updates = {};
+        
+        for (const catKey of categories) {
+            const result = calculateCategoryAdjustment(catKey);
+            const data = { week, categoryKey: catKey, ...result, updatedAt: Date.now(), forcedReroll: true };
+            updates[`categoryAdjustments/${catKey}`] = data;
+        }
+        
+        await database.ref().update(updates);
+        console.log('🔄 Force rerolled all categories');
+    } catch (error) {
+        console.error('Force reroll categories error:', error);
+    }
+}
+
+/**
+ * Calculate final price for an item using all current multipliers
+ */
+async function calculateItemPrice(basePrice, shopId, categoryName, itemRarity, itemLevel) {
+    // Get all multipliers
+    const wmiData = await getOrCreateWMI();
+    const categoryKey = getCategoryKey(shopId, categoryName, itemRarity);
+    const catData = await getOrCreateCategoryAdj(categoryKey);
+    const vendorData = await getOrCreateVendorAdj(shopId);
+    const activeEvent = await getActiveEvent();
+    const eventAdj = EVENT_ADJUSTMENTS[activeEvent] || 1.0;
+    
+    // Scarcity adjustment (if item level equals player's cleared level)
+    let scarcityAdj = 1.0;
+    const playerLevel = state.currentCharacter?.clearedDungeonLevel || 0;
+    if (itemLevel && itemLevel === playerLevel && itemLevel > 0) {
+        scarcityAdj = 1.05; // 5% premium for edge-of-access items
+    }
+    
+    // Calculate final price
+    return calculateFinalPrice(basePrice, {
+        wmi: wmiData.multiplier,
+        catAdj: catData.multiplier,
+        vendorAdj: vendorData.multiplier,
+        eventAdj: eventAdj,
+        scarcityAdj: scarcityAdj
+    });
+}
+
 // ===== Theme Management =====
 function setTheme(theme) {
     state.theme = theme;
@@ -1868,7 +2111,21 @@ function renderMarket() {
     state._currentMarketStock = dailyStock;
     
     let html = '<h2>🛒 Bluebrick Market</h2>';
-    html += '<p>Browse shops. Stock rotates daily. Items tagged [L0] are always in stock; higher-level and rarer items appear less often.</p>';
+    html += '<p>Browse shops. Prices fluctuate daily/weekly based on market conditions. Stock rotates daily.</p>';
+    
+    // DM Admin Controls
+    if (isDM) {
+        html += '<div class="card dm-admin-panel" style="background: rgba(139, 69, 19, 0.2); border: 2px solid var(--accent-gold); margin-bottom: 1rem;">';
+        html += '<h3 style="color: var(--accent-gold); margin-top: 0;">⚙️ DM Price Controls</h3>';
+        html += '<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">';
+        html += '<button onclick="dmForceRerollWMI()" class="btn-secondary" style="font-size: 0.9rem;">🔄 Reroll Weekly Market</button>';
+        html += '<button onclick="dmForceRerollCategories()" class="btn-secondary" style="font-size: 0.9rem;">🔄 Reroll All Categories</button>';
+        html += '<button onclick="dmShowEventControls()" class="btn-secondary" style="font-size: 0.9rem;">🎪 Set Event</button>';
+        html += '<button onclick="dmShowPriceInfo()" class="btn-secondary" style="font-size: 0.9rem;">📊 View Multipliers</button>';
+        html += '</div>';
+        html += '<p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Changes sync to all players immediately via Firebase.</p>';
+        html += '</div>';
+    }
     
     // Countdown timer for merchant restock
     html += '<div class="restock-timer-container">';
@@ -1878,8 +2135,6 @@ function renderMarket() {
     html += '<span class="timer-countdown" id="restockCountdown">--:--:--</span>';
     html += '</div>';
     html += '</div>';
-    
-    // Controls removed (no level gating)
     
     // Shop grid
     html += '<div class="card-grid">';
@@ -1947,7 +2202,7 @@ function getShopTagline(shop) {
     return 'Browse curated stock and bundles.';
 }
 
-function showShopDetail(shopId) {
+async function showShopDetail(shopId) {
     const shops = assignItemKeys(getMarketShops());
     const shop = resolveShop(shopId, shops);
     if (!shop) return;
@@ -1958,7 +2213,7 @@ function showShopDetail(shopId) {
     
         let html = `<h2>${shop.name}</h2>`;
     if (shop.description) html += `<p>${shop.description}</p>`;
-        html += `<div class="card-meta">Showing today's stock (daily rotation). L0 items are always available.</div>`;
+        html += `<div class="card-meta">Showing today's stock with dynamic pricing. Prices fluctuate daily/weekly.</div>`;
 
         // Filter bar (in stock only is forced on by default)
         html += `
@@ -1975,7 +2230,8 @@ function showShopDetail(shopId) {
                 </div>
             </div>`;
     
-    shop.categories.forEach(cat => {
+    // Calculate prices for all items asynchronously
+    for (const cat of shop.categories) {
                 const items = (cat.items || []).filter(it => {
                         const req = Number(it.level ?? 0);
                         const inStock = req <= 0 || stockSet.has(it._key);
@@ -1989,27 +2245,43 @@ function showShopDetail(shopId) {
         html += `<h3>${cat.name}</h3>`;
         if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
         html += '<ul class="market-list">';
-        items.forEach(it => {
+        
+        for (const it of items) {
             const req = Number(it.level ?? 0);
             const inStock = req <= 0 || stockSet.has(it._key);
             const rarity = it.rarity ? it.rarity : getItemRarity(it);
             const cls = (!inStock && req > 0) ? 'item-dim' : '';
+            
+            // Calculate dynamic price
+            const priceData = await calculateItemPrice(it.price, shopId, cat.name, rarity, req);
+            const isPriceChanged = priceData.finalPriceStr !== priceData.basePriceStr;
+            
             // Show all items to all users; dim and label out-of-stock ones
             const badge = (!inStock && req > 0 ? 'Out of stock' : `L${req}`);
             const lvlTag = ` <span class="tag">${badge}</span>`;
                         const rarityTag = rarity ? ` <span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
                         const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
             const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
+            
+            // Display price with base crossed out if changed
+            let priceDisplay = '';
+            if (isPriceChanged) {
+                priceDisplay = `<span class="price-base" style="text-decoration: line-through; opacity: 0.6;">${priceData.basePriceStr}</span> <span class="price-final" style="color: var(--accent-gold); font-weight: 600;">${priceData.finalPriceStr}</span>`;
+            } else {
+                priceDisplay = `<span class="price-final">${priceData.finalPriceStr}</span>`;
+            }
+            
             const itemKey = `${shopId}-${cat.name}-${it.name}`;
-            const cartBtn = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${it.price}', '${shopId}')" title="Add to cart">🛒</button>`;
-                        html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${lvlTag}${rarityTag}${attuneTag}: ${it.price}${note}</div>${cartBtn}</li>`;
+            // Store final price in data attribute for cart
+            const cartBtn = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${priceData.finalPriceStr}', '${shopId}')" title="Add to cart">🛒</button>`;
+                        html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${lvlTag}${rarityTag}${attuneTag}: ${priceDisplay}${note}</div>${cartBtn}</li>`;
             shown++;
-        });
+        }
         html += '</ul>';
         if (shown === 0) {
-            html += '<p class="card-meta">No items available at your current dungeon level today.</p>';
+            html += '<p class="card-meta">No items match your filters.</p>';
         }
-    });
+    }
     
     const modal = document.getElementById('searchModal');
     document.getElementById('searchResults').innerHTML = html;
@@ -2041,19 +2313,19 @@ function wireShopFilters(shopId) {
     filters.inStockOnly = true;
     state.shopFilters[shopId] = filters;
     
-    if (qEl) qEl.addEventListener('input', () => {
+    if (qEl) qEl.addEventListener('input', async () => {
         filters.q = qEl.value || '';
-        showShopDetail(shopId);
+        await showShopDetail(shopId);
     });
     // inStockOnly checkbox removed - always forced to true
-    chipEls.forEach(ch => ch.addEventListener('click', () => {
+    chipEls.forEach(ch => ch.addEventListener('click', async () => {
         const r = ch.getAttribute('data-rarity');
         if (filters.rarities.has(r)) filters.rarities.delete(r); else filters.rarities.add(r);
-        showShopDetail(shopId);
+        await showShopDetail(shopId);
     }));
-    if (clearEl) clearEl.addEventListener('click', () => {
+    if (clearEl) clearEl.addEventListener('click', async () => {
         filters.rarities.clear();
-        showShopDetail(shopId);
+        await showShopDetail(shopId);
     });
 }
 
@@ -3303,6 +3575,122 @@ function updateRestockCountdown() {
     } else {
         countdownElement.classList.remove('restock-soon');
     }
+}
+
+// ===== DM Price Control Functions =====
+async function dmForceRerollWMI() {
+    if (state.currentCharacter?.accessLevel !== 'dm') {
+        alert('DM access required!');
+        return;
+    }
+    
+    if (!confirm('Reroll the Weekly Market Index? This affects ALL items citywide.')) return;
+    
+    await forceRerollWMI();
+    alert('✅ Weekly Market Index rerolled! Refresh any open shop windows to see changes.');
+}
+
+async function dmForceRerollCategories() {
+    if (state.currentCharacter?.accessLevel !== 'dm') {
+        alert('DM access required!');
+        return;
+    }
+    
+    if (!confirm('Reroll ALL category adjustments? This will change prices for every item category.')) return;
+    
+    await forceRerollCategories();
+    alert('✅ All categories rerolled! Refresh any open shop windows to see changes.');
+}
+
+async function dmShowEventControls() {
+    if (state.currentCharacter?.accessLevel !== 'dm') {
+        alert('DM access required!');
+        return;
+    }
+    
+    const events = Object.keys(EVENT_ADJUSTMENTS);
+    const currentEvent = await getActiveEvent();
+    
+    let html = '<h2>🎪 Set Market Event</h2>';
+    html += '<p>Events apply a multiplier to all items. Choose an event or set to "none":</p>';
+    html += '<div class="card" style="max-height: 400px; overflow-y: auto;">';
+    html += '<ul style="list-style: none; padding: 0;">';
+    
+    for (const eventKey of events) {
+        const multiplier = EVENT_ADJUSTMENTS[eventKey];
+        const isCurrent = eventKey === currentEvent;
+        const bgColor = isCurrent ? 'rgba(218, 165, 32, 0.2)' : 'transparent';
+        html += `
+            <li style="padding: 0.75rem; margin: 0.5rem 0; background: ${bgColor}; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer;" onclick="dmSetEvent('${eventKey}')">
+                <strong style="color: var(--accent-gold);">${eventKey}</strong> 
+                <span style="float: right; color: ${multiplier > 1 ? '#ff6b6b' : multiplier < 1 ? '#4caf50' : 'var(--text-muted)'};">
+                    ${(multiplier * 100).toFixed(0)}%
+                </span>
+                ${isCurrent ? '<span style="margin-left: 1rem; color: var(--accent-gold);">✓ Active</span>' : ''}
+            </li>
+        `;
+    }
+    
+    html += '</ul>';
+    html += '</div>';
+    
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
+}
+
+async function dmSetEvent(eventKey) {
+    await setActiveEvent(eventKey);
+    alert(`✅ Event set to: ${eventKey}`);
+    dmShowEventControls(); // Refresh the list
+}
+
+async function dmShowPriceInfo() {
+    if (state.currentCharacter?.accessLevel !== 'dm') {
+        alert('DM access required!');
+        return;
+    }
+    
+    // Get current multipliers
+    const wmiData = await getOrCreateWMI();
+    const activeEvent = await getActiveEvent();
+    const eventMult = EVENT_ADJUSTMENTS[activeEvent] || 1.0;
+    
+    let html = '<h2>📊 Current Market Multipliers</h2>';
+    
+    html += '<div class="card">';
+    html += '<h3 style="color: var(--accent-purple);">Weekly Market Index (WMI)</h3>';
+    html += `<p><strong>Roll:</strong> ${wmiData.roll}/12 (offset: ${wmiData.offset >= 0 ? '+' : ''}${wmiData.offset})</p>`;
+    html += `<p><strong>Multiplier:</strong> <span style="color: ${wmiData.multiplier > 1 ? '#ff6b6b' : wmiData.multiplier < 1 ? '#4caf50' : 'var(--text-muted)'}; font-size: 1.2rem; font-weight: 600;">${(wmiData.multiplier * 100).toFixed(0)}%</span></p>`;
+    html += `<p style="font-size: 0.9rem; color: var(--text-muted);">Week: ${wmiData.week}</p>`;
+    html += '</div>';
+    
+    html += '<div class="card">';
+    html += '<h3 style="color: var(--accent-purple);">Active Event</h3>';
+    html += `<p><strong>${activeEvent}</strong></p>`;
+    html += `<p><strong>Multiplier:</strong> <span style="color: ${eventMult > 1 ? '#ff6b6b' : eventMult < 1 ? '#4caf50' : 'var(--text-muted)'}; font-size: 1.2rem; font-weight: 600;">${(eventMult * 100).toFixed(0)}%</span></p>`;
+    html += '</div>';
+    
+    html += '<div class="card">';
+    html += '<h3 style="color: var(--accent-purple);">Category Adjustments (This Week)</h3>';
+    html += '<p style="font-size: 0.9rem; color: var(--text-muted);">Sample of current category multipliers:</p>';
+    
+    const sampleCategories = ['essentials', 'armor', 'apothecary', 'magic-uncommon'];
+    for (const catKey of sampleCategories) {
+        const catData = await getOrCreateCategoryAdj(catKey);
+        html += `<div style="padding: 0.5rem; margin: 0.25rem 0; background: rgba(255,255,255,0.05); border-radius: 4px;">`;
+        html += `<strong>${catKey}:</strong> `;
+        html += `<span style="color: ${catData.multiplier > 1 ? '#ff6b6b' : catData.multiplier < 1 ? '#4caf50' : 'var(--text-muted)'};">${(catData.multiplier * 100).toFixed(0)}%</span>`;
+        html += ` <span style="font-size: 0.85rem; color: var(--text-muted);">(roll: ${catData.roll})</span>`;
+        html += `</div>`;
+    }
+    html += '</div>';
+    
+    html += '<button onclick="closeModal()" class="btn-primary" style="margin-top: 1rem;">Close</button>';
+    
+    const modal = document.getElementById('searchModal');
+    document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
 }
 
 // ===== Utility Functions =====

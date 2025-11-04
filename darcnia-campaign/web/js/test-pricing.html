@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Engine Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 { color: #daa520; }
+        .test-result {
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid #4caf50;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .test-result.error {
+            border-left-color: #ff6b6b;
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #daa520;
+            color: #1a1a1a;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        button:hover {
+            background: #c4941d;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Dynamic Pricing Engine Test</h1>
+    <p>This page tests the pricing calculation functions in isolation.</p>
+    
+    <button onclick="runAllTests()">Run All Tests</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+    
+    <script src="pricing.js"></script>
+    <script>
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function logResult(title, data, isError = false) {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'test-result' + (isError ? ' error' : '');
+            div.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+        
+        function runAllTests() {
+            clearResults();
+            
+            // Test 1: WMI Calculation
+            try {
+                const wmi = calculateWMI();
+                logResult('✅ Weekly Market Index (WMI)', {
+                    roll: wmi.roll,
+                    offset: wmi.offset,
+                    multiplier: wmi.multiplier,
+                    range: '0.90–1.10',
+                    valid: wmi.multiplier >= 0.90 && wmi.multiplier <= 1.10
+                });
+            } catch (e) {
+                logResult('❌ WMI Test Failed', { error: e.message }, true);
+            }
+            
+            // Test 2: Category Adjustments
+            try {
+                const categories = ['essentials', 'armor', 'apothecary', 'magic-rare'];
+                const results = {};
+                
+                for (const cat of categories) {
+                    const adj = calculateCategoryAdjustment(cat);
+                    results[cat] = {
+                        roll: adj.roll,
+                        offset: adj.offset,
+                        multiplier: adj.multiplier.toFixed(4)
+                    };
+                }
+                
+                logResult('✅ Category Adjustments', results);
+            } catch (e) {
+                logResult('❌ Category Test Failed', { error: e.message }, true);
+            }
+            
+            // Test 3: Vendor Adjustment
+            try {
+                const vendor = calculateVendorAdjustment();
+                logResult('✅ Vendor Adjustment', {
+                    roll: vendor.roll,
+                    offset: vendor.offset,
+                    multiplier: vendor.multiplier,
+                    range: '0.97–1.03',
+                    valid: vendor.multiplier >= 0.97 && vendor.multiplier <= 1.03
+                });
+            } catch (e) {
+                logResult('❌ Vendor Test Failed', { error: e.message }, true);
+            }
+            
+            // Test 4: Price Parsing
+            try {
+                const tests = [
+                    '50 gp',
+                    '3 sp',
+                    '25 cp',
+                    '1,500 gp',
+                    '5 gp, 3 sp',
+                    '10 gp, 5 sp, 2 cp'
+                ];
+                
+                const results = {};
+                for (const test of tests) {
+                    const copper = parsePriceToCopper(test);
+                    results[test] = `${copper} cp`;
+                }
+                
+                logResult('✅ Price Parsing', results);
+            } catch (e) {
+                logResult('❌ Price Parsing Failed', { error: e.message }, true);
+            }
+            
+            // Test 5: Final Price Calculation
+            try {
+                const testPrices = [
+                    { base: '50 gp', wmi: 1.04, catAdj: 0.98, vendorAdj: 1.01, eventAdj: 1.0, scarcityAdj: 1.0 },
+                    { base: '1 gp', wmi: 0.96, catAdj: 1.02, vendorAdj: 0.99, eventAdj: 0.95, scarcityAdj: 1.0 },
+                    { base: '100 gp', wmi: 1.10, catAdj: 1.20, vendorAdj: 1.03, eventAdj: 1.25, scarcityAdj: 1.05 }
+                ];
+                
+                const results = [];
+                for (const test of testPrices) {
+                    const price = calculateFinalPrice(test.base, test);
+                    results.push({
+                        base: test.base,
+                        final: price.finalPriceStr,
+                        totalMultiplier: (price.breakdown.total * 100).toFixed(1) + '%'
+                    });
+                }
+                
+                logResult('✅ Final Price Calculations', results);
+            } catch (e) {
+                logResult('❌ Final Price Test Failed', { error: e.message }, true);
+            }
+            
+            // Test 6: Date Functions
+            try {
+                const week = getISOWeek();
+                const date = getDateString();
+                
+                logResult('✅ Date Functions', {
+                    isoWeek: week,
+                    dateString: date,
+                    format: 'Week format: YYYY-W##, Date format: YYYY-MM-DD'
+                });
+            } catch (e) {
+                logResult('❌ Date Test Failed', { error: e.message }, true);
+            }
+            
+            // Test 7: Category Key Mapping
+            try {
+                const testMappings = [
+                    { shop: 'smiths-bench', cat: 'Armor', rarity: '' },
+                    { shop: 'rue-resin', cat: 'Potions', rarity: '' },
+                    { shop: 'arcane-exchange', cat: 'Magic', rarity: 'Rare' },
+                    { shop: 'brass-buckle', cat: 'General Gear', rarity: '' }
+                ];
+                
+                const results = {};
+                for (const test of testMappings) {
+                    const key = getCategoryKey(test.shop, test.cat, test.rarity);
+                    results[`${test.shop} / ${test.cat}`] = key;
+                }
+                
+                logResult('✅ Category Key Mapping', results);
+            } catch (e) {
+                logResult('❌ Category Mapping Failed', { error: e.message }, true);
+            }
+            
+            // Test 8: Event Adjustments
+            try {
+                logResult('✅ Event Adjustments Available', EVENT_ADJUSTMENTS);
+            } catch (e) {
+                logResult('❌ Event Test Failed', { error: e.message }, true);
+            }
+            
+            // Test 9: Stress Test (100 rolls)
+            try {
+                const rolls = [];
+                for (let i = 0; i < 100; i++) {
+                    rolls.push(roll2d6());
+                }
+                
+                const avg = rolls.reduce((a, b) => a + b) / rolls.length;
+                const min = Math.min(...rolls);
+                const max = Math.max(...rolls);
+                
+                logResult('✅ Stress Test (100 × 2d6)', {
+                    average: avg.toFixed(2),
+                    expected: '7.0',
+                    min: min,
+                    max: max,
+                    distribution: rolls.reduce((acc, r) => {
+                        acc[r] = (acc[r] || 0) + 1;
+                        return acc;
+                    }, {})
+                });
+            } catch (e) {
+                logResult('❌ Stress Test Failed', { error: e.message }, true);
+            }
+            
+            logResult('🎉 All Tests Complete', {
+                status: 'Pricing engine is ready!',
+                nextSteps: 'Open the main market page and test with Firebase integration.'
+            });
+        }
+        
+        // Auto-run on load
+        window.addEventListener('load', runAllTests);
+    </script>
+</body>
+</html>

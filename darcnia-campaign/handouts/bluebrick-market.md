@@ -1,13 +1,116 @@
 # Handout: Bluebrick Market — General Goods & Prices
 
-Player-facing price list for common adventuring gear, ammo, basic arms/armor, and services. No haggling rules baked in; your DM may adjust for scarcity.
+Player-facing price list for common adventuring gear, ammo, basic arms/armor, and services.
 
-Currency: 10 cp = 1 sp; 10 sp = 1 gp; 10 gp = 1 pp
+**Currency:** 10 cp = 1 sp; 10 sp = 1 gp; 10 gp = 1 pp
 
-Availability rule
+**Availability Rule:**
 - Items show a [L#] tag for the minimum dungeon level cleared required (e.g., [L0], [L1], [L2]).
 - You may purchase any item with a tag up to your highest cleared dungeon level.
 - Services are available to all (no level tag).
+
+---
+
+## 📊 Dynamic Pricing System
+
+All listed prices are **baseline prices**. Actual market prices fluctuate based on realistic economic factors.
+
+### How It Works
+
+Final Price = Base Price × WMI × CatAdj × VendorAdj × EventAdj × ScarcityAdj
+
+**Cadence:**
+- **Daily:** VendorAdj changes each day (per shop)
+- **Weekly:** WMI and CatAdj roll at the start of each week
+- **Events:** EventAdj applies when the DM triggers special events
+
+**Pricing Mechanism:**
+- All multipliers use **2d6 rolls** (bell curve, centered on 7)
+- Roll result converts to offset: `(roll - 7)` = -5 to +5
+- Each multiplier has a step size and min/max clamps for realism
+
+### Multiplier Details
+
+**1. Weekly Market Index (WMI)** — Citywide
+- Affects ALL items
+- Step: 2% per offset point
+- Range: 90%–110% (±10% max swing)
+- Example: Roll 9 → offset +2 → 1.04 (4% price increase)
+
+**2. Category Adjustment (CatAdj)** — Per Item Type
+Different categories have different volatility:
+
+| Category | Step Size | Range | Examples |
+|----------|-----------|-------|----------|
+| **Essentials** | 1% | 92%–108% | Food, lodging, L0 gear |
+| **Ammo & Ranged** | 2% | 85%–115% | Arrows, bolts, quivers |
+| **Arms & Armor** | 2% | 80%–120% | Weapons, mundane armor |
+| **Tools & Kits** | 1.5% | 88%–112% | Thieves' tools, focuses |
+| **Apothecary** | 3% | 70%–130% | Potions, acids, poisons |
+| **Mounts & Vehicles** | 3% | 75%–125% | Horses, carts, feed |
+| **Services** | 1% | 90%–110% | Lodging, hirelings |
+| **Magic (Common)** | 4% | 70%–140% | Common magic items |
+| **Magic (Uncommon)** | 6% | 60%–160% | Uncommon items |
+| **Magic (Rare)** | 8% | 50%–200% | Rare items |
+| **Magic (Very Rare)** | 10% | 40%–250% | Very rare items |
+| **Magic (Legendary)** | — | 100% | Negotiated/plot-driven |
+
+**3. Vendor Adjustment (VendorAdj)** — Per Shop, Daily
+- Represents mood, haggling, foot traffic
+- Step: 1% per offset point
+- Range: 97%–103% (minor daily noise)
+
+**4. Event Adjustment (EventAdj)** — Optional, DM-Triggered
+Special market conditions:
+
+| Event | Multiplier | Effect |
+|-------|------------|--------|
+| None | 100% | Normal market |
+| Festival Sale | 95% | Merchants offer discounts |
+| Harvest Glut | 90% | Food/drink prices drop |
+| Caravan Delay | 115% | Tools, gear, ammo scarce |
+| War Scare | 125% | Arms, armor prices spike |
+| Plague/Shortage | 135% | Apothecary items scarce |
+| Guild Tariff Strike | 110% | All goods (except services) up |
+
+**5. Scarcity/Edge-of-Access Premium (ScarcityAdj)**
+- Items at your current max cleared level: **+5%** premium (newly unlocked = high demand)
+- Restricted items (licensed poisons, etc.): +10%–50% black-market premium or unavailable
+
+### Example Calculation
+
+**Hemp Rope (Base: 1 gp)**
+
+This week:
+- WMI roll: 9 → offset +2 → 1.04 (4% up)
+- CatAdj (Essentials) roll: 6 → offset -1 → 0.99 (1% down)
+- VendorAdj (today) roll: 8 → offset +1 → 1.01 (1% up)
+- No active event → 1.00
+- Not edge-of-access → 1.00
+
+**Final:** 1.00 gp × 1.04 × 0.99 × 1.01 × 1.00 × 1.00 ≈ **1.04 gp** (rounds to **1 gp, 1 sp**)
+
+### Quick Reference (At-Table)
+
+If you don't want to track all indices, roll **2d6 once per shop visit** and use this simplified table:
+
+| Roll (2d6) | Essentials | Mundane Gear | Apothecary/Mounts | Magic Items |
+|------------|------------|--------------|-------------------|-------------|
+| 2–3 | 96%–98% | 90%–94% | 85%–91% | Use rarity table |
+| 4–5 | 98%–100% | 94%–98% | 91%–97% | Use rarity table |
+| 6–8 | 100% | 98%–102% | 97%–103% | Use rarity table |
+| 9–10 | 100%–102% | 102%–106% | 103%–109% | Use rarity table |
+| 11–12 | 102%–104% | 106%–110% | 109%–115% | Use rarity table |
+
+Apply EventAdj only if something notable is happening (DM discretion).
+
+### DM Tips
+
+- **Weekly Tracker:** Note WMI + category multipliers on Sunday midnight
+- **Use Clamps:** Categories can't swing beyond their range limits
+- **Events Are Rare:** Use 2–3 times per campaign arc for impact
+- **Players See Final Prices:** The web market automatically calculates and displays adjusted prices
+- **Synchronized:** All players see the same prices via Firebase—no desync issues!
 
 ---
 
