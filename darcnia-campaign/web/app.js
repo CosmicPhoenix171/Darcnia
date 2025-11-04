@@ -64,7 +64,7 @@ const characterDatabase = {
         password: simpleHash('rogue123'), // Default password: rogue123
         race: 'Human',
         class: 'Rogue',
-        level: 3, // Character level (used for item rarity gating)
+        level: 1, // Character level (used for item rarity gating)
         guild: 'Guild Crystalia',
         relationships: ['Eldon Thorne', 'Tessa Windfern'],
         knownLocations: ['Guild Crystalia Hall', 'Heart Plaza', 'Hearthstone Inn'],
