@@ -1,6 +1,6 @@
 # Darcnia Campaign - Version History
 
-## Current Version: 1.21
+## Current Version: 1.25
 
 ### How to Update Version
 
@@ -22,6 +22,19 @@ When making changes, increment the version number and update it in these locatio
 ---
 
 ## Changelog
+
+### v1.25 - November 4, 2025
+**CRITICAL FIX:**
+- 🐛 **FIXED: All prices showing "0 cp"** - Issue was function name collision
+- Root cause: Two `formatPrice()` functions existed - one in `pricing.js` (takes object) and one in `app.js` (takes 3 parameters)
+- Solution: Changed `calculateFinalPrice()` to call `formatPrice(priceObj.gp, priceObj.sp, priceObj.cp)` with three separate parameters
+- This matches the `app.js` function signature which was being called instead of the `pricing.js` version
+
+**Debugging Journey (v1.22-v1.24):**
+- v1.22: Added debug logs to `formatPrice()` in pricing.js
+- v1.23: Added debug logs to `copperToPrice()` - proved it worked correctly
+- v1.24: Added inline debug logs in `calculateFinalPrice()` - revealed formatPrice() returned "0 cp"
+- v1.25: Discovered function collision, fixed parameter passing
 
 ### v1.21 - November 4, 2025
 **Features:**
