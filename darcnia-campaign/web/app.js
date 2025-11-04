@@ -2280,22 +2280,18 @@ async function showShopDetail(shopId) {
                 </div>
             </div>`;
     
-    // Show modal immediately with loading message
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html + '<div style="text-align: center; padding: 20px;"><p>⏳ Loading prices...</p></div>';
-    modal.classList.remove('hidden');
-    
-    // Calculate prices for all items asynchronously (now in background)
+    // Build initial HTML with all items (showing loading icons for prices)
     for (const cat of shop.categories) {
-                const items = (cat.items || []).filter(it => {
-                        const req = Number(it.level ?? 0);
-                        const inStock = req <= 0 || stockSet.has(it._key);
-                        const rarity = it.rarity ? it.rarity : getItemRarity(it);
-                        if (filters.inStockOnly && !inStock) return false;
-                        if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) return false;
-                        if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) return false;
-                        return true;
-                });
+        const items = (cat.items || []).filter(it => {
+            const req = Number(it.level ?? 0);
+            const inStock = req <= 0 || stockSet.has(it._key);
+            const rarity = it.rarity ? it.rarity : getItemRarity(it);
+            if (filters.inStockOnly && !inStock) return false;
+            if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) return false;
+            if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) return false;
+            return true;
+        });
+        
         let shown = 0;
         html += `<h3>${cat.name}</h3>`;
         if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
@@ -2303,17 +2299,9 @@ async function showShopDetail(shopId) {
         
         for (const it of items) {
             const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            const inStock = stockSet.has(it._key) || !it._key; // Mundane items or in daily stock
+            const inStock = stockSet.has(it._key) || !it._key;
             const canAccess = canAccessItemByRarity(it);
-            
-            // Dim if out of stock OR if character can't access this rarity yet
             const cls = (!inStock || !canAccess) ? 'item-dim' : '';
-            
-            // Calculate dynamic price
-            console.log(`💰 Calculating price for ${it.name}: base="${it.price}"`);
-            const priceData = await calculateItemPrice(it.price, shopId, cat.name, rarity);
-            console.log(`💰 Result for ${it.name}:`, priceData);
-            const isPriceChanged = priceData.finalPriceStr !== priceData.basePriceStr;
             
             // Status badge
             let badge = '';
@@ -2331,37 +2319,79 @@ async function showShopDetail(shopId) {
             const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
             const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
             
-            // Display price with percentage change badge
-            let priceDisplay = '';
-            if (isPriceChanged) {
-                // Calculate percentage change
-                const percentChange = ((priceData.finalCopper - priceData.baseCopper) / priceData.baseCopper * 100).toFixed(1);
-                const isIncrease = priceData.finalCopper > priceData.baseCopper;
-                const changeColor = isIncrease ? '#ff4444' : '#44ff44'; // Red for increase, green for discount
-                const changeSign = isIncrease ? '+' : '';
-                const percentBadge = `<span style="color: ${changeColor}; font-size: 0.85em; font-weight: 600; margin-left: 4px;">(${changeSign}${percentChange}%)</span>`;
-                priceDisplay = `<span class="price-final" style="color: var(--accent-gold); font-weight: 600;">${priceData.finalPriceStr}</span>${percentBadge}`;
-            } else {
-                priceDisplay = `<span class="price-final">${priceData.finalPriceStr}</span>`;
-            }
-            
             const itemKey = `${shopId}-${cat.name}-${it.name}`;
-            // Only show cart button if item is accessible and in stock
-            const cartBtn = (canAccess && inStock) 
-                ? `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${priceData.finalPriceStr}', '${shopId}')" title="Add to cart">🛒</button>`
-                : '';
+            const itemId = `item-${itemKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            
+            // Show loading spinner for price initially
+            const priceDisplay = `<span class="price-loading" id="${itemId}-price">⏳ Loading...</span>`;
+            const cartBtn = `<span id="${itemId}-cart"></span>`; // Placeholder for cart button
             
             html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${statusTag}${rarityTag}${attuneTag}: ${priceDisplay}${note}</div>${cartBtn}</li>`;
             shown++;
         }
+        
         html += '</ul>';
         if (shown === 0) {
             html += '<p class="card-meta">No items match your filters.</p>';
         }
     }
     
-    // Update the already-visible modal with final content
+    // Show modal immediately with all items (prices loading)
+    const modal = document.getElementById('searchModal');
     document.getElementById('searchResults').innerHTML = html;
+    modal.classList.remove('hidden');
+    
+    // Wire up filters immediately
+    wireShopFilters(shop.id);
+    
+    // Now calculate prices in background and update each item as ready
+    for (const cat of shop.categories) {
+        const items = (cat.items || []).filter(it => {
+            const req = Number(it.level ?? 0);
+            const inStock = req <= 0 || stockSet.has(it._key);
+            const rarity = it.rarity ? it.rarity : getItemRarity(it);
+            if (filters.inStockOnly && !inStock) return false;
+            if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) return false;
+            if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) return false;
+            return true;
+        });
+        
+        for (const it of items) {
+            const rarity = it.rarity ? it.rarity : getItemRarity(it);
+            const inStock = stockSet.has(it._key) || !it._key;
+            const canAccess = canAccessItemByRarity(it);
+            const itemKey = `${shopId}-${cat.name}-${it.name}`;
+            const itemId = `item-${itemKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            
+            // Calculate price asynchronously
+            calculateItemPrice(it.price, shopId, cat.name, rarity).then(priceData => {
+                const priceEl = document.getElementById(`${itemId}-price`);
+                const cartEl = document.getElementById(`${itemId}-cart`);
+                if (!priceEl || !cartEl) return; // Element may have been removed by filter
+                
+                const isPriceChanged = priceData.finalPriceStr !== priceData.basePriceStr;
+                
+                // Update price display
+                let priceDisplay = '';
+                if (isPriceChanged) {
+                    const percentChange = ((priceData.finalCopper - priceData.baseCopper) / priceData.baseCopper * 100).toFixed(1);
+                    const isIncrease = priceData.finalCopper > priceData.baseCopper;
+                    const changeColor = isIncrease ? '#ff4444' : '#44ff44';
+                    const changeSign = isIncrease ? '+' : '';
+                    const percentBadge = `<span style="color: ${changeColor}; font-size: 0.85em; font-weight: 600; margin-left: 4px;">(${changeSign}${percentChange}%)</span>`;
+                    priceDisplay = `<span class="price-final" style="color: var(--accent-gold); font-weight: 600;">${priceData.finalPriceStr}</span>${percentBadge}`;
+                } else {
+                    priceDisplay = `<span class="price-final">${priceData.finalPriceStr}</span>`;
+                }
+                priceEl.innerHTML = priceDisplay;
+                
+                // Update cart button
+                if (canAccess && inStock) {
+                    cartEl.innerHTML = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${priceData.finalPriceStr}', '${shopId}')" title="Add to cart">🛒</button>`;
+                }
+            });
+        }
+    }
 
         // Wire up filters
         wireShopFilters(shop.id);
