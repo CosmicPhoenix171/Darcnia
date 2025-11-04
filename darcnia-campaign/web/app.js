@@ -421,7 +421,7 @@ const contentData = {
         {
             id: 'brass-buckle',
             name: 'Brass Buckle Outfitters',
-            description: 'General gear and adventuring bundles for every expedition.',
+            description: 'Backpacks, bedrolls, rope, lanterns, rations, torches, and pre-packed adventuring bundles.',
             categories: [
                 {
                     name: 'General Gear',
@@ -471,7 +471,7 @@ const contentData = {
         {
             id: 'three-feathers',
             name: 'Three Feathers Archery',
-            description: 'Arrows, bolts, quivers, and ranged sundries.',
+            description: 'Arrows, crossbow bolts, quivers, bolt cases, bowstrings, and fletching supplies.',
             categories: [
                 {
                     name: 'Ammo & Ranged Supplies',
@@ -489,7 +489,7 @@ const contentData = {
         {
             id: 'smiths-bench',
             name: 'Smith’s Bench',
-            description: 'Quality arms and armor; specialty orders available.',
+            description: 'Light & medium armor, shields, swords, axes, bows, crossbows, and melee weapons.',
             categories: [
                 {
                     name: 'Armor',
@@ -532,7 +532,7 @@ const contentData = {
         {
             id: 'rue-and-resin',
             name: 'Rue & Resin Apothecary',
-            description: 'Tonics, poultices, and alchemical basics.',
+            description: 'Healing potions, antitoxin, alchemist\'s fire, acid, holy water, poultices, and poisons.',
             categories: [
                 {
                     name: 'Tonics & Basics',
@@ -553,7 +553,7 @@ const contentData = {
         {
             id: 'stables-services',
             name: 'Stables & Services',
-            description: 'Food, lodging, stabling, and basic city services.',
+            description: 'Meals, lodging (common or private rooms), baths, horse stabling, and in-city messengers.',
             categories: [
                 {
                     name: 'Services',
@@ -594,7 +594,7 @@ const contentData = {
         {
             id: 'tinkers-nook',
             name: 'Tinker’s Nook',
-            description: 'Utility tools, traps, and sneaky gadgets.',
+            description: 'Ball bearings, caltrops, hunting traps, locks, manacles, mirrors, and signal whistles.',
             categories: [
                 {
                     name: 'Utility & Traps',
@@ -616,7 +616,7 @@ const contentData = {
         {
             id: 'scribe-and-sealery',
             name: 'Scribe & Sealery',
-            description: 'Paper, ink, and sealing supplies.',
+            description: 'Ink, pens, parchment, paper, sealing wax, chalk, scroll cases, and journals.',
             categories: [
                 {
                     name: 'Paper & Ink',
@@ -636,7 +636,7 @@ const contentData = {
         {
             id: 'guild-toolwright',
             name: 'Guild Toolwright',
-            description: 'Proficiency tools and kits for specialists.',
+            description: 'Thieves\' tools, disguise kits, forgery kits, alchemist\'s supplies, and specialist toolsets.',
             categories: [
                 {
                     name: 'Proficiency Tools',
@@ -655,7 +655,7 @@ const contentData = {
         {
             id: 'arcane-exchange',
             name: 'Arcane Exchange',
-            description: 'Magic and rare goods. Availability gated by dungeon level.',
+            description: 'Enchanted weapons & armor (+1/+2/+3), magic ammunition, wondrous items, and rare relics.',
             categories: [
                 {
                     name: 'Mystic Armory (Enchanted Weapons & Armor)',
