@@ -120,9 +120,31 @@
 .item-content {
     flex: 1 !important;
     display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.35rem 0.5rem !important;
-    align-items: center !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    align-items: flex-start !important;
+}
+
+.item-content strong {
+    font-size: 1.1rem;
+    color: var(--text-gold);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.item-price-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
 }
 
 .add-to-cart-btn {

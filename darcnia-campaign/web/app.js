@@ -2322,10 +2322,10 @@ async function showShopDetail(shopId) {
                 badge = 'Available';
             }
             
-            const statusTag = ` <span class="tag">${badge}</span>`;
-            const rarityTag = rarity ? ` <span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
-            const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
-            const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
+            const statusTag = `<span class="tag">${badge}</span>`;
+            const rarityTag = rarity ? `<span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
+            const attuneTag = it.attunement ? `<span class="tag attune" title="Requires attunement">⚡ Attunement</span>` : '';
+            const note = it.note ? `<div class="card-meta" style="margin-top: 0.25rem;">${it.note}</div>` : '';
             
             const itemKey = `${shopId}-${cat.name}-${it.name}`;
             const itemId = `item-${itemKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
@@ -2334,7 +2334,15 @@ async function showShopDetail(shopId) {
             const priceDisplay = `<span class="price-loading" id="${itemId}-price">⏳ Loading...</span>`;
             const cartBtn = `<span id="${itemId}-cart"></span>`; // Placeholder for cart button
             
-            html += `<li class="${cls}"><div class="item-content"><strong>${it.name}</strong>${statusTag}${rarityTag}${attuneTag}: ${priceDisplay}${note}</div>${cartBtn}</li>`;
+            html += `<li class="${cls}">
+                <div class="item-content">
+                    <strong>${it.name}</strong>
+                    <div class="item-tags">${statusTag}${rarityTag}${attuneTag}</div>
+                    <div class="item-price-row">${priceDisplay}</div>
+                    ${note}
+                </div>
+                ${cartBtn}
+            </li>`;
             shown++;
         }
         
@@ -2451,6 +2459,16 @@ function wireShopFilters(shopId) {
 }
 
 // ===== Shopping Cart =====
+// Rounding mode for applying negotiation discounts: 'nearest' | 'floor' | 'ceil'
+const DISCOUNT_ROUNDING_MODE = 'nearest';
+
+// Helper: apply discount in copper with chosen rounding method
+function applyDiscountCopper(totalCopper, discount, method = DISCOUNT_ROUNDING_MODE) {
+    const adjusted = totalCopper * (1 - discount);
+    if (method === 'floor') return Math.floor(adjusted);
+    if (method === 'ceil') return Math.ceil(adjusted);
+    return Math.round(adjusted); // nearest by default
+}
 function addToCart(itemKey, itemName, itemPrice, shopId) {
     // Find the item to check access
     const shops = assignItemKeys(getMarketShops());
@@ -2625,7 +2643,7 @@ function showCart() {
     if (negotiationApplied) {
         // Convert to copper for accurate calculation
         const totalInCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
-        const adjustedCopper = Math.floor(totalInCopper * (1 - negotiationDiscount));
+        const adjustedCopper = applyDiscountCopper(totalInCopper, negotiationDiscount);
         const discountAmount = totalInCopper - adjustedCopper;
         
         // Convert discount amount back to currency
@@ -2744,7 +2762,7 @@ function checkout() {
     const negotiationDiscount = state.negotiationDiscount || 0;
     if (negotiationDiscount !== 0) {
         const totalInCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
-        const adjustedCopper = Math.floor(totalInCopper * (1 - negotiationDiscount));
+        const adjustedCopper = applyDiscountCopper(totalInCopper, negotiationDiscount);
         
         // Recalculate gold/silver/copper from adjusted total
         totalCopper = adjustedCopper % 10;
