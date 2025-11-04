@@ -1,6 +1,6 @@
 # Darcnia Campaign - Version History
 
-## Current Version: 1.27
+## Current Version: 1.28
 
 ### 🎉 Auto-Versioning System Active!
 
@@ -38,6 +38,21 @@ When making changes, increment the version number and update it in these locatio
 ---
 
 ## Changelog
+
+### v1.28 - November 4, 2025
+**UI Enhancement:**
+- ✨ **Improved price display with color-coded percentage changes**
+- Removed strikethrough of old prices
+- Now shows percentage change next to final price
+- 🔴 Red (+X.X%) for price increases
+- 🟢 Green (-X.X%) for discounts
+- Example: "2 gp, 8 cp (+4.0%)" or "5 sp, 2 cp (-3.5%)"
+- Cleaner, more intuitive price display
+
+**Technical Changes:**
+- Calculate percentage: `(finalCopper - baseCopper) / baseCopper * 100`
+- Dynamic color: Red (#ff4444) for increases, Green (#44ff44) for discounts
+- Percentage badge displays with ± sign
 
 ### v1.27 - November 4, 2025
 **Bug Fix:**

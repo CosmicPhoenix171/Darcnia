@@ -2181,9 +2181,14 @@ function renderMarket() {
     html += '</div>';
     html += '</div>';
     
-    // Shop grid
+    // Shop grid (filter out documentation sections)
     html += '<div class="card-grid">';
-    html += shops.map(shop => renderShopCard(shop)).join('');
+    const actualShops = shops.filter(shop => {
+        const name = shop.name || '';
+        // Exclude documentation cards (has emoji or contains "Dynamic Pricing System")
+        return !name.includes('📊') && !name.includes('Dynamic Pricing System');
+    });
+    html += actualShops.map(shop => renderShopCard(shop)).join('');
     html += '</div>';
     
     return html;
@@ -2321,10 +2326,16 @@ async function showShopDetail(shopId) {
             const attuneTag = it.attunement ? ` <span class="tag attune" title="Requires attunement">Attunement</span>` : '';
             const note = it.note ? ` <em class="card-meta">— ${it.note}</em>` : '';
             
-            // Display price with base crossed out if changed
+            // Display price with percentage change badge
             let priceDisplay = '';
             if (isPriceChanged) {
-                priceDisplay = `<span class="price-base" style="text-decoration: line-through; opacity: 0.6;">${priceData.basePriceStr}</span> <span class="price-final" style="color: var(--accent-gold); font-weight: 600;">${priceData.finalPriceStr}</span>`;
+                // Calculate percentage change
+                const percentChange = ((priceData.finalCopper - priceData.baseCopper) / priceData.baseCopper * 100).toFixed(1);
+                const isIncrease = priceData.finalCopper > priceData.baseCopper;
+                const changeColor = isIncrease ? '#ff4444' : '#44ff44'; // Red for increase, green for discount
+                const changeSign = isIncrease ? '+' : '';
+                const percentBadge = `<span style="color: ${changeColor}; font-size: 0.85em; font-weight: 600; margin-left: 4px;">(${changeSign}${percentChange}%)</span>`;
+                priceDisplay = `<span class="price-final" style="color: var(--accent-gold); font-weight: 600;">${priceData.finalPriceStr}</span>${percentBadge}`;
             } else {
                 priceDisplay = `<span class="price-final">${priceData.finalPriceStr}</span>`;
             }
