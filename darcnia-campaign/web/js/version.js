@@ -1,5 +1,7 @@
-// Auto-generated version from build process
-// This file is updated automatically by GitHub Actions
-window.APP_VERSION = '1.25';
-window.BUILD_TIME = '2025-11-04T00:00:00Z';
-window.GIT_COMMIT = 'manual';
+// Version configuration
+// Update APP_VERSION when you make significant changes
+window.APP_VERSION = 'v1.26';
+window.BUILD_TIME = document.lastModified; // Automatically uses file modification time
+window.GIT_COMMIT = 'main';
+
+console.log('📦 Version.js loaded:', window.APP_VERSION);
