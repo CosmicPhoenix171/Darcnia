@@ -49,21 +49,30 @@
 }
 .name-display.editable {
     background: transparent !important;
+    backdrop-filter: none !important;
     border: none !important;
+    border-radius: 0 !important;
     border-bottom: 2px solid transparent !important;
-    padding: 0.2rem 0.4rem;
-    margin: 0;
-    transition: all 0.3s ease;
+    padding: 0.2rem 0.4rem !important;
+    margin: 0 !important;
+    transition: all 0.3s ease !important;
     outline: none !important;
-    width: 100%;
+    width: 100% !important;
     box-shadow: none !important;
 }
 /* Only show border when hovering or focused - never when just has content */
 .name-display.editable:hover {
-    border-bottom-color: rgba(138, 43, 226, 0.5) !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-bottom: 2px solid rgba(138, 43, 226, 0.5) !important;
+    box-shadow: none !important;
 }
 .name-display.editable:focus {
-    border-bottom-color: var(--accent-gold) !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-bottom: 2px solid var(--accent-gold) !important;
     box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2) !important;
 }
 .class-line { color: var(--text-secondary); font-size: 0.9rem; display:flex; gap:0.4rem; align-items:center; }
