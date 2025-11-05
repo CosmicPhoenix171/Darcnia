@@ -84,16 +84,34 @@ function updateLevelFromXP() {
         }
     }
     
-    // Update XP progress bar
+    // Update XP progress bar and text overlay
     const progressFill = document.getElementById('xpProgressFill');
-    if (progressFill && level < 20) {
+    const progressBar = document.querySelector('.xp-progress-bar');
+    let percentage = 0;
+    if (level < 20) {
         const xpInCurrentLevel = xp - currentLevelXP;
         const xpNeededForLevel = nextLevelXP - currentLevelXP;
-        const percentage = Math.min(100, (xpInCurrentLevel / xpNeededForLevel) * 100);
-        progressFill.style.width = `${percentage}%`;
-    } else if (progressFill && level >= 20) {
-        progressFill.style.width = '100%';
+        percentage = Math.min(100, (xpInCurrentLevel / xpNeededForLevel) * 100);
+    } else {
+        percentage = 100;
     }
+    if (progressFill) {
+        progressFill.style.width = `${percentage}%`;
+        // Color shift: gold → amber → pink
+        let bg = 'linear-gradient(90deg,#ffd700,#ffdf5f)';
+        if (percentage > 66) bg = 'linear-gradient(90deg,#ff6ad5,#ff94e5)';
+        else if (percentage > 33) bg = 'linear-gradient(90deg,#ffae42,#ffc16e)';
+        progressFill.style.background = bg;
+    }
+    // Ensure XP text overlay exists
+    if (progressBar && !document.getElementById('xpProgressText')) {
+        const t = document.createElement('span');
+        t.id = 'xpProgressText';
+        t.className = 'xp-progress-text';
+        progressBar.appendChild(t);
+    }
+    const tEl = document.getElementById('xpProgressText');
+    if (tEl) tEl.textContent = `${Math.round(percentage)}%`;
     
     // Update character data
     characterData.level = level;
@@ -968,6 +986,7 @@ function applyDamage() {
     document.getElementById('hpTemp').value = temp;
     document.getElementById('hpCurrent').value = current;
     updateSummaryHeader();
+    showToast(`Took ${dmg} damage`, 'danger');
     autoSaveCharacterData();
 }
 
@@ -979,6 +998,7 @@ function applyHeal() {
     current = clamp(current + heal, 0, maxHp);
     document.getElementById('hpCurrent').value = current;
     updateSummaryHeader();
+    showToast(`Healed ${heal} HP`, 'success');
     autoSaveCharacterData();
 }
 
