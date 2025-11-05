@@ -89,6 +89,14 @@ export class UI {
       tokens.setRole(els.roleSelect.value);
       this._installNetHandlers();
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
+      // Show adapter type so users know if cross-device realtime is active
+      try {
+        const usingFirebase = !!(window && window.database);
+        this.log(usingFirebase ? '[system] Realtime: Firebase adapter' : '[system] Realtime: Local adapter (same-browser tabs only)');
+        if (!usingFirebase) {
+          console.warn('Realtime is using LocalAdapter. To sync across devices, open map.html (loads Firebase) and configure database rules.');
+        }
+      } catch(_) {}
       const db = (typeof window !== 'undefined') ? window.database : null;
       if (db) {
         // Cloud-first: try to load existing session state

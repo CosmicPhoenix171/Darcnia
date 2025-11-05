@@ -47,7 +47,12 @@ export class FirebaseAdapter {
     this.eventsRef.limitToLast(200).on('child_added', this._onChild);
   }
   on(ev, fn){ (this.handlers[ev] ||= []).push(fn); }
-  emit(ev, data){ this.eventsRef.push({ ev, data }); }
+  emit(ev, data){
+    try {
+      const p = this.eventsRef.push({ ev, data });
+      if (p && typeof p.catch === 'function') p.catch((e)=>console.warn('[FirebaseAdapter] emit failed', ev, e));
+    } catch(e){ console.warn('[FirebaseAdapter] emit error', ev, e); }
+  }
 }
 
 function selectAdapter(session, clientId){

@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "sessions": {
+      "$session": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "characters": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
