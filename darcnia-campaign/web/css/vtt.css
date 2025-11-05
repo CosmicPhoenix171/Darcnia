@@ -1,0 +1,38 @@
+/* Fantasy-styled VTT UI */
+:root{
+  --paper:#f5edd9; --ink:#2b2518; --accent:#7a5135; --gold:#b48a3b; --emerald:#0f766e; --shadow:rgba(0,0,0,.2);
+}
+*{box-sizing:border-box}
+html,body,#app{height:100%;margin:0}
+body{background:radial-gradient(120% 120% at 50% 0%, #fff6e3 0%, #e7dcc4 60%, #d0c2a2 100%);color:var(--ink);font-family:"IM Fell DW Pica", serif}
+.vtt-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;border-bottom:2px solid var(--gold);background:linear-gradient(#fff8e9,#f1e6cc)}
+.vtt-header .title{font-family:"UnifrakturMaguntia", cursive;font-size:1.6rem;letter-spacing:.5px}
+.vtt-header .btn{margin-left:.25rem}
+
+.vtt-main{display:grid;grid-template-columns:320px 1fr;height:calc(100% - 58px)}
+.vtt-side{border-right:2px solid var(--gold);padding:8px;overflow:auto;background:
+ linear-gradient(135deg, rgba(245,237,217,.8), rgba(235,224,200,.8)),
+ repeating-linear-gradient(0deg, transparent 0 7px, rgba(0,0,0,.02) 7px 8px)}
+.panel{background:rgba(255,255,255,.6);box-shadow:0 2px 8px var(--shadow);border:1px solid rgba(0,0,0,.08);border-radius:10px;padding:.5rem .75rem;margin-bottom:.75rem}
+.panel h3{margin:.25rem 0 .5rem 0;border-bottom:1px dashed var(--accent);padding-bottom:.25rem}
+.row{display:flex;gap:.4rem;align-items:center;margin:.25rem 0}
+.btn{background:var(--emerald);color:white;border:none;border-radius:6px;padding:.4rem .6rem;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.btn:disabled{background:#8aa29e;opacity:.6;cursor:not-allowed}
+input,select{padding:.3rem .4rem;border-radius:6px;border:1px solid #bda77b;background:#fffdf7;color:var(--ink)}
+
+.tool-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:.25rem;margin-bottom:.5rem}
+.tool{padding:.45rem;background:#fff;border:1px solid #cdb68c;border-radius:8px;cursor:pointer}
+.tool.active{outline:2px solid var(--gold);background:#fff8e9}
+
+.vtt-stage{position:relative;overflow:hidden}
+#canvasWrap{position:relative;width:100%;height:100%}
+#canvasWrap canvas{position:absolute;left:0;top:0;width:100%;height:100%}
+
+.chat-log{height:180px;overflow:auto;background:#fff;border:1px solid #cdb68c;border-radius:8px;padding:.4rem}
+.initiative-list{padding-left:1.1rem}
+
+/* Grid styling */
+.grid-bg{background:radial-gradient(100% 100% at 50% 0%, rgba(255,255,255,.4), rgba(0,0,0,.04)), #e7dcc4}
+
+/* Token CSS-like props for future */
+.token{border:2px solid #333;border-radius:50%}

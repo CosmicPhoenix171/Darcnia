@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Darcnia VTT Map</title>
+  <link rel="stylesheet" href="css/vtt.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+DW+Pica:ital@0;1&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <header class="vtt-header">
+      <div class="title">Darcnia VTT</div>
+      <div class="role-select">
+        <label>
+          Role:
+          <select id="roleSelect">
+            <option value="dm">DM</option>
+            <option value="player">Player</option>
+          </select>
+        </label>
+        <label>
+          Session:
+          <input id="sessionId" placeholder="local-demo" value="local-demo" />
+        </label>
+        <button id="connectBtn" class="btn">Connect</button>
+        <button id="saveBtn" class="btn">Save</button>
+        <button id="loadBtn" class="btn">Load</button>
+      </div>
+    </header>
+
+    <main class="vtt-main">
+      <aside class="vtt-side">
+        <section class="panel">
+          <h3>Initiative</h3>
+          <ol id="initiativeList" class="initiative-list"></ol>
+          <div class="row">
+            <input id="initName" placeholder="Name" />
+            <input id="initScore" type="number" placeholder="Init" />
+          </div>
+          <div class="row">
+            <button id="addToInit" class="btn">Add</button>
+            <button id="sortInit" class="btn">Sort</button>
+            <button id="clearInit" class="btn">Clear</button>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>Chat</h3>
+          <div id="chatLog" class="chat-log"></div>
+          <div class="row">
+            <input id="chatInput" placeholder="Say something..." />
+            <button id="chatSend" class="btn">Send</button>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>Tools</h3>
+          <div class="tool-grid">
+            <button data-tool="pan" class="tool active" title="Pan (Space)">🖐️</button>
+            <button data-tool="spawn" class="tool" title="Spawn Token">🎲</button>
+            <button data-tool="erase" class="tool" title="Erase Token">🧹</button>
+            <button data-tool="reveal" class="tool" title="Reveal Fog">🔦</button>
+            <button data-tool="hide" class="tool" title="Hide Fog">🌑</button>
+            <button data-tool="measure" class="tool" title="Measure">📏</button>
+            <button data-tool="randomize" class="tool" title="Random Map">🗺️</button>
+          </div>
+          <div class="row">
+            <label>Grid:
+              <select id="gridType">
+                <option value="square">Square</option>
+                <option value="hex">Hex</option>
+              </select>
+            </label>
+            <label>Snap
+              <input id="snapToggle" type="checkbox" checked />
+            </label>
+          </div>
+          <div class="row">
+            <label>Map Size
+              <input id="mapW" type="number" value="50" min="10" max="200" />x
+              <input id="mapH" type="number" value="50" min="10" max="200" />
+            </label>
+          </div>
+          <div class="row">
+            <label>Seed
+              <input id="seedInput" placeholder="optional" />
+            </label>
+          </div>
+          <div class="row">
+            <label>Biome
+              <select id="biome">
+                <option value="dungeon">Dungeon</option>
+                <option value="wilderness">Wilderness</option>
+              </select>
+            </label>
+            <label>Difficulty
+              <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+                <option value="deadly">Deadly</option>
+              </select>
+            </label>
+          </div>
+        </section>
+      </aside>
+
+      <section class="vtt-stage">
+        <div id="canvasWrap">
+          <canvas id="gridCanvas"></canvas>
+          <canvas id="tokenCanvas"></canvas>
+          <canvas id="fogCanvas"></canvas>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { VTT } from './js/vtt/engine.js';
+    import { MapData } from './js/vtt/map.js';
+    import { TokenManager } from './js/vtt/tokens.js';
+    import { FogOfWar } from './js/vtt/fog.js';
+    import { Generator } from './js/vtt/generator.js';
+    import { UI } from './js/vtt/ui.js';
+    import { Network } from './js/vtt/network.js';
+
+    const els = {
+      grid: document.getElementById('gridCanvas'),
+      token: document.getElementById('tokenCanvas'),
+      fog: document.getElementById('fogCanvas'),
+      wrap: document.getElementById('canvasWrap'),
+      roleSelect: document.getElementById('roleSelect'),
+      sessionId: document.getElementById('sessionId'),
+      connectBtn: document.getElementById('connectBtn'),
+      saveBtn: document.getElementById('saveBtn'),
+      loadBtn: document.getElementById('loadBtn'),
+    };
+
+    const vtt = new VTT(els.grid, els.token, els.fog);
+    const map = new MapData();
+    const tokens = new TokenManager(vtt, map);
+    const fog = new FogOfWar(vtt, map, tokens);
+    const gen = new Generator(map, tokens, fog);
+    const net = new Network();
+
+    const ui = new UI({ vtt, map, tokens, fog, gen, net, els });
+    window.vtt = { vtt, map, tokens, fog, gen, net, ui }; // for debugging
+  </script>
+</body>
+</html>
