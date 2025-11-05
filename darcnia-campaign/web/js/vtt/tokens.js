@@ -48,20 +48,32 @@ export class TokenManager {
 
   _onKey(e) {
     const t = this.tokens.find(t=>t.selected && this.canControl(t)); if (!t) return;
-    const step = (e.shiftKey? 1 : 0.5) * this.vtt.state.gridSize; // shift for fine move
     const key = (e.key||'').toLowerCase();
-    let moved = false;
-    if (e.code === 'ArrowUp' || key === 'w') { t.y -= step; moved = true; }
-    else if (e.code === 'ArrowDown' || key === 'x' || key === 's') { t.y += step; moved = true; }
-    else if (e.code === 'ArrowLeft' || key === 'a') { t.x -= step; moved = true; }
-    else if (e.code === 'ArrowRight' || key === 'd') { t.x += step; moved = true; }
-    else if (key === 'q') { t.x -= step; t.y -= step; moved = true; }
-    else if (key === 'e') { t.x += step; t.y -= step; moved = true; }
-    else if (key === 'z') { t.x -= step; t.y += step; moved = true; }
-    else if (key === 'c') { t.x += step; t.y += step; moved = true; }
-    if (!moved) return;
+    // Determine intended cell delta
+    let dx = 0, dy = 0;
+    if (e.code === 'ArrowUp' || key === 'w') { dy = -1; }
+    else if (e.code === 'ArrowDown' || key === 'x' || key === 's') { dy = 1; }
+    else if (e.code === 'ArrowLeft' || key === 'a') { dx = -1; }
+    else if (e.code === 'ArrowRight' || key === 'd') { dx = 1; }
+    else if (key === 'q') { dx = -1; dy = -1; }
+    else if (key === 'e') { dx = 1; dy = -1; }
+    else if (key === 'z') { dx = -1; dy = 1; }
+    else if (key === 'c') { dx = 1; dy = 1; }
+    else return;
+
     e.preventDefault();
-    if (this.vtt.state.snapToGrid) { const s = this.vtt.snap(t.x, t.y); t.x = s.x; t.y = s.y; }
+    const gs = this.vtt.state.gridSize;
+    if (this.vtt.state.snapToGrid && !e.shiftKey) {
+      // Grid-step by whole cells to avoid floor bias issues
+      const { i, j } = this.vtt.worldToGrid(t.x, t.y);
+      const next = this.vtt.gridToWorld(i + dx, j + dy);
+      t.x = next.x; t.y = next.y;
+    } else {
+      // Free/fine movement (half-cell default)
+      const step = (e.shiftKey? 1 : 0.5) * gs;
+      t.x += dx * step; t.y += dy * step;
+      if (this.vtt.state.snapToGrid) { const s = this.vtt.snap(t.x, t.y); t.x = s.x; t.y = s.y; }
+    }
     this._onTokenMoved(t); this.vtt.requestRender();
   }
 

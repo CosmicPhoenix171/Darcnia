@@ -312,8 +312,8 @@ export class UI {
     net.on('hello', ()=>{ if (net.role === 'dm') this._broadcastState(); });
     net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenSpawned(true); });
     net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; t.x = m.x; t.y = m.y; this.vtt.requestRender(); });
-    net.on('spawn', ({ token })=>{ if (net.role==='dm') return; tokens.addToken(token); this.vtt.requestRender(); });
-    net.on('erase', ({ id })=>{ if (net.role==='dm') return; tokens.removeToken(id); this.vtt.requestRender(); });
+    net.on('spawn', ({ token })=>{ if (!token) return; if (tokens.list.find(t=>t.id===token.id)) return; tokens.addToken(token); this.vtt.requestRender(); });
+    net.on('erase', ({ id })=>{ if (!id) return; tokens.removeToken(id); this.vtt.requestRender(); });
     net.on('fog', ({ op, i, j, r })=>{ if (net.role==='dm') return; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
     net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
   }
