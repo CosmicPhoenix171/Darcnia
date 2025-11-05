@@ -16,7 +16,7 @@
 /* ===== Summary Header (Roll20-like) ===== */
 .sheet-summary {
     display: grid;
-    grid-template-columns: 1.2fr 2fr 1fr;
+    grid-template-columns: 1.2fr 2fr; /* right stats merged into hero */
     gap: 1rem;
     margin-bottom: 1rem;
     /* Prevent equal-height stretching so cards stay compact */
