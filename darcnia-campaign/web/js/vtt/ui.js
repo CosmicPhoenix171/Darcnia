@@ -115,9 +115,9 @@ export class UI {
       // Handshake so DM can rebroadcast state
       if (net.role !== 'dm') { net.emit('hello', { who: this.currentUser||'player' }); }
       const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = net.role !== 'dm';
-      // If a player connects, ensure their token exists on the board and announce it
+      // If a player connects, ensure their token exists (claim or spawn) and announce it
       if (net.role === 'player') {
-        this._ensurePlayerTokenSpawned(true);
+        this._ensurePlayerTokenPresentOrClaim(true);
       }
     });
 
@@ -331,7 +331,7 @@ export class UI {
     const { net, tokens, fog } = this;
     net.on('chat', (p)=>{ this.log(`${p.who}: ${p.text}`, 'chat'); });
     net.on('hello', ()=>{ if (net.role === 'dm') this._broadcastState(); });
-    net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenSpawned(true); });
+  net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenPresentOrClaim(true); });
     net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; 
       // Authorization: accept if sent by DM or by the token's owner
       const allowed = (m && (m.__role === 'dm' || t.owner === m.__from));
@@ -375,6 +375,27 @@ export class UI {
     if (op === 'add' && msg.entry){ this.addInitiative(msg.entry); }
     else if (op === 'sort'){ this.sortInitiative(); }
     else if (op === 'clear'){ this.initiative = []; this.renderInitiative(); }
+  });
+
+  // Claim ownership (player -> DM)
+  net.on('claim', (msg)=>{
+    if (!msg) return;
+    // Only DM processes claims and rebroadcasts as tokenUpdate
+    if (net.role !== 'dm') return;
+    if (msg.__role !== 'player') return;
+    const t = tokens.list.find(t=>t.id===msg.id);
+    if (!t) return;
+    // Only allow claim if token has no owner yet or is already owned by claimant
+    if (t.owner && t.owner !== msg.owner) return;
+    const patch = { owner: msg.owner };
+    if (msg.name) patch.name = msg.name;
+    if (typeof msg.hp === 'number') patch.hp = msg.hp;
+    if (typeof msg.hpMax === 'number') patch.hpMax = msg.hpMax;
+    if (typeof msg.ac === 'number') patch.ac = msg.ac;
+    Object.assign(t, patch);
+    this.vtt.requestRender();
+    // Broadcast update so all clients (including claimant) adopt ownership
+    this.net.emit('tokenUpdate', { id: t.id, patch });
   });
   }
 
@@ -465,8 +486,8 @@ export class UI {
       ref.on('value', (snap)=>{
         const data = snap.val(); if (!data) return;
         // Find or create the player's token
-        let t = this.tokens.list.find(t=> t.owner === this.tokens.control.playerId);
-        if (!t){ this._ensurePlayerTokenSpawned(false); t = this.tokens.list.find(t=> t.owner === this.tokens.control.playerId); }
+  let t = this.tokens.list.find(t=> t.owner === this.tokens.control.playerId);
+  if (!t){ this._ensurePlayerTokenPresentOrClaim(false); t = this.tokens.list.find(t=> t.owner === this.tokens.control.playerId); }
         if (!t) return;
         const patch = {};
         if (data.characterName && data.characterName !== t.name) patch.name = data.characterName;
@@ -497,16 +518,29 @@ export class UI {
   }
 
   // Ensure a token controlled by this player exists; optionally broadcast spawn
-  _ensurePlayerTokenSpawned(broadcast=false){
+  _ensurePlayerTokenPresentOrClaim(broadcast=false){
     if (this.isDM || this.tokens.control.role !== 'player') return; // players only
     const { tokens, vtt, gen } = this;
-    // If a token owned by this player already exists, do nothing
-    if (tokens.list.some(t=> t.owner === tokens.control.playerId)) return;
+    const myId = tokens.control.playerId;
+    // If a token owned by this player already exists, done
+    if (tokens.list.some(t=> t.owner === myId)) return;
+    // Try to claim an unowned friendly token first
+    const candidate = tokens.list.find(t=> t.friendly && !t.owner);
+    if (candidate) {
+      const ch = this._readCharacterFromLocal();
+      const name = ch.name || this.currentUser || candidate.name || 'Hero';
+      const hp = ch.hpCurrent ?? ch.hpMax;
+      const hpMax = ch.hpMax;
+      const ac = ch.armorClass;
+      this.net.emit('claim', { id: candidate.id, owner: myId, name, hp, hpMax, ac });
+      return;
+    }
+    // Otherwise, spawn our own
     const s = vtt.state.gridSize; const start = gen.start || { i: 2, j: 2 };
     const ch = this._readCharacterFromLocal();
     const name = ch.name || this.currentUser || 'Hero';
     const hp = ch.hpCurrent ?? ch.hpMax ?? 10; const ac = ch.armorClass ?? 10;
-    const t = tokens.addToken({ name, x: start.i*s, y: start.j*s, friendly: true, owner: tokens.control.playerId, hp, ac });
+    const t = tokens.addToken({ name, x: start.i*s, y: start.j*s, friendly: true, owner: myId, hp, ac });
     this.fog.revealAround(t);
     this.vtt.requestRender();
     if (broadcast) this.net.emit('spawn', { token: t });
@@ -528,8 +562,8 @@ export class UI {
       const ref = db.ref(`sessions/${session}/state`);
       ref.on('value', (snap)=>{
         const data = snap.val(); if (!data || !data.map) return;
-        this._applyLoad(data);
-        this._ensurePlayerTokenSpawned(true);
+  this._applyLoad(data);
+  this._ensurePlayerTokenPresentOrClaim(true);
         this.log('[system] Synced latest server map.');
       });
     } catch(_){}
