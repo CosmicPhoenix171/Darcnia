@@ -175,8 +175,9 @@ Arrows, crossbow bolts, quivers, bolt cases, bowstrings, and fletching supplies.
 - Blowgun needles (50) [L0]: 1 gp
 - Sling bullets (20) [L0]: 4 cp
 
-## Smith’s Bench (Basic Arms & Armor)
-Light/Medium Armor and common weapons only; specialty gear by order.
+## Smith’s Bench (Armor & wapons)
+
+Armor and weapons only.
 
 - Armor
   - Padded [L0]: 5 gp
@@ -232,7 +233,7 @@ Light/Medium Armor and common weapons only; specialty gear by order.
   - Blowgun [L1]: 10 gp
   - Net [L0]: 1 gp
 
-## Rue & Resin Apothecary (Tonics & Basics)
+## Rue & Resin Apothecary (Tonics & potions)
 
 Healing potions, antitoxin, alchemist's fire, acid, holy water, poultices, and poisons.
 
