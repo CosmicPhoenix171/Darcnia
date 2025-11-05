@@ -35,15 +35,76 @@
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(0,0,0,0.2)), url('') center/cover, rgba(40,20,80,0.5);
     border: 2px solid var(--accent-purple);
 }
-.summary-id { display: flex; flex-direction: column; gap: 0.35rem; }
-.identity-field { display: flex; align-items: center; gap: 0.5rem; }
-.xp-field { flex-wrap: wrap; }
+.summary-id { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.5rem;
+    flex: 1;
+}
+
+/* Name Row with Level Pill */
+.name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+/* XP Row Styling */
+.xp-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-top: 1px solid rgba(138, 43, 226, 0.2);
+    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    margin-bottom: 0.3rem;
+}
+
+.xp-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.xp-input {
+    max-width: 80px !important;
+    text-align: center;
+    font-weight: 600;
+}
+
 .xp-next {
     font-size: 0.7rem;
     color: var(--text-secondary);
     font-style: italic;
-    margin-left: 0.3rem;
+    white-space: nowrap;
 }
+
+/* Two Column Grid for Character Info */
+.identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 0.6rem;
+}
+
+.identity-field.compact {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.identity-field.compact .field-label {
+    min-width: 60px;
+    font-size: 0.7rem;
+}
+
+.identity-field.compact input {
+    font-size: 0.85rem;
+}
+
+/* General Identity Field */
+.identity-field { display: flex; align-items: center; gap: 0.5rem; }
+.xp-field { flex-wrap: wrap; }
 .field-label { 
     font-size: 0.75rem; 
     color: var(--text-secondary); 
