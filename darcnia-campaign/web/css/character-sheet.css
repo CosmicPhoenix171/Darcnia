@@ -35,7 +35,19 @@
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(0,0,0,0.2)), url('') center/cover, rgba(40,20,80,0.5);
     border: 2px solid var(--accent-purple);
 }
-.summary-id { display: flex; flex-direction: column; gap: 0.25rem; }
+.summary-id { display: flex; flex-direction: column; gap: 0.35rem; }
+.identity-field { display: flex; align-items: center; gap: 0.5rem; }
+.field-label { 
+    font-size: 0.75rem; 
+    color: var(--text-secondary); 
+    text-transform: uppercase;
+    min-width: 70px;
+    letter-spacing: 0.5px;
+}
+.identity-field input {
+    flex: 1;
+    font-size: 0.9rem;
+}
 .name-line { display: flex; align-items: center; gap: 0.5rem; }
 .level-pill {
     background: var(--accent-gold); color: #000; font-weight: 800;
