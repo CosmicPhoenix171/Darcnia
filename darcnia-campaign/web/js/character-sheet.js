@@ -528,7 +528,7 @@ function setupEventListeners() {
     if (longBtn) longBtn.addEventListener('click', doLongRest);
 
     // Identity updates reflected in summary
-    const syncSummaryIds = ['characterName','level','class','background','proficiencyBonus','armorClass','speed','hpMax','hpCurrent','hpTemp'];
+    const syncSummaryIds = ['nameDisplay','level','class','background','proficiencyBonus','armorClass','speed','hpMax','hpCurrent','hpTemp'];
     syncSummaryIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateSummaryHeader);
@@ -618,7 +618,7 @@ function calculateAllStats() {
 // ===== Data Management =====
 function gatherCharacterData() {
     // Identity
-    characterData.characterName = document.getElementById('characterName').value;
+    characterData.characterName = document.getElementById('nameDisplay').value;
     const levelInput = document.getElementById('level');
     characterData.level = levelInput ? parseInt(levelInput.value) || 1 : 1;
     console.log('📊 Gathering character data - Level:', characterData.level);
@@ -716,7 +716,7 @@ function gatherCharacterData() {
 
 function populateCharacterData(data) {
     // Identity
-    document.getElementById('characterName').value = data.characterName || '';
+    document.getElementById('nameDisplay').value = data.characterName || '';
     const levelInput = document.getElementById('level');
     if (levelInput) {
         levelInput.value = data.level || 1;
@@ -901,7 +901,8 @@ function doLongRest() {
 
 // ===== Summary Header Sync =====
 function updateSummaryHeader() {
-    const name = document.getElementById('characterName')?.value?.trim() || 'Unnamed Adventurer';
+    const nameDisplay = document.getElementById('nameDisplay');
+    const name = nameDisplay?.value?.trim() || 'Character Name';
     const level = parseInt(document.getElementById('level')?.value) || 1;
     const cls = document.getElementById('class')?.value?.trim() || 'Class';
     const bkg = document.getElementById('background')?.value?.trim() || 'Background';
@@ -912,7 +913,6 @@ function updateSummaryHeader() {
     const hpCur = parseInt(document.getElementById('hpCurrent')?.value) || 0;
     const hpTmp = parseInt(document.getElementById('hpTemp')?.value) || 0;
 
-    const nameDisplay = document.getElementById('nameDisplay');
     const levelPill = document.getElementById('levelPill');
     const classDisplay = document.getElementById('classDisplay');
     const backgroundDisplay = document.getElementById('backgroundDisplay');
@@ -922,7 +922,10 @@ function updateSummaryHeader() {
     const hpMaxDisp = document.getElementById('hpMaxDisplay');
     const hpTmpDisp = document.getElementById('hpTempDisplay');
 
-    if (nameDisplay) nameDisplay.textContent = name;
+    // nameDisplay is now an input, so just update placeholder if empty
+    if (nameDisplay && !nameDisplay.value) {
+        nameDisplay.placeholder = 'Character Name';
+    }
     if (levelPill) levelPill.textContent = String(level);
     if (classDisplay) classDisplay.textContent = cls || 'Class';
     if (backgroundDisplay) backgroundDisplay.textContent = bkg || 'Background';
