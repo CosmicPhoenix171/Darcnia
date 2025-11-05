@@ -79,8 +79,23 @@ export class UI {
       tokens.setRole(els.roleSelect.value);
       this._installNetHandlers();
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
-      if (net.role === 'dm') this._broadcastState();
-      else { net.emit('hello', { who: this.currentUser||'player' }); }
+      const db = (typeof window !== 'undefined') ? window.database : null;
+      if (db) {
+        // Cloud-first: try to load existing session state
+        this._loadCloudStateOnce(els.sessionId.value).then(found=>{
+          if (!found && net.role === 'dm') {
+            this.log('[system] No server map found. Generating a new one for this session...');
+            this._randomizeMap();
+            this.saveToFirebase();
+          }
+        });
+        if (net.role === 'player') this._watchCloudState(els.sessionId.value);
+      } else {
+        // Local fallback: DM broadcasts
+        if (net.role === 'dm') this._broadcastState();
+      }
+      // Handshake so DM can rebroadcast state
+      if (net.role !== 'dm') { net.emit('hello', { who: this.currentUser||'player' }); }
       const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = net.role !== 'dm';
       // If a player connects, ensure their token exists on the board and announce it
       if (net.role === 'player') {
@@ -435,6 +450,29 @@ export class UI {
     this.fog.revealAround(t);
     this.vtt.requestRender();
     if (broadcast) this.net.emit('spawn', { token: t });
+  }
+
+  async _loadCloudStateOnce(session){
+    try {
+      const db = (typeof window !== 'undefined') ? window.database : null; if (!db) return false;
+      const snap = await db.ref(`sessions/${session}/state`).once('value');
+      const data = snap.val();
+      if (data && data.map && data.tokens) { this._applyLoad(data); this.log(`[system] Loaded map from server for session '${session}'.`); return true; }
+      return false;
+    } catch(e){ console.warn('Cloud load failed', e); return false; }
+  }
+
+  _watchCloudState(session){
+    try {
+      const db = (typeof window !== 'undefined') ? window.database : null; if (!db) return;
+      const ref = db.ref(`sessions/${session}/state`);
+      ref.on('value', (snap)=>{
+        const data = snap.val(); if (!data || !data.map) return;
+        this._applyLoad(data);
+        this._ensurePlayerTokenSpawned(true);
+        this.log('[system] Synced latest server map.');
+      });
+    } catch(_){}
   }
 }
 
