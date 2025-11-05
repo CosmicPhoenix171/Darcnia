@@ -498,6 +498,25 @@
                         <button id="addItemBtn" class="btn-mini">+ Add Item</button>
                         <div class="encumbrance">Total Weight: <strong id="totalWeight">0 lb</strong> • Carry Capacity: <strong id="carryCapacity">0 lb</strong> • <span id="encumbranceStatus">Unencumbered</span></div>
                     </div>
+                    <!-- Drag & Drop Inventory Board -->
+                    <div class="inventory-board">
+                        <div class="inv-col" data-container="equipped">
+                            <div class="inv-col-header">Equipped</div>
+                            <div class="inv-drop" id="invListEquipped" aria-label="Equipped items"></div>
+                        </div>
+                        <div class="inv-col" data-container="backpack">
+                            <div class="inv-col-header">Backpack</div>
+                            <div class="inv-drop" id="invListBackpack" aria-label="Backpack items"></div>
+                        </div>
+                        <div class="inv-col" data-container="satchel">
+                            <div class="inv-col-header">Satchel</div>
+                            <div class="inv-drop" id="invListSatchel" aria-label="Satchel items"></div>
+                        </div>
+                        <div class="inv-col" data-container="quiver">
+                            <div class="inv-col-header">Quiver</div>
+                            <div class="inv-drop" id="invListQuiver" aria-label="Quiver items"></div>
+                        </div>
+                    </div>
                     <div class="inventory-table-wrapper">
                         <table class="inventory-table" id="inventoryTable" aria-label="Inventory items">
                             <thead>

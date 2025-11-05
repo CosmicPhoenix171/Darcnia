@@ -357,6 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSummaryHeader();
     initWeaponsTable();
     initInventoryTable();
+    renderInventoryBoard();
     initConditions();
     initPortrait();
     initAutoSlots();
@@ -1427,10 +1428,15 @@ function addInventoryRow(item=null) {
         <td class="calc i-total">0</td>
         <td class="row-actions"><button class="btn-mini">✖</button></td>
     `;
+    // Hidden container field to sync with board
+    const hidden = document.createElement('input');
+    hidden.type = 'hidden'; hidden.className = 'i-container'; hidden.value = item?.container || 'backpack';
+    tr.appendChild(hidden);
     tbody.appendChild(tr);
-    tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{ recalcInventoryRow(tr); updateEncumbrance(); autoSaveCharacterData(); }));
+    tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{ recalcInventoryRow(tr); updateEncumbrance(); renderInventoryBoard(); autoSaveCharacterData(); }));
     tr.querySelector('.row-actions .btn-mini').addEventListener('click',()=>{ tr.remove(); updateEncumbrance(); autoSaveCharacterData(); });
     recalcInventoryRow(tr);
+    renderInventoryBoard();
 }
 
 function recalcInventoryRow(tr) {
@@ -1474,13 +1480,14 @@ function updateCoinsSummary() {
 
 function getInventoryFromDOM() {
     const arr=[]; document.querySelectorAll('#inventoryBody tr').forEach(tr=>{
-        arr.push({ id: tr.dataset.id, name: tr.querySelector('.i-name').value, weight: parseFloat(tr.querySelector('.i-weight').value||'0'), qty: parseInt(tr.querySelector('.i-qty').value||'0') });
+        arr.push({ id: tr.dataset.id, name: tr.querySelector('.i-name').value, weight: parseFloat(tr.querySelector('.i-weight').value||'0'), qty: parseInt(tr.querySelector('.i-qty').value||'0'), container: tr.querySelector('.i-container')?.value || 'backpack' });
     }); return arr;
 }
 function setInventoryToDOM(list) {
     const tbody=document.getElementById('inventoryBody'); if (!tbody) return; tbody.innerHTML='';
     (list||[]).forEach(i=>addInventoryRow(i));
     updateEncumbrance();
+    renderInventoryBoard();
 }
 
 function updateEncumbrance() {
@@ -1497,6 +1504,64 @@ function updateEncumbrance() {
     else if (total > enc1 && total <= enc2) status = 'Encumbered';
     else if (total > capacity) status = 'Over Capacity';
     if (statusEl) { statusEl.textContent = status; statusEl.classList.toggle('warning', status !== 'Unencumbered'); }
+}
+
+// ===== Inventory Board (Drag & Drop) =====
+function renderInventoryBoard() {
+    const lists = {
+        equipped: document.getElementById('invListEquipped'),
+        backpack: document.getElementById('invListBackpack'),
+        satchel: document.getElementById('invListSatchel'),
+        quiver: document.getElementById('invListQuiver')
+    };
+    if (!lists.backpack) return; // board not present
+    Object.values(lists).forEach(el => { if (el) el.innerHTML = ''; });
+    const items = getInventoryFromDOM();
+    items.forEach(it => {
+        const chip = document.createElement('div');
+        chip.className = 'inv-chip';
+        chip.draggable = true;
+        chip.dataset.id = it.id;
+        chip.innerHTML = `<span class="name">${it.name || '(item)'}<span class="meta"></span></span>
+                          <span class="qty">x${it.qty||1}</span>
+                          <span class="meta">${(it.weight||0)} lb</span>`;
+        chip.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', it.id);
+        });
+        chip.addEventListener('dblclick', () => {
+            const tr = Array.from(document.querySelectorAll('#inventoryBody tr')).find(r => r.dataset.id === it.id);
+            if (!tr) return;
+            const name = prompt('Item name:', it.name || '') ?? it.name;
+            const qty = parseInt(prompt('Quantity:', String(it.qty||1)) || String(it.qty||1)) || (it.qty||1);
+            const weight = parseFloat(prompt('Weight (lb):', String(it.weight||0)) || String(it.weight||0)) || (it.weight||0);
+            const nEl = tr.querySelector('.i-name'); if (nEl) nEl.value = name;
+            const qEl = tr.querySelector('.i-qty'); if (qEl) qEl.value = qty;
+            const wEl = tr.querySelector('.i-weight'); if (wEl) wEl.value = weight;
+            recalcInventoryRow(tr);
+            updateEncumbrance();
+            renderInventoryBoard();
+            autoSaveCharacterData();
+        });
+        const target = lists[it.container] || lists.backpack;
+        target.appendChild(chip);
+    });
+    // Setup droppable areas
+    Object.entries(lists).forEach(([key, el]) => {
+        if (!el) return;
+        el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+        el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+        el.addEventListener('drop', e => {
+            e.preventDefault(); el.classList.remove('drag-over');
+            const id = e.dataTransfer.getData('text/plain');
+            const tr = Array.from(document.querySelectorAll('#inventoryBody tr')).find(r => r.dataset.id === id);
+            if (tr) {
+                const hidden = tr.querySelector('.i-container');
+                if (hidden) hidden.value = key;
+                renderInventoryBoard();
+                autoSaveCharacterData();
+            }
+        });
+    });
 }
 
 // ===== Conditions =====
