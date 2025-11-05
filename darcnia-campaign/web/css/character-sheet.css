@@ -44,9 +44,11 @@
     min-width: 70px;
     letter-spacing: 0.5px;
 }
-.identity-field input {
+.identity-field input.vanishing-textbox {
     flex: 1;
     font-size: 0.9rem;
+    width: auto !important;
+    padding: 0.2rem 0.4rem !important;
 }
 .name-line { display: flex; align-items: center; gap: 0.5rem; }
 .level-pill {
