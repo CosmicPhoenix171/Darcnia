@@ -1208,8 +1208,17 @@ function initializeApp() {
     // Build search index
     buildSearchIndex();
     
-    // Load initial content
-    loadContent('market');
+    // Load initial content based on URL hash (supports deep-links like #quests, #dice)
+    const hashTab = (location.hash || '').replace('#','').toLowerCase();
+    const validTabs = new Set(['overview','guilds','npcs','locations','market','quests','dice','handouts','lore']);
+    const initialTab = validTabs.has(hashTab) ? hashTab : 'market';
+    switchTab(initialTab);
+
+    // Respond to hash changes (e.g., links from character sheet)
+    window.addEventListener('hashchange', () => {
+        const t = (location.hash || '').replace('#','').toLowerCase();
+        if (validTabs.has(t)) switchTab(t);
+    });
     
     // Update bank display
     updateBankDisplay();
