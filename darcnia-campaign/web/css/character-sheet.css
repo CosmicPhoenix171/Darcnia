@@ -19,17 +19,19 @@
     grid-template-columns: 1.2fr 2fr 1fr;
     gap: 1rem;
     margin-bottom: 1rem;
-    align-items: stretch;
+    /* Prevent equal-height stretching so cards stay compact */
+    align-items: start;
 }
 
 .summary-left, .summary-center, .summary-right {
     background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
     border: 2px solid var(--accent-purple);
     border-radius: 10px;
-    padding: 0.8rem;
+    padding: 0.7rem;
 }
 
-.summary-left { display: flex; gap: 0.8rem; align-items: center; }
+.summary-left { display: flex; gap: 0.75rem; align-items: center; align-self: start; }
+.summary-right { align-self: start; }
 .portrait {
     width: 64px; height: 64px; border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(0,0,0,0.2)), url('') center/cover, rgba(40,20,80,0.5);
@@ -38,9 +40,9 @@
 .summary-id { 
     display: flex; 
     flex-direction: column; 
-    gap: 0.75rem;
+    gap: 0.6rem;
     flex: 1;
-    padding: 0.25rem;
+    padding: 0.2rem;
 }
 
 /* ===== HERO SECTION (Name & Level) ===== */
@@ -121,8 +123,8 @@
     background: linear-gradient(135deg, rgba(40, 20, 80, 0.4) 0%, rgba(60, 30, 100, 0.3) 100%);
     border: 2px solid rgba(138, 43, 226, 0.3);
     border-radius: 12px;
-    padding: 0.7rem;
-    margin: 0.5rem 0;
+    padding: 0.5rem 0.6rem;
+    margin: 0.35rem 0;
     box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -206,8 +208,8 @@
 .char-details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin: 0.5rem 0;
+    gap: 0.4rem;
+    margin: 0.35rem 0;
 }
 
 .detail-item {
@@ -217,7 +219,7 @@
     background: rgba(40, 20, 80, 0.3);
     border: 1px solid rgba(138, 43, 226, 0.2);
     border-radius: 8px;
-    padding: 0.5rem;
+    padding: 0.4rem 0.5rem;
     transition: all 0.3s ease;
 }
 
@@ -266,8 +268,8 @@
     background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(100, 30, 180, 0.3) 100%);
     border: 2px solid var(--accent-purple);
     border-radius: 10px;
-    padding: 0.6rem 0.8rem;
-    margin-top: 0.5rem;
+    padding: 0.45rem 0.7rem;
+    margin-top: 0.35rem;
     box-shadow: 0 2px 8px rgba(138, 43, 226, 0.3);
 }
 
