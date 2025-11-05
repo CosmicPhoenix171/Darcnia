@@ -215,8 +215,17 @@ function initTabs() {
     const tabs = document.querySelectorAll('.sheet-tab');
     if (!tabs || tabs.length === 0) return;
 
-    const saved = localStorage.getItem('characterSheetActiveTab') || 'all';
-    applyTab(saved);
+    let saved = localStorage.getItem('characterSheetActiveTab') || 'inventory';
+
+    // Migrate old saved value of 'all' (removed) to 'inventory'
+    if (saved === 'all') saved = 'inventory';
+
+    // Ensure saved corresponds to an existing tab; fallback to inventory
+    const matchingTab = Array.from(tabs).find(t => t.dataset.tab === saved) || tabs[0];
+
+    // Set active class on matching tab and apply its panels
+    tabs.forEach(t => t.classList.toggle('tab-active', t === matchingTab));
+    applyTab(matchingTab.dataset.tab);
 
     tabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
