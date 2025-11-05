@@ -42,11 +42,29 @@ export class VTT {
 
     // Render loop throttle
     this._needsRender = false;
+
+    // space-to-pan helper
+    this._spaceHeld = false; this._prevTool = null;
+    // cursor hint for panning
+    try { this.canvases.token.style.cursor = 'grab'; } catch(_){}
   }
 
   setGridType(type) { this.state.gridType = type; this.requestRender(); }
   setSnap(snap) { this.state.snapToGrid = !!snap; }
   setTool(tool) { this.state.tool = tool; }
+
+  zoomBy(factor, screenX = null, screenY = null){
+    const { camera, viewport } = this.state;
+    const sx = screenX ?? viewport.w/2; const sy = screenY ?? viewport.h/2;
+    const before = this.screenToWorld(sx, sy);
+    camera.scale = Math.min(4, Math.max(0.25, camera.scale * factor));
+    const after = this.screenToWorld(sx, sy);
+    camera.x += before.x - after.x; camera.y += before.y - after.y;
+    this.requestRender();
+  }
+  zoomIn(){ this.zoomBy(1.1); }
+  zoomOut(){ this.zoomBy(0.9); }
+  resetView(){ this.state.camera = { x: 0, y: 0, scale: 1 }; this.requestRender(); }
 
   worldToScreen(x, y) {
     const { camera } = this.state; return { x: (x - camera.x) * camera.scale, y: (y - camera.y) * camera.scale };
@@ -179,7 +197,8 @@ export class VTT {
   }
 
   _installInput() {
-    const cvs = this.canvases.token; // use token layer for input
+    const cvs = this.canvases.token; // primary input layer
+    const layers = [this.canvases.grid, this.canvases.token, this.canvases.fog];
     let dragging = null; let last = null; let panning = false;
 
     const getPos = (e) => {
@@ -204,7 +223,11 @@ export class VTT {
 
     const onDown = (e) => {
       last = getPos(e);
-      if (this.state.tool === 'pan' || e.button === 1 || e.spaceKey) { panning = true; return; }
+      const rightClick = (e.button === 2);
+      if (this.state.tool === 'pan' || e.button === 1 || this._spaceHeld || rightClick) {
+        panning = true; try { this.canvases.token.style.cursor = 'grabbing'; } catch(_){}
+        return;
+      }
       if (this.onPickToken) {
         const t = this.onPickToken(last.x, last.y, e);
         if (t) { dragging = t; dragging.dragOffset = { dx: last.x - t.x, dy: last.y - t.y }; }
@@ -224,24 +247,30 @@ export class VTT {
       last = pos;
     };
 
-    const onUp = (e) => { dragging = null; panning = false; };
+  const onUp = (e) => { dragging = null; panning = false; try { this.canvases.token.style.cursor = (this.state.tool==='pan'?'grab':'default'); } catch(_){} };
 
-    cvs.addEventListener('wheel', onWheel, { passive: false });
-    cvs.addEventListener('mousedown', onDown);
+    // Attach listeners to all canvas layers so dragging works anywhere
+    layers.forEach(layer => {
+      layer.addEventListener('wheel', onWheel, { passive: false });
+      layer.addEventListener('mousedown', onDown);
+      layer.addEventListener('contextmenu', (e)=>{ if (panning) { e.preventDefault(); return false; } });
+      layer.addEventListener('touchstart', onDown, { passive: true });
+    });
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
-
-    cvs.addEventListener('touchstart', onDown, { passive: true });
     window.addEventListener('touchmove', onMove, { passive: false });
     window.addEventListener('touchend', onUp);
 
     // keyboard
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') { this.state.tool = 'pan'; e.spaceKey = true; }
+      if (e.code === 'Space' && !this._spaceHeld) { this._prevTool = this.state.tool; this._spaceHeld = true; }
+      // keyboard zoom
+      if (e.key === '+' || e.key === '=') { this.zoomIn(); }
+      else if (e.key === '-') { this.zoomOut(); }
       if (this.onKey) this.onKey(e);
     });
     window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') { e.spaceKey = false; }
+      if (e.code === 'Space') { this._spaceHeld = false; if (this._prevTool) { this.state.tool = this._prevTool; this._prevTool = null; } }
     });
   }
 

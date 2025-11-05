@@ -39,6 +39,10 @@ export class UI {
 
     document.getElementById('gridType').addEventListener('change', (e)=>{ vtt.setGridType(e.target.value); });
     document.getElementById('snapToggle').addEventListener('change', (e)=>{ vtt.setSnap(e.target.checked); });
+  // Zoom buttons
+  const zin = document.getElementById('zoomInBtn'); if (zin) zin.addEventListener('click', ()=> this.vtt.zoomIn());
+  const zout = document.getElementById('zoomOutBtn'); if (zout) zout.addEventListener('click', ()=> this.vtt.zoomOut());
+  const zreset = document.getElementById('resetViewBtn'); if (zreset) zreset.addEventListener('click', ()=> this.vtt.resetView());
     // Prevent switching to DM without DM login
     els.roleSelect.addEventListener('change', (e)=>{
       const val = e.target.value;
