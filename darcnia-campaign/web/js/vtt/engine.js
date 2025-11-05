@@ -199,7 +199,7 @@ export class VTT {
   _installInput() {
     const cvs = this.canvases.token; // primary input layer
     const layers = [this.canvases.grid, this.canvases.token, this.canvases.fog];
-    let dragging = null; let last = null; let panning = false;
+  let dragging = null; let last = null; let panning = false; let maybePan = false;
 
     const getPos = (e) => {
       const rect = cvs.getBoundingClientRect();
@@ -231,6 +231,7 @@ export class VTT {
       if (this.onPickToken) {
         const t = this.onPickToken(last.x, last.y, e);
         if (t) { dragging = t; dragging.dragOffset = { dx: last.x - t.x, dy: last.y - t.y }; }
+        else { maybePan = true; }
       }
     };
 
@@ -239,6 +240,10 @@ export class VTT {
       if (panning && last) {
         const dx = pos.x - last.x; const dy = pos.y - last.y;
         this.state.camera.x -= dx; this.state.camera.y -= dy; this.requestRender();
+      } else if (!panning && maybePan && last) {
+        // start panning after small threshold when no token was picked
+        const dx0 = pos.x - last.x; const dy0 = pos.y - last.y; const d2 = dx0*dx0 + dy0*dy0;
+        if (d2 > 9) { panning = true; try { this.canvases.token.style.cursor = 'grabbing'; } catch(_){} }
       } else if (dragging) {
         let nx = pos.x - dragging.dragOffset.dx; let ny = pos.y - dragging.dragOffset.dy;
         if (this.state.snapToGrid) { const s = this.snap(nx, ny); nx = s.x; ny = s.y; }
@@ -247,7 +252,7 @@ export class VTT {
       last = pos;
     };
 
-  const onUp = (e) => { dragging = null; panning = false; try { this.canvases.token.style.cursor = (this.state.tool==='pan'?'grab':'default'); } catch(_){} };
+    const onUp = (e) => { dragging = null; panning = false; maybePan = false; try { this.canvases.token.style.cursor = (this.state.tool==='pan'?'grab':'default'); } catch(_){} };
 
     // Attach listeners to all canvas layers so dragging works anywhere
     layers.forEach(layer => {
@@ -267,6 +272,12 @@ export class VTT {
       // keyboard zoom
       if (e.key === '+' || e.key === '=') { this.zoomIn(); }
       else if (e.key === '-') { this.zoomOut(); }
+      // arrow keys pan camera
+      const step = 40 / this.state.camera.scale; // scale-aware step
+      if (e.key === 'ArrowLeft') { this.state.camera.x -= step; this.requestRender(); }
+      else if (e.key === 'ArrowRight') { this.state.camera.x += step; this.requestRender(); }
+      else if (e.key === 'ArrowUp') { this.state.camera.y -= step; this.requestRender(); }
+      else if (e.key === 'ArrowDown') { this.state.camera.y += step; this.requestRender(); }
       if (this.onKey) this.onKey(e);
     });
     window.addEventListener('keyup', (e) => {
