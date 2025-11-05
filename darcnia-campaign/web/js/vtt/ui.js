@@ -312,7 +312,11 @@ export class UI {
     net.on('chat', (p)=>{ this.log(`${p.who}: ${p.text}`, 'chat'); });
     net.on('hello', ()=>{ if (net.role === 'dm') this._broadcastState(); });
     net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenSpawned(true); });
-    net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; t.x = m.x; t.y = m.y; 
+    net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; 
+      // Authorization: accept if sent by DM or by the token's owner
+      const allowed = (m && (m.__role === 'dm' || t.owner === m.__from));
+      if (!allowed) { return; }
+      t.x = m.x; t.y = m.y; 
       // DM checks triggers on remote moves and broadcasts marker
       if (net.role === 'dm'){
         const s = this.vtt.state.gridSize; const i = Math.floor(t.x/s), j = Math.floor(t.y/s);

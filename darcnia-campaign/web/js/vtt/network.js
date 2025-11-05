@@ -13,7 +13,7 @@ export class Network {
   }
 
   on(event, fn){ this.adapter.on(event, fn); }
-  emit(event, data){ this.adapter.emit(event, { ...data, __from: this.clientId }); }
+  emit(event, data){ this.adapter.emit(event, { ...data, __from: this.clientId, __role: this.role }); }
 }
 
 class LocalAdapter {
