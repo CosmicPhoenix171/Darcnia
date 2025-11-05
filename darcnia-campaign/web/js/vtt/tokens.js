@@ -2,7 +2,7 @@
 export class TokenManager {
   constructor(vtt, map) {
     this.vtt = vtt; this.map = map; this.tokens = [];
-    this.control = { role: 'dm', playerId: randomId() };
+    this.control = { role: 'dm', playerId: randomId(), playerName: 'Guest' };
 
     vtt.onPickToken = (x, y, e) => this._pick(x, y, e);
     vtt.onDragToken = (t, nx, ny) => { t.x = nx; t.y = ny; this._onTokenMoved(t); vtt.requestRender(); };
@@ -10,6 +10,7 @@ export class TokenManager {
   }
 
   setRole(role) { this.control.role = role; }
+  setPlayerName(name){ this.control.playerName = String(name||'').trim(); }
 
   addToken({ id=null, name='Token', x=0, y=0, size=1, hp=10, hpMax=null, ac=10, init=10, img=null, friendly=true, owner=null, conditions=[] }) {
     // Preserve provided id (from server/network/JSON) to keep token identity consistent across clients
@@ -24,7 +25,9 @@ export class TokenManager {
 
   canControl(t) {
     if (this.control.role === 'dm') return true;
-    return t.owner === this.control.playerId; // player can move own token
+    const same = (a,b)=> String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
+    // player can move own token or token with matching name
+    return t.owner === this.control.playerId || same(t.name, this.control.playerName);
   }
 
   _pick(x, y, e) {

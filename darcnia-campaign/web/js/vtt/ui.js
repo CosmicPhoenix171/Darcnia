@@ -7,11 +7,13 @@ export class UI {
     vtt.bindRenderSource(() => ({ map, tokens: tokens.list, fog }));
 
     // Auth: read current site login (localStorage) and set initial role
-    this.currentUser = (localStorage.getItem('loggedInCharacter') || 'Guest');
+  this.currentUser = (localStorage.getItem('loggedInCharacter') || 'Guest');
     this.dmOverride = localStorage.getItem('vttDmOverride') === 'true';
     this.isDM = this._isDmUser(this.currentUser) || this.dmOverride;
     const userEl = document.getElementById('userDisplay'); if (userEl) userEl.textContent = this.isDM ? `${this.currentUser} (DM)` : this.currentUser;
-    if (this.isDM) { els.roleSelect.value = 'dm'; tokens.setRole('dm'); } else { els.roleSelect.value = 'player'; tokens.setRole('player'); }
+  if (this.isDM) { els.roleSelect.value = 'dm'; tokens.setRole('dm'); } else { els.roleSelect.value = 'player'; tokens.setRole('player'); }
+  // Set player name for name-based control
+  tokens.setPlayerName(this.currentUser);
 
     // Default map
     gen.generate({ w: 50, h: 50, biome: 'dungeon', difficulty: 'normal' });
@@ -86,7 +88,8 @@ export class UI {
     els.connectBtn.addEventListener('click', ()=>{
       net.connect(els.sessionId.value, els.roleSelect.value);
       // Align token ownership identity with network client id BEFORE any spawns or gating
-      this.tokens.control.playerId = this.net.clientId;
+  this.tokens.control.playerId = this.net.clientId;
+  this.tokens.setPlayerName(this.currentUser);
       tokens.setRole(els.roleSelect.value);
       this._installNetHandlers();
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
@@ -156,7 +159,7 @@ export class UI {
       // DM also broadcasts fog reveal so players stay in sync
       if (net.role === 'dm') { net.emit('fog', { op:'reveal', i, j, r: this.fog.radius }); }
       // broadcast move
-      net.emit('move', { id: t.id, x: t.x, y: t.y });
+      net.emit('move', { id: t.id, x: t.x, y: t.y, __name: this.currentUser });
     };
 
     // DM View toggle (local-only, not broadcast)
@@ -219,11 +222,11 @@ export class UI {
         const t = this.tokens.addToken({ name:'Enemy', x, y, friendly:false });
         this.vtt.requestRender();
         this.log(`[DM] Spawned ${t.name} at ${i},${j}`);
-        this.net.emit('spawn', { token: t });
+          this.net.emit('spawn', { token: t, __name: this.currentUser });
       } else if (tool === 'erase' && this.tokens.control.role === 'dm'){
         // erase top-most token in that cell
         const top = [...this.tokens.list].reverse().find(t=> Math.abs(t.x - x) < 1e-3 && Math.abs(t.y - y) < 1e-3);
-        if (top){ this.tokens.removeToken(top.id); this.vtt.requestRender(); this.log(`[DM] Removed token ${top.name}`); this.net.emit('erase', { id: top.id }); }
+          if (top){ this.tokens.removeToken(top.id); this.vtt.requestRender(); this.log(`[DM] Removed token ${top.name}`); this.net.emit('erase', { id: top.id, __name: this.currentUser }); }
       } else if (tool === 'reveal' && this.tokens.control.role === 'dm'){
         this.fog.dmReveal(i,j, 4); this.net.emit('fog', { op:'reveal', i, j, r:4 });
       } else if (tool === 'hide' && this.tokens.control.role === 'dm'){
@@ -334,8 +337,9 @@ export class UI {
     net.on('hello', ()=>{ if (net.role === 'dm') this._broadcastState(); });
   net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenPresentOrClaim(true); });
     net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; 
-      // Authorization: accept if sent by DM or by the token's owner
-      const allowed = (m && (m.__role === 'dm' || t.owner === m.__from));
+      // Authorization: accept if sent by DM, by the token's owner, or by matching player name
+      const same = (a,b)=> String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
+      const allowed = (m && (m.__role === 'dm' || t.owner === m.__from || same(t.name, m.__name)));
       if (!allowed) { return; }
       t.x = m.x; t.y = m.y; 
       // DM checks triggers on remote moves and broadcasts marker
@@ -356,15 +360,17 @@ export class UI {
       if (tokens.list.find(t=>t.id===token.id)) return; tokens.addToken(token); this.vtt.requestRender(); });
     net.on('erase', (msg)=>{ const id = msg?.id; if (!id) return; 
       const t = tokens.list.find(t=>t.id===id); if (!t) return;
-      // Authorization: DM can erase any; owner can erase own
-      const allowed = (msg && (msg.__role === 'dm' || t.owner === msg.__from));
+      // Authorization: DM can erase any; owner can erase own; player with matching name can erase
+      const same = (a,b)=> String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
+      const allowed = (msg && (msg.__role === 'dm' || t.owner === msg.__from || same(t.name, msg.__name)));
       if (!allowed) { return; }
       tokens.removeToken(id); this.vtt.requestRender(); 
     });
   net.on('fog', (msg)=>{ if (net.role==='dm') return; if (!msg || msg.__role !== 'dm') return; const { op, i, j, r } = msg; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
   net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; 
-    // Authorization: accept if sent by DM or by the token's owner
-    const allowed = (u && (u.__role === 'dm' || t.owner === u.__from));
+    // Authorization: accept if sent by DM, token owner, or matching player name
+    const same = (a,b)=> String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase();
+    const allowed = (u && (u.__role === 'dm' || t.owner === u.__from || same(t.name, u.__name)));
     if (!allowed) { return; }
     Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
   net.on('marker', (ev)=>{ if (!ev || ev.__role !== 'dm') return; (this.map.meta.markers ||= []).push({ type: ev.type, i: ev.i, j: ev.j, at: Date.now() }); this.vtt.requestRender(); });
@@ -451,8 +457,8 @@ export class UI {
       t.hp = Math.max(0, Math.min(parseInt(t.hp||0,10), t.hpMax||t.hp||0));
       this.vtt.requestRender();
       this._refreshTokenPanel();
-      // Broadcast
-      this.net.emit('tokenUpdate', { id: t.id, patch });
+  // Broadcast (include sender name for name-based authorization)
+  this.net.emit('tokenUpdate', { id: t.id, patch, __name: this.currentUser });
       // Chat for HP changes
       if (typeof oldHp === 'number' && typeof t.hp === 'number' && oldHp !== t.hp){
         const diff = t.hp - oldHp;
