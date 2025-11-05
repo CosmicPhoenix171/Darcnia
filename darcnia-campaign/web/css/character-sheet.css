@@ -41,39 +41,41 @@
     background: var(--accent-gold); color: #000; font-weight: 800;
     padding: 0.1rem 0.45rem; border-radius: 999px; min-width: 28px; text-align: center;
 }
-.name-display { 
-    font-family: 'Cinzel', serif; 
-    font-weight: 700; 
-    font-size: 1.1rem; 
-    color: var(--text-primary); 
-}
-.name-display.editable {
+/* ===== Vanishing Text Box - Reusable Component ===== */
+/* Applies to any input that should be invisible until interacted with */
+.vanishing-textbox {
     background: transparent !important;
     backdrop-filter: none !important;
     border: none !important;
     border-radius: 0 !important;
     border-bottom: 2px solid transparent !important;
     padding: 0.2rem 0.4rem !important;
-    margin: 0 !important;
     transition: all 0.3s ease !important;
     outline: none !important;
-    width: 100% !important;
     box-shadow: none !important;
 }
-/* Only show border when hovering or focused - never when just has content */
-.name-display.editable:hover {
+/* Subtle hint on hover */
+.vanishing-textbox:hover {
     background: transparent !important;
     backdrop-filter: none !important;
     border: none !important;
     border-bottom: 2px solid rgba(138, 43, 226, 0.5) !important;
     box-shadow: none !important;
 }
-.name-display.editable:focus {
+/* Clear indicator when focused/typing */
+.vanishing-textbox:focus {
     background: transparent !important;
     backdrop-filter: none !important;
     border: none !important;
     border-bottom: 2px solid var(--accent-gold) !important;
     box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2) !important;
+}
+
+.name-display { 
+    font-family: 'Cinzel', serif; 
+    font-weight: 700; 
+    font-size: 1.1rem; 
+    color: var(--text-primary); 
 }
 .class-line { color: var(--text-secondary); font-size: 0.9rem; display:flex; gap:0.4rem; align-items:center; }
 .class-line .dot { opacity: 0.5; }
