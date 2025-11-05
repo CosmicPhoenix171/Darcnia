@@ -80,6 +80,7 @@ export class UI {
       this._installNetHandlers();
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
       if (net.role === 'dm') this._broadcastState();
+      else { net.emit('hello', { who: this.currentUser||'player' }); }
       const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = net.role !== 'dm';
       // If a player connects, ensure their token exists on the board and announce it
       if (net.role === 'player') {
@@ -90,6 +91,23 @@ export class UI {
     // Save / Load
     els.saveBtn.addEventListener('click', ()=>this.saveAsJSON());
     els.loadBtn.addEventListener('click', ()=>this.loadFromJSON());
+    // Cloud save (Firebase)
+    const saveCloudBtn = document.getElementById('saveCloudBtn');
+    if (saveCloudBtn){
+      saveCloudBtn.addEventListener('click', ()=> this.saveToFirebase());
+      saveCloudBtn.disabled = !this.isDM; // DM-only action
+    }
+    const newMapBtn = document.getElementById('newMapBtn');
+    if (newMapBtn){
+      newMapBtn.addEventListener('click', ()=>{
+        if (!this.isDM) { alert('DM only'); return; }
+        const ok = confirm('Generate a new random map now? This will reposition the hero token.');
+        if (!ok) return;
+        this._randomizeMap();
+        if (this.net && this.net.role === 'dm') this._broadcastState();
+      });
+      newMapBtn.disabled = !this.isDM;
+    }
 
     // Stage interactions per tool
     this._installStageTools();
@@ -232,6 +250,27 @@ export class UI {
     const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'darcnia-map.json'; a.click(); URL.revokeObjectURL(url);
   }
 
+  async saveToFirebase(){
+    if (!this.isDM) { alert('DM only'); return; }
+    const db = (typeof window !== 'undefined') ? window.database : null;
+    if (!db) { alert('Firebase not available on this page.'); return; }
+    const session = (this.els.sessionId.value || 'local-demo').trim();
+    const state = {
+      map: this.map.toJSON(),
+      tokens: this.tokens.toJSON(),
+      fog: this.fog.toJSON(),
+      initiative: this.initiative||[],
+      meta: { savedAt: Date.now(), app: 'Darcnia VTT', v: 1, savedBy: this.currentUser||'unknown' }
+    };
+    try {
+      await db.ref(`sessions/${session}/state`).set(state);
+      this.log(`[system] Saved session '${session}' to cloud.`);
+      alert('✅ Saved to cloud');
+    } catch (e) {
+      console.error('Save cloud error', e); alert('❌ Failed to save to cloud.');
+    }
+  }
+
   loadFromJSON(){
     const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json';
     input.onchange = (e)=>{
@@ -255,6 +294,7 @@ export class UI {
   _installNetHandlers(){
     const { net, tokens, fog } = this;
     net.on('chat', (p)=>{ this.log(`${p.who}: ${p.text}`, 'chat'); });
+    net.on('hello', ()=>{ if (net.role === 'dm') this._broadcastState(); });
     net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenSpawned(true); });
     net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; t.x = m.x; t.y = m.y; this.vtt.requestRender(); });
     net.on('spawn', ({ token })=>{ if (net.role==='dm') return; tokens.addToken(token); this.vtt.requestRender(); });

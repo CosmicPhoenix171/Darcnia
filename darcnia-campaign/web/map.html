@@ -28,6 +28,8 @@
         <button id="connectBtn" class="btn">Connect</button>
         <button id="saveBtn" class="btn">Save</button>
         <button id="loadBtn" class="btn">Load</button>
+        <button id="saveCloudBtn" class="btn" title="Save state to Firebase">Save Cloud</button>
+        <button id="newMapBtn" class="btn" title="Generate a new random map">New Map</button>
         <span id="userDisplay" style="margin-left:.5rem;opacity:.8">Guest</span>
         <button id="dmLoginBtn" class="btn" title="Login as DM (local)">DM Login</button>
       </div>
@@ -149,7 +151,30 @@
       </section>
     </main>
   </div>
-
+  <!-- Optional Firebase (compat) for cloud save/load -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script>
+    (function(){
+      try {
+        var firebaseConfig = {
+          apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
+          authDomain: "dnd-5e-e1ad1.firebaseapp.com",
+          databaseURL: "https://dnd-5e-e1ad1-default-rtdb.firebaseio.com",
+          projectId: "dnd-5e-e1ad1",
+          storageBucket: "dnd-5e-e1ad1.firebasestorage.app",
+          messagingSenderId: "630611257093",
+          appId: "1:630611257093:web:5fafca4be805d4679bb96c",
+          measurementId: "G-Y4Y25TDECL"
+        };
+        if (window.firebase && !window.database) {
+          window.firebase.initializeApp(firebaseConfig);
+          window.database = window.firebase.database();
+          console.log('✅ Firebase Database ready for VTT');
+        }
+      } catch (e) { console.warn('⚠️ Firebase not available for VTT', e); }
+    })();
+  </script>
   <script type="module">
     import { VTT } from './js/vtt/engine.js';
     import { MapData } from './js/vtt/map.js';
