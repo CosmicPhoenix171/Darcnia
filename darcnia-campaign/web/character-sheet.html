@@ -48,9 +48,10 @@
         <!-- Quick Summary Header (Roll20-like) -->
         <section class="sheet-summary">
             <div class="summary-left">
-                <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
-                <input type="file" id="portraitFile" accept="image/*" hidden>
-                <div class="summary-id">
+                <div class="summary-card">
+                    <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
+                    <input type="file" id="portraitFile" accept="image/*" hidden>
+                    <div class="summary-id">
                     <!-- Hero Section: Name & Level -->
                     <div class="hero-section">
                         <div class="hero-name-row">
@@ -142,6 +143,7 @@
                 </div>
             </div>
             <div class="summary-right">
+                <div class="summary-card">
                 <div class="summary-stat">
                     <div class="label">ARMOR CLASS</div>
                     <div class="value" id="acSummary">10</div>
@@ -153,6 +155,7 @@
                 <div class="summary-stat">
                     <div class="label">INITIATIVE</div>
                     <div class="value" id="initSummary">+0</div>
+                </div>
                 </div>
             </div>
         </section>
