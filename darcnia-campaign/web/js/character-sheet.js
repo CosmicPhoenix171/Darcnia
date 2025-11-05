@@ -1065,6 +1065,10 @@ function updateSummaryHeader() {
     const hpCurDisp = document.getElementById('hpCurrentDisplay');
     const hpMaxDisp = document.getElementById('hpMaxDisplay');
     const hpTmpDisp = document.getElementById('hpTempDisplay');
+    // Quick stats on hero card
+    const acQuick = document.getElementById('acQuick');
+    const speedQuick = document.getElementById('speedQuick');
+    const initQuick = document.getElementById('initQuick');
 
     // nameDisplay is now an input, so just update placeholder if empty
     if (nameDisplay && !nameDisplay.value) {
@@ -1085,6 +1089,12 @@ function updateSummaryHeader() {
     if (hpCurDisp) hpCurDisp.textContent = String(hpCur);
     if (hpMaxDisp) hpMaxDisp.textContent = String(hpMax);
     if (hpTmpDisp) hpTmpDisp.textContent = String(hpTmp);
+    if (acQuick) acQuick.textContent = String(ac);
+    if (speedQuick) speedQuick.textContent = String(speedNum);
+    if (initQuick) {
+        const dexMod = calculateAbilityModifier(characterData.abilities.dex || parseInt(document.getElementById('dexScore')?.value) || 10);
+        initQuick.textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
+    }
 }
 
 // ===== Save/Load Functions =====

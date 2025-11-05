@@ -313,6 +313,42 @@
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+/* ===== QUICK STATS (AC • Speed • Initiative) ===== */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.mini-stat {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(40, 20, 80, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.25);
+    border-radius: 8px;
+    padding: 0.35rem 0.45rem;
+}
+.mini-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.mini-value {
+    justify-self: end;
+    font-weight: 800;
+    color: #e9f1ff;
+    background: linear-gradient(180deg, rgba(70, 120, 255, 0.35), rgba(90, 60, 200, 0.35));
+    border: 2px solid rgba(120, 160, 255, 0.55);
+    border-radius: 6px;
+    padding: 0.12rem 0.4rem;
+    min-width: 34px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(120, 160, 255, 0.25) inset;
+}
+
 /* ===== OLD STYLES - Keep for compatibility ===== */
 .identity-field { display: flex; align-items: center; gap: 0.5rem; }
 .xp-field { flex-wrap: wrap; }
