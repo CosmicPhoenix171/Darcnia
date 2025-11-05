@@ -1204,6 +1204,37 @@ function showNotification(message) {
     }, 3000);
 }
 
+// Lightweight toast system for quick feedback (damage/heal/etc.)
+let __toastContainer = null;
+function ensureToastContainer() {
+    if (!__toastContainer) {
+        __toastContainer = document.createElement('div');
+        __toastContainer.className = 'toast-container';
+        document.body.appendChild(__toastContainer);
+    }
+    return __toastContainer;
+}
+
+function showToast(message, type = 'info') {
+    const container = ensureToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = document.createElement('span');
+    icon.className = 'icon';
+    icon.textContent = type === 'success' ? '✦' : (type === 'danger' ? '⚠' : 'ℹ');
+    const text = document.createElement('span');
+    text.textContent = message;
+    toast.appendChild(icon);
+    toast.appendChild(text);
+    container.appendChild(toast);
+    // Auto dismiss
+    const ttl = 2500;
+    setTimeout(() => {
+        toast.style.animation = 'toastOut 200ms ease forwards';
+        setTimeout(() => toast.remove(), 220);
+    }, ttl);
+}
+
 // Add notification animations to CSS dynamically
 const style = document.createElement('style');
 style.textContent = `
