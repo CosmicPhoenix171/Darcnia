@@ -58,10 +58,19 @@ export class UI {
     document.getElementById('addToInit').addEventListener('click', ()=>{
       const n = document.getElementById('initName').value || 'Creature';
       const s = parseInt(document.getElementById('initScore').value||'10',10);
-      this.addInitiative({ name:n, init:s });
+      const entry = { name:n, init:s };
+      this.addInitiative(entry);
+      // DM broadcasts initiative changes
+      if (this.net && this.net.role === 'dm') this.net.emit('initiative', { op:'add', entry });
     });
-    document.getElementById('sortInit').addEventListener('click', ()=>this.sortInitiative());
-    document.getElementById('clearInit').addEventListener('click', ()=>{ this.initiative = []; this.renderInitiative(); });
+    document.getElementById('sortInit').addEventListener('click', ()=>{
+      this.sortInitiative();
+      if (this.net && this.net.role === 'dm') this.net.emit('initiative', { op:'sort' });
+    });
+    document.getElementById('clearInit').addEventListener('click', ()=>{ 
+      this.initiative = []; this.renderInitiative();
+      if (this.net && this.net.role === 'dm') this.net.emit('initiative', { op:'clear' });
+    });
 
     // Chat
     document.getElementById('chatSend').addEventListener('click', ()=>{
@@ -134,6 +143,8 @@ export class UI {
       const i = Math.floor(t.x/s), j = Math.floor(t.y/s);
       const ev = gen.handleStepOn(i,j,t,(m)=>this.log(m));
       if (ev && net.role === 'dm') { net.emit('marker', ev); this.vtt.requestRender(); }
+      // DM also broadcasts fog reveal so players stay in sync
+      if (net.role === 'dm') { net.emit('fog', { op:'reveal', i, j, r: this.fog.radius }); }
       // broadcast move
       net.emit('move', { id: t.id, x: t.x, y: t.y });
     };
@@ -319,13 +330,20 @@ export class UI {
       t.x = m.x; t.y = m.y; 
       // DM checks triggers on remote moves and broadcasts marker
       if (net.role === 'dm'){
+        // Reveal fog on DM side for player moves and notify players
+        this.fog.revealAround(t);
         const s = this.vtt.state.gridSize; const i = Math.floor(t.x/s), j = Math.floor(t.y/s);
         const ev = this.gen.handleStepOn(i,j,t,(msg)=>this.log(msg));
         if (ev) { this.net.emit('marker', ev); }
+        this.net.emit('fog', { op:'reveal', i, j, r: this.fog.radius });
       }
       this.vtt.requestRender(); 
     });
-    net.on('spawn', ({ token })=>{ if (!token) return; if (tokens.list.find(t=>t.id===token.id)) return; tokens.addToken(token); this.vtt.requestRender(); });
+    net.on('spawn', (msg)=>{ const token = msg?.token; if (!token) return; 
+      // Authorization: DM can spawn any; a player can only spawn their own owned token
+      const allowed = (msg && (msg.__role === 'dm' || token.owner === msg.__from));
+      if (!allowed) { return; }
+      if (tokens.list.find(t=>t.id===token.id)) return; tokens.addToken(token); this.vtt.requestRender(); });
     net.on('erase', (msg)=>{ const id = msg?.id; if (!id) return; 
       const t = tokens.list.find(t=>t.id===id); if (!t) return;
       // Authorization: DM can erase any; owner can erase own
@@ -333,13 +351,22 @@ export class UI {
       if (!allowed) { return; }
       tokens.removeToken(id); this.vtt.requestRender(); 
     });
-    net.on('fog', ({ op, i, j, r })=>{ if (net.role==='dm') return; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
+  net.on('fog', (msg)=>{ if (net.role==='dm') return; if (!msg || msg.__role !== 'dm') return; const { op, i, j, r } = msg; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
   net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; 
     // Authorization: accept if sent by DM or by the token's owner
     const allowed = (u && (u.__role === 'dm' || t.owner === u.__from));
     if (!allowed) { return; }
     Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
-  net.on('marker', (ev)=>{ if (!ev) return; (this.map.meta.markers ||= []).push({ type: ev.type, i: ev.i, j: ev.j, at: Date.now() }); this.vtt.requestRender(); });
+  net.on('marker', (ev)=>{ if (!ev || ev.__role !== 'dm') return; (this.map.meta.markers ||= []).push({ type: ev.type, i: ev.i, j: ev.j, at: Date.now() }); this.vtt.requestRender(); });
+
+  // Initiative syncing (DM-authoritative)
+  net.on('initiative', (msg)=>{
+    if (!msg || msg.__role !== 'dm') return; // DM-only source of truth
+    const op = msg.op;
+    if (op === 'add' && msg.entry){ this.addInitiative(msg.entry); }
+    else if (op === 'sort'){ this.sortInitiative(); }
+    else if (op === 'clear'){ this.initiative = []; this.renderInitiative(); }
+  });
   }
 
   _broadcastState(){
