@@ -45,20 +45,54 @@ function updateLevelFromXP() {
     const xp = parseInt(xpInput.value) || 0;
     const { level, xpToNext } = calculateLevelFromXP(xp);
     
-    // Update level pill
-    const levelPill = document.getElementById('levelPill');
-    if (levelPill) {
-        levelPill.textContent = `Lvl ${level}`;
+    // Calculate current level's XP requirement
+    let currentLevelXP = 0;
+    let nextLevelXP = 300;
+    for (let i = 0; i < XP_TABLE.length; i++) {
+        if (XP_TABLE[i].level === level) {
+            currentLevelXP = XP_TABLE[i].xp;
+            nextLevelXP = currentLevelXP + XP_TABLE[i].next;
+            break;
+        }
     }
     
-    // Update XP to next level display
+    // Update level badge (just the number)
+    const levelPill = document.getElementById('levelPill');
+    if (levelPill) {
+        const levelNumber = levelPill.querySelector('.level-number');
+        if (levelNumber) {
+            levelNumber.textContent = level;
+        } else {
+            levelPill.textContent = level;
+        }
+    }
+    
+    // Update XP target display
+    const xpTarget = document.getElementById('xpTarget');
+    if (xpTarget) {
+        xpTarget.textContent = nextLevelXP.toLocaleString();
+    }
+    
+    // Update XP to next level text
     const xpNextDisplay = document.getElementById('xpToNext');
     if (xpNextDisplay) {
         if (level >= 20) {
-            xpNextDisplay.textContent = '(Max Level)';
+            xpNextDisplay.textContent = 'Maximum Level Reached';
         } else {
-            xpNextDisplay.textContent = `/ ${xpToNext.toLocaleString()} to next level`;
+            const remaining = nextLevelXP - xp;
+            xpNextDisplay.textContent = `${remaining.toLocaleString()} XP to level ${level + 1}`;
         }
+    }
+    
+    // Update XP progress bar
+    const progressFill = document.getElementById('xpProgressFill');
+    if (progressFill && level < 20) {
+        const xpInCurrentLevel = xp - currentLevelXP;
+        const xpNeededForLevel = nextLevelXP - currentLevelXP;
+        const percentage = Math.min(100, (xpInCurrentLevel / xpNeededForLevel) * 100);
+        progressFill.style.width = `${percentage}%`;
+    } else if (progressFill && level >= 20) {
+        progressFill.style.width = '100%';
     }
     
     // Update character data
@@ -301,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkLoggedInCharacter();
     initTabs();
     calculateAllStats();
+    updateLevelFromXP(); // Initialize XP progress bar and level
     updateSummaryHeader();
     initWeaponsTable();
     initInventoryTable();
@@ -1015,7 +1050,14 @@ function updateSummaryHeader() {
     if (nameDisplay && !nameDisplay.value) {
         nameDisplay.placeholder = 'Character Name';
     }
-    if (levelPill) levelPill.textContent = `Lvl ${level}`;
+    if (levelPill) {
+        const levelNumber = levelPill.querySelector('.level-number');
+        if (levelNumber) {
+            levelNumber.textContent = level;
+        } else {
+            levelPill.textContent = `Lvl ${level}`;
+        }
+    }
     if (classDisplay) classDisplay.textContent = cls || 'Class';
     if (backgroundDisplay) backgroundDisplay.textContent = bkg || 'Background';
     if (acSummary) acSummary.textContent = String(ac);
