@@ -224,10 +224,22 @@ export class VTT {
     const onDown = (e) => {
       last = getPos(e);
       const rightClick = (e.button === 2);
-      if (this.state.tool === 'pan' || e.button === 1 || this._spaceHeld || rightClick) {
+      const midClick = (e.button === 1);
+      // Always pan with mid/right click or while holding Space
+      if (midClick || rightClick || this._spaceHeld) {
         panning = true; try { this.canvases.token.style.cursor = 'grabbing'; } catch(_){}
         return;
       }
+      // Pan tool: first try to pick a token, else start panning
+      if (this.state.tool === 'pan') {
+        if (this.onPickToken) {
+          const t = this.onPickToken(last.x, last.y, e);
+          if (t) { dragging = t; dragging.dragOffset = { dx: last.x - t.x, dy: last.y - t.y }; return; }
+        }
+        panning = true; try { this.canvases.token.style.cursor = 'grabbing'; } catch(_){}
+        return;
+      }
+      // Other tools: pick to drag, otherwise allow threshold-based panning
       if (this.onPickToken) {
         const t = this.onPickToken(last.x, last.y, e);
         if (t) { dragging = t; dragging.dragOffset = { dx: last.x - t.x, dy: last.y - t.y }; }
