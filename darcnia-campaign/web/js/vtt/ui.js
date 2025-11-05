@@ -326,9 +326,19 @@ export class UI {
       this.vtt.requestRender(); 
     });
     net.on('spawn', ({ token })=>{ if (!token) return; if (tokens.list.find(t=>t.id===token.id)) return; tokens.addToken(token); this.vtt.requestRender(); });
-    net.on('erase', ({ id })=>{ if (!id) return; tokens.removeToken(id); this.vtt.requestRender(); });
+    net.on('erase', (msg)=>{ const id = msg?.id; if (!id) return; 
+      const t = tokens.list.find(t=>t.id===id); if (!t) return;
+      // Authorization: DM can erase any; owner can erase own
+      const allowed = (msg && (msg.__role === 'dm' || t.owner === msg.__from));
+      if (!allowed) { return; }
+      tokens.removeToken(id); this.vtt.requestRender(); 
+    });
     net.on('fog', ({ op, i, j, r })=>{ if (net.role==='dm') return; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
-  net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
+  net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; 
+    // Authorization: accept if sent by DM or by the token's owner
+    const allowed = (u && (u.__role === 'dm' || t.owner === u.__from));
+    if (!allowed) { return; }
+    Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
   net.on('marker', (ev)=>{ if (!ev) return; (this.map.meta.markers ||= []).push({ type: ev.type, i: ev.i, j: ev.j, at: Date.now() }); this.vtt.requestRender(); });
   }
 
