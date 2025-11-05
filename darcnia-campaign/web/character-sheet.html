@@ -80,6 +80,14 @@
             </div>
         </section>
 
+        <!-- View Tabs: Inventory / Notes / Spells -->
+        <div class="sheet-tabs" role="tablist" aria-label="Character sheet views">
+            <button class="sheet-tab tab-active" data-tab="all">All</button>
+            <button class="sheet-tab" data-tab="inventory">Inventory</button>
+            <button class="sheet-tab" data-tab="notes">Notes</button>
+            <button class="sheet-tab" data-tab="spells">Spells</button>
+        </div>
+
         <!-- Main Stats Grid -->
         <div class="main-grid">
             <!-- Left Column: Ability Scores & Skills -->
@@ -365,19 +373,19 @@
                 </section>
 
                 <!-- Attacks & Spellcasting -->
-                <section class="attacks-section">
+                <section class="attacks-section" data-panel="inventory">
                     <h3>Attacks & Spellcasting</h3>
                     <textarea id="attacks" rows="8" placeholder="Weapon Name | Attack Bonus | Damage/Type&#10;e.g., Longsword | +5 | 1d8+3 slashing"></textarea>
                 </section>
 
                 <!-- Equipment & Treasure -->
-                <section class="equipment-section">
+                <section class="equipment-section" data-panel="inventory">
                     <h3>Equipment & Treasure</h3>
                     <textarea id="equipment" rows="6" placeholder="List your equipment, gold, and items here..."></textarea>
                 </section>
 
                 <!-- Attunement Slots (D&D 2024) -->
-                <section class="attunement-section">
+                <section class="attunement-section" data-panel="inventory">
                     <h3>Attunement Slots <span class="attunement-count">(Max 3)</span></h3>
                     <div class="attunement-grid">
                         <div class="attunement-slot">
@@ -408,7 +416,7 @@
             <!-- Right Column: Features, Traits, & Spells -->
             <aside class="right-column">
                 <!-- Personality & Background -->
-                <section class="personality-section">
+                <section class="personality-section" data-panel="notes">
                     <h3>Personality</h3>
                     <div class="personality-grid">
                         <div class="form-group">
@@ -431,19 +439,19 @@
                 </section>
 
                 <!-- Class Features & Feats -->
-                <section class="features-section">
+                <section class="features-section" data-panel="notes">
                     <h3>Class Features & Feats</h3>
                     <textarea id="classFeatures" rows="10" placeholder="List your class features, racial traits, and feats here...&#10;&#10;Example:&#10;• Second Wind (1/short rest)&#10;• Action Surge (1/short rest)&#10;• Fighting Style: Dueling"></textarea>
                 </section>
 
                 <!-- Proficiencies & Languages -->
-                <section class="proficiencies-section">
+                <section class="proficiencies-section" data-panel="notes">
                     <h3>Proficiencies & Languages</h3>
                     <textarea id="proficiencies" rows="5" placeholder="Armor: Light, Medium, Shields&#10;Weapons: Simple, Martial&#10;Tools: Thieves' Tools&#10;Languages: Common, Elvish"></textarea>
                 </section>
 
                 <!-- Spells -->
-                <section class="spells-section">
+                <section class="spells-section" data-panel="spells">
                     <h3>Spellcasting</h3>
                     <div class="spell-stats">
                         <div class="spell-stat">
