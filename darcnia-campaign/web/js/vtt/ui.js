@@ -15,16 +15,15 @@ export class UI {
 
     // Default map
     gen.generate({ w: 50, h: 50, biome: 'dungeon', difficulty: 'normal' });
-    // Spawn a player/DM token at start using character sheet data when available
-    {
+    // Spawn an initial token only for DM on load (players will spawn after connect with correct owner)
+    if (this.isDM) {
       const s = vtt.state.gridSize; const start = gen.start || { i: 2, j: 2 };
       const ch = this._readCharacterFromLocal();
       const name = ch.name || this.currentUser || 'Hero';
-  const hp = ch.hpCurrent ?? ch.hpMax ?? 10; // prefer current HP, fallback to max
-  const ac = ch.armorClass ?? 10;
-  const hpMax = ch.hpMax ?? hp;
-  const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId, hp, hpMax, ac });
-      // Fog initial reveal around token
+      const hp = ch.hpCurrent ?? ch.hpMax ?? 10; // prefer current HP, fallback to max
+      const ac = ch.armorClass ?? 10;
+      const hpMax = ch.hpMax ?? hp;
+      const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId, hp, hpMax, ac });
       fog.revealAround(t);
     }
 
@@ -85,6 +84,8 @@ export class UI {
     // Connect
     els.connectBtn.addEventListener('click', ()=>{
       net.connect(els.sessionId.value, els.roleSelect.value);
+      // Align token ownership identity with network client id BEFORE any spawns or gating
+      this.tokens.control.playerId = this.net.clientId;
       tokens.setRole(els.roleSelect.value);
       this._installNetHandlers();
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
