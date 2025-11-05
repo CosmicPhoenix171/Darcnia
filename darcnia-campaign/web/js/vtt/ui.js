@@ -23,7 +23,8 @@ export class UI {
       const hp = ch.hpCurrent ?? ch.hpMax ?? 10; // prefer current HP, fallback to max
       const ac = ch.armorClass ?? 10;
       const hpMax = ch.hpMax ?? hp;
-      const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId, hp, hpMax, ac });
+      // Seed an unowned friendly token so the first player can claim it and share the same token id
+      const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: null, hp, hpMax, ac });
       fog.revealAround(t);
     }
 

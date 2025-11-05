@@ -11,8 +11,9 @@ export class TokenManager {
 
   setRole(role) { this.control.role = role; }
 
-  addToken({ name='Token', x=0, y=0, size=1, hp=10, hpMax=null, ac=10, init=10, img=null, friendly=true, owner=null, conditions=[] }) {
-    const t = { id: randomId(), name, x, y, size, hp, hpMax: (hpMax ?? hp), ac, init, img, friendly, owner, conditions };
+  addToken({ id=null, name='Token', x=0, y=0, size=1, hp=10, hpMax=null, ac=10, init=10, img=null, friendly=true, owner=null, conditions=[] }) {
+    // Preserve provided id (from server/network/JSON) to keep token identity consistent across clients
+    const t = { id: (id || randomId()), name, x, y, size, hp, hpMax: (hpMax ?? hp), ac, init, img, friendly, owner, conditions };
     if (img) { const el = new Image(); el.src = img; t._imgEl = el; }
     this.tokens.push(t); return t;
   }
