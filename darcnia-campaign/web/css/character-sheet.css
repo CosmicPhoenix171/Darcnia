@@ -106,11 +106,12 @@
 .identity-field { display: flex; align-items: center; gap: 0.5rem; }
 .xp-field { flex-wrap: wrap; }
 .field-label { 
-    font-size: 0.75rem; 
+    font-size: 0.7rem; 
     color: var(--text-secondary); 
     text-transform: uppercase;
-    min-width: 70px;
+    min-width: 50px;
     letter-spacing: 0.5px;
+    font-weight: 600;
 }
 .identity-field input.vanishing-textbox {
     flex: 1;
@@ -161,7 +162,16 @@
 }
 .class-line { color: var(--text-secondary); font-size: 0.9rem; display:flex; gap:0.4rem; align-items:center; }
 .class-line .dot { opacity: 0.5; }
-.prof-line { color: var(--text-secondary); font-size: 0.85rem; }
+.prof-line { 
+    color: var(--text-secondary); 
+    font-size: 0.8rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid rgba(138, 43, 226, 0.2);
+}
+.prof-line strong {
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+}
 
 .hp-panel { display: flex; flex-direction: column; gap: 0.5rem; }
 .hp-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
