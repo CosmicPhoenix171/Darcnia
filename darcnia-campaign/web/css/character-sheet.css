@@ -882,8 +882,7 @@ textarea {
     
     header,
     .tabs,
-    .sheet-footer,
-    .theme-toggle {
+    .sheet-footer {
         display: none !important;
     }
     
