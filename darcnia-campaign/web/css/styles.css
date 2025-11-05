@@ -982,27 +982,7 @@ main {
     box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
 }
 
-/* Theme toggle */
-.theme-toggle {
-    position: fixed;
-    top: 1.5rem;
-    right: 1.5rem;
-    padding: 0.6rem 1rem;
-    border: 2px solid var(--card-border);
-    border-radius: 20px;
-    background: var(--card-bg);
-    color: var(--accent-gold);
-    font-size: 1.5rem;
-    cursor: pointer;
-    z-index: 1000;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow-deep);
-}
-
-.theme-toggle:hover {
-    transform: scale(1.1) rotate(15deg);
-    box-shadow: var(--glow-md);
-}
+/* Theme toggle removed */
 
 /* ===== NAVIGATION TABS ===== */
 .tabs {
@@ -2229,13 +2209,7 @@ footer {
         min-height: 50px;
     }
     
-    /* Theme toggle positioning */
-    .theme-toggle {
-        top: 1rem;
-        right: 1rem;
-        padding: 0.5rem 0.8rem;
-        font-size: 1.3rem;
-    }
+    /* Theme toggle removed */
     
     /* Dice tray - move to bottom, full width on small screens */
     #diceTray {

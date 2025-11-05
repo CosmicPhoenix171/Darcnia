@@ -206,8 +206,56 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeSheet();
     setupEventListeners();
     checkLoggedInCharacter();
+    initTabs();
     calculateAllStats();
 });
+
+// ===== Tabs: Inventory / Notes / Spells =====
+function initTabs() {
+    const tabs = document.querySelectorAll('.sheet-tab');
+    if (!tabs || tabs.length === 0) return;
+
+    let saved = localStorage.getItem('characterSheetActiveTab') || 'inventory';
+
+    // Migrate old saved value of 'all' (removed) to 'inventory'
+    if (saved === 'all') saved = 'inventory';
+
+    // Ensure saved corresponds to an existing tab; fallback to inventory
+    const matchingTab = Array.from(tabs).find(t => t.dataset.tab === saved) || tabs[0];
+
+    // Set active class on matching tab and apply its panels
+    tabs.forEach(t => t.classList.toggle('tab-active', t === matchingTab));
+    applyTab(matchingTab.dataset.tab);
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const name = tab.dataset.tab;
+            applyTab(name);
+            localStorage.setItem('characterSheetActiveTab', name);
+
+            // Update active class
+            tabs.forEach(t => t.classList.toggle('tab-active', t === tab));
+        });
+    });
+}
+
+function applyTab(name) {
+    const panels = document.querySelectorAll('[data-panel]');
+    if (!panels) return;
+
+    if (name === 'all' || !name) {
+        panels.forEach(p => p.classList.remove('hidden-by-tab'));
+        return;
+    }
+
+    panels.forEach(p => {
+        if (p.dataset.panel === name) {
+            p.classList.remove('hidden-by-tab');
+        } else {
+            p.classList.add('hidden-by-tab');
+        }
+    });
+}
 
 function initializeSheet() {
     // Always use dark theme to match campaign site

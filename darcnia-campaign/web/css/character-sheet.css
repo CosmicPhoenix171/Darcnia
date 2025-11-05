@@ -8,10 +8,87 @@
 
 /* ===== Main Character Sheet ===== */
 .character-sheet {
-    padding: 2rem;
+    padding: 1rem;
     position: relative;
     z-index: 1;
 }
+
+/* Compact mode overrides to make the sheet fit more tightly while staying cozy */
+.character-sheet.compact section,
+.character-sheet.compact .ability-scores,
+.character-sheet.compact .bonus-section,
+.character-sheet.compact .saves-section,
+.character-sheet.compact .skills-section,
+.character-sheet.compact .hp-section,
+.character-sheet.compact .attacks-section,
+.character-sheet.compact .equipment-section,
+.character-sheet.compact .attunement-section,
+.character-sheet.compact .personality-section,
+.character-sheet.compact .features-section,
+.character-sheet.compact .proficiencies-section,
+.character-sheet.compact .spells-section,
+.character-sheet.compact .notes-section {
+    padding: 0.9rem;
+    border-radius: 8px;
+}
+
+.character-sheet.compact .main-grid {
+    gap: 1rem;
+}
+
+.character-sheet.compact .ability-block {
+    padding: 0.8rem;
+}
+
+.character-sheet.compact .abilities-grid {
+    gap: 0.6rem;
+}
+
+.character-sheet.compact .ability-modifier {
+    font-size: 1.6rem;
+}
+
+.character-sheet.compact input[type="text"],
+.character-sheet.compact input[type="number"],
+.character-sheet.compact textarea {
+    padding: 0.45rem;
+}
+
+.character-sheet.compact .sheet-tabs {
+    margin: 0.6rem 0 1rem 0;
+}
+
+.character-sheet.compact .sheet-tab {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.95rem;
+}
+
+/* ===== Sheet View Tabs ===== */
+.sheet-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0 1.5rem 0;
+    align-items: center;
+}
+.sheet-tab {
+    background: rgba(40, 20, 80, 0.6);
+    border: 2px solid var(--accent-purple);
+    color: var(--text-primary);
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+.sheet-tab:hover { transform: translateY(-2px); box-shadow: var(--glow-sm); }
+.sheet-tab.tab-active {
+    background: linear-gradient(135deg, rgba(138,43,226,0.4), rgba(75,0,130,0.4));
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+/* Utility: hide sections that aren't part of the active tab */
+.hidden-by-tab { display: none !important; }
 
 /* ===== Form Elements ===== */
 label {
@@ -805,8 +882,7 @@ textarea {
     
     header,
     .tabs,
-    .sheet-footer,
-    .theme-toggle {
+    .sheet-footer {
         display: none !important;
     }
     

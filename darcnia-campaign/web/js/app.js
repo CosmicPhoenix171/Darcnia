@@ -1183,9 +1183,6 @@ function initializeApp() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     
-    // Update theme toggle icon
-    updateThemeIcon();
-    
     // Load bank balance from localStorage first, then from character as fallback
     const savedBank = localStorage.getItem('bankBalance');
     if (savedBank) {
@@ -1592,13 +1589,9 @@ function setTheme(theme) {
 function toggleTheme() {
     const newTheme = state.theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    updateThemeIcon();
 }
 
-function updateThemeIcon() {
-    const btn = document.getElementById('themeToggle');
-    btn.textContent = state.theme === 'dark' ? '☀️' : '🌙';
-}
+// Theme toggle UI removed: updateThemeIcon intentionally omitted
 
 // ===== Event Listeners =====
 function setupEventListeners() {
@@ -1610,9 +1603,7 @@ function setupEventListeners() {
         });
     });
     
-    // Theme toggle
-    const themeBtn = document.getElementById('themeToggle');
-    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    // Theme toggle removed
     
     // Search
     const searchBtn = document.getElementById('searchBtn');
