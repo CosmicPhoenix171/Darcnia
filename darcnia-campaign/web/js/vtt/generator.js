@@ -110,7 +110,7 @@ export class Generator {
   }
 
   handleStepOn(i,j, token, log) {
-    const idx = j*this.map.w+i; const trig = this.map.triggers[idx]; if (!trig) return;
+    const idx = j*this.map.w+i; const trig = this.map.triggers[idx]; if (!trig) return null;
     if (trig.type === 'trap'){
       const d = trig.data;
       const save = roll('1d20') + 2; // assume Dex +2 for demo
@@ -119,9 +119,15 @@ export class Generator {
       log(`[Trap] ${token.name} triggers ${d.name}. ${d.text}. Save=${save}${passed?' (success)':' (fail)'}; Damage=${dmg}`);
       if (!passed) token.hp = Math.max(0, token.hp - dmg);
       delete this.map.triggers[idx];
+      // mark trap trigger for rendering
+      if (this.map.meta && Array.isArray(this.map.meta.markers)) this.map.meta.markers.push({ type:'trap', i, j, at: Date.now() });
+      return { type:'trap', i, j };
     } else if (trig.type === 'treasure'){
       log(`[Treasure] ${token.name} finds ${trig.data.gold} gp!`);
       delete this.map.triggers[idx];
+      if (this.map.meta && Array.isArray(this.map.meta.markers)) this.map.meta.markers.push({ type:'treasure', i, j, at: Date.now() });
+      return { type:'treasure', i, j };
     }
+    return null;
   }
 }

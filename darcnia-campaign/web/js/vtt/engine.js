@@ -126,7 +126,7 @@ export class VTT {
         }
       }
     }
-    ctx.stroke();
+  ctx.stroke();
 
     // draw map tiles (walls/floors) if provided
     if (map && map.tiles) {
@@ -141,6 +141,29 @@ export class VTT {
           if (this.state.gridType === 'square') ctx.fillRect(x, y, s, s);
           else this._fillHex(ctx, x + s * 0.5, y + s * 0.5, s * 0.5);
           ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    // draw markers (trap triggers, treasure chests)
+    if (map && map.meta && Array.isArray(map.meta.markers)){
+      const markers = map.meta.markers;
+      for (const m of markers){
+        const { x, y } = this.gridToWorld(m.i, m.j); const s = gridSize;
+        if (m.type === 'trap'){
+          ctx.save();
+          ctx.fillStyle = 'rgba(220, 0, 0, 0.35)'; ctx.fillRect(x, y, s, s);
+          ctx.lineWidth = 2; ctx.strokeStyle = '#e53935'; ctx.strokeRect(x+1, y+1, s-2, s-2);
+          ctx.restore();
+        } else if (m.type === 'treasure'){
+          // draw a simple chest: brown box with golden band and lock
+          ctx.save();
+          const pad = s*0.15; const bx = x+pad, by = y+pad; const bw = s-2*pad, bh = s-2*pad;
+          ctx.fillStyle = '#6d4c41'; ctx.fillRect(bx, by, bw, bh);
+          ctx.fillStyle = '#ffca28'; ctx.fillRect(bx, by+bh*0.45, bw, bh*0.1);
+          ctx.fillStyle = '#ffc107'; const lw = bw*0.1, lh = bh*0.22; ctx.fillRect(bx + bw*0.45, by+bh*0.45, lw, lh);
+          ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 2; ctx.strokeRect(bx, by, bw, bh);
+          ctx.restore();
         }
       }
     }

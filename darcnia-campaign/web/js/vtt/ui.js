@@ -132,7 +132,8 @@ export class UI {
       fog.revealAround(t);
       const s = vtt.state.gridSize;
       const i = Math.floor(t.x/s), j = Math.floor(t.y/s);
-      gen.handleStepOn(i,j,t,(m)=>this.log(m));
+      const ev = gen.handleStepOn(i,j,t,(m)=>this.log(m));
+      if (ev && net.role === 'dm') { net.emit('marker', ev); this.vtt.requestRender(); }
       // broadcast move
       net.emit('move', { id: t.id, x: t.x, y: t.y });
     };
@@ -311,11 +312,20 @@ export class UI {
     net.on('chat', (p)=>{ this.log(`${p.who}: ${p.text}`, 'chat'); });
     net.on('hello', ()=>{ if (net.role === 'dm') this._broadcastState(); });
     net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenSpawned(true); });
-    net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; t.x = m.x; t.y = m.y; this.vtt.requestRender(); });
+    net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; t.x = m.x; t.y = m.y; 
+      // DM checks triggers on remote moves and broadcasts marker
+      if (net.role === 'dm'){
+        const s = this.vtt.state.gridSize; const i = Math.floor(t.x/s), j = Math.floor(t.y/s);
+        const ev = this.gen.handleStepOn(i,j,t,(msg)=>this.log(msg));
+        if (ev) { this.net.emit('marker', ev); }
+      }
+      this.vtt.requestRender(); 
+    });
     net.on('spawn', ({ token })=>{ if (!token) return; if (tokens.list.find(t=>t.id===token.id)) return; tokens.addToken(token); this.vtt.requestRender(); });
     net.on('erase', ({ id })=>{ if (!id) return; tokens.removeToken(id); this.vtt.requestRender(); });
     net.on('fog', ({ op, i, j, r })=>{ if (net.role==='dm') return; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
-    net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
+  net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
+  net.on('marker', (ev)=>{ if (!ev) return; (this.map.meta.markers ||= []).push({ type: ev.type, i: ev.i, j: ev.j, at: Date.now() }); this.vtt.requestRender(); });
   }
 
   _broadcastState(){
