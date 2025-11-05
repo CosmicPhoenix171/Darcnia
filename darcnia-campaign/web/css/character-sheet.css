@@ -663,6 +663,38 @@ textarea {
     margin-bottom: 1.5rem;
 }
 
+/* Weapons table */
+.weapons-controls { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem; }
+.disadv-indicator { color: var(--accent-red); font-weight:700; }
+.weapons-table { width:100%; border-collapse: collapse; }
+.weapons-table th, .weapons-table td { border-bottom:1px solid var(--accent-purple); padding:0.4rem; text-align:left; }
+.weapons-table input, .weapons-table select { padding:0.35rem; }
+.table-mini-input { width:70px; }
+.table-mini-input.center { text-align:center; }
+.weapons-table .calc { font-weight:800; color: var(--accent-gold); text-align:center; }
+.row-actions { display:flex; gap:0.3rem; justify-content:flex-end; }
+.row-actions .btn-mini { padding: 0.25rem 0.4rem; }
+
+/* Inventory */
+.coins-grid { display:grid; grid-template-columns: repeat(6, 1fr); gap:0.5rem; margin-bottom:0.5rem; align-items:end; }
+.coin-field label { margin-bottom:0.25rem; }
+.coin-summary { grid-column: span 6; color: var(--text-secondary); }
+.inventory-controls { display:flex; justify-content:space-between; align-items:center; margin:0.5rem 0; }
+.inventory-table { width:100%; border-collapse: collapse; }
+.inventory-table th, .inventory-table td { border-bottom:1px solid var(--accent-purple); padding:0.4rem; }
+.encumbrance #encumbranceStatus { font-weight:800; }
+.encumbrance .warning { color: var(--accent-red); }
+
+/* Conditions */
+.conditions-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:0.4rem; margin-bottom:0.5rem; }
+.conditions-grid .cond { display:flex; align-items:center; gap:0.4rem; }
+.exhaustion-row { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
+
+/* Portrait hover */
+#portrait { position:relative; cursor:pointer; }
+#portrait::after { content:'Set'; position:absolute; bottom:4px; right:6px; background: rgba(0,0,0,0.5); padding:0 6px; border-radius:6px; font-size:0.75rem; color:var(--text-primary); opacity:0; transition:opacity 0.2s; }
+#portrait:hover::after { opacity:1; }
+
 .attacks-section h3,
 .equipment-section h3 {
     font-family: 'Cinzel', serif;

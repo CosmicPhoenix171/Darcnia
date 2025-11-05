@@ -138,7 +138,10 @@ let characterData = {
     },
     
     // Combat & Equipment
-    attacks: '',
+    attacks: '', // legacy free-text
+    weapons: [], // structured attacks list
+    inventory: [],
+    coins: { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 },
     equipment: '',
     
     // Attunement
@@ -181,7 +184,11 @@ let characterData = {
     // Right sidebar widgets
     resistances: '',
     conditions: '',
-    senses: ''
+    senses: '',
+    conditionFlags: {},
+
+    // Portrait
+    portraitUrl: ''
 };
 
 // Skill to ability mapping
@@ -214,6 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     calculateAllStats();
     updateSummaryHeader();
+    initWeaponsTable();
+    initInventoryTable();
+    initConditions();
+    initPortrait();
+    initAutoSlots();
 });
 
 // ===== Tabs: Inventory / Notes / Spells =====
@@ -599,6 +611,8 @@ function calculateAllStats() {
     }
 
     updateSummaryHeader();
+    recalcAllWeapons();
+    updateEncumbrance();
 }
 
 // ===== Data Management =====
@@ -639,7 +653,11 @@ function gatherCharacterData() {
     characterData.inspiration = document.getElementById('inspiration').checked;
     
     // Combat & Equipment
-    characterData.attacks = document.getElementById('attacks').value;
+    const attacksTextarea = document.getElementById('attacks');
+    if (attacksTextarea) characterData.attacks = attacksTextarea.value;
+    characterData.weapons = getWeaponsFromDOM();
+    characterData.inventory = getInventoryFromDOM();
+    characterData.coins = getCoinsFromDOM();
     characterData.equipment = document.getElementById('equipment').value;
     
     // Attunement
@@ -687,8 +705,11 @@ function gatherCharacterData() {
 
     // Right sidebar widgets
     characterData.resistances = document.getElementById('resistances')?.value || '';
-    characterData.conditions = document.getElementById('conditions')?.value || '';
+    const condNotesEl = document.getElementById('conditionsNotes');
+    characterData.conditions = condNotesEl ? condNotesEl.value : '';
     characterData.senses = document.getElementById('senses')?.value || '';
+    characterData.conditionFlags = getConditionFlagsFromDOM();
+    characterData.portraitUrl = document.getElementById('portrait')?.dataset?.url || characterData.portraitUrl || '';
     
     return characterData;
 }
@@ -747,8 +768,12 @@ function populateCharacterData(data) {
     }
     
     // Combat & Equipment
-    document.getElementById('attacks').value = data.attacks || '';
+    const attacksTextarea = document.getElementById('attacks');
+    if (attacksTextarea) attacksTextarea.value = data.attacks || '';
     document.getElementById('equipment').value = data.equipment || '';
+    setWeaponsToDOM(data.weapons || []);
+    setInventoryToDOM(data.inventory || []);
+    setCoinsToDOM(data.coins || { pp:0,gp:0,ep:0,sp:0,cp:0 });
     
     // Attunement
     if (data.attunement) {
@@ -789,12 +814,14 @@ function populateCharacterData(data) {
     if (document.getElementById('resistances')) {
         document.getElementById('resistances').value = data.resistances || '';
     }
-    if (document.getElementById('conditions')) {
-        document.getElementById('conditions').value = data.conditions || '';
+    if (document.getElementById('conditionsNotes')) {
+        document.getElementById('conditionsNotes').value = data.conditions || '';
     }
     if (document.getElementById('senses')) {
         document.getElementById('senses').value = data.senses || '';
     }
+    setConditionFlagsToDOM(data.conditionFlags || {});
+    setPortrait(data.portraitUrl || '');
     
     // Recalculate all stats
     calculateAllStats();
@@ -1051,3 +1078,291 @@ style.textContent = `
 document.head.appendChild(style);
 
 console.log('🐉 D&D 2024 Character Sheet initialized');
+
+// ===== Weapons/Attacks =====
+function initWeaponsTable() {
+    const addBtn = document.getElementById('addWeaponBtn');
+    if (addBtn) addBtn.addEventListener('click', () => addWeaponRow());
+}
+
+function weaponAbility(type, finesse, explicit) {
+    if (explicit && explicit !== 'auto') return explicit;
+    if (type === 'ranged') return 'dex';
+    if (type === 'melee' && finesse) return (characterData.abilities.dex >= characterData.abilities.str) ? 'dex' : 'str';
+    return 'str';
+}
+
+function abilityMod(abilityKey) { return calculateAbilityModifier(characterData.abilities[abilityKey] || 10); }
+
+function addWeaponRow(w = null) {
+    const tbody = document.getElementById('weaponsBody');
+    if (!tbody) return;
+    const id = w?.id || `w_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+    const row = document.createElement('tr');
+    row.dataset.id = id;
+    row.innerHTML = `
+        <td><input class="w-name" placeholder="Shortsword" value="${w?.name||''}"></td>
+        <td>
+            <select class="w-type">
+                <option value="melee" ${w?.type==='melee'?'selected':''}>Melee</option>
+                <option value="ranged" ${w?.type==='ranged'?'selected':''}>Ranged</option>
+            </select>
+            <label style="display:block;margin-top:4px;font-size:.8rem"><input type="checkbox" class="w-finesse" ${w?.finesse?'checked':''}> Finesse</label>
+        </td>
+        <td style="text-align:center"><input type="checkbox" class="w-prof" ${w?.proficient?'checked':''}></td>
+        <td>
+            <select class="w-ability">
+                <option value="auto" ${(w?.ability||'auto')==='auto'?'selected':''}>Auto</option>
+                <option value="str" ${w?.ability==='str'?'selected':''}>STR</option>
+                <option value="dex" ${w?.ability==='dex'?'selected':''}>DEX</option>
+            </select>
+        </td>
+        <td><input class="w-die table-mini-input" placeholder="1d6" value="${w?.baseDie||''}"></td>
+        <td><input class="w-magic table-mini-input center" type="number" value="${w?.magicBonus||0}"></td>
+        <td><input class="w-dmgtype" placeholder="piercing" value="${w?.damageType||''}"></td>
+        <td class="calc w-attack">+0</td>
+        <td class="calc w-damage">1d6</td>
+        <td class="row-actions"><button class="btn-mini" title="Delete">✖</button></td>
+    `;
+    tbody.appendChild(row);
+    row.querySelectorAll('input,select').forEach(el => el.addEventListener('input', () => recalcWeaponRow(row)));
+    row.querySelector('.row-actions .btn-mini').addEventListener('click', () => { row.remove(); autoSaveCharacterData(); });
+    recalcWeaponRow(row);
+}
+
+function parseDie(text) {
+    const m = (text||'').trim().match(/^(\d+)[dD](\d+)([+\-]\d+)?$/);
+    if (!m) return {count:1,die:6,mod:0,raw:text||'1d6'};
+    return {count:parseInt(m[1]),die:parseInt(m[2]),mod:parseInt(m[3]||'0'),raw:text};
+}
+
+function recalcWeaponRow(row) {
+    const type = row.querySelector('.w-type').value;
+    const finesse = row.querySelector('.w-finesse').checked;
+    const abilitySel = row.querySelector('.w-ability').value;
+    const ability = weaponAbility(type, finesse, abilitySel);
+    const prof = row.querySelector('.w-prof').checked;
+    const die = parseDie(row.querySelector('.w-die').value || '1d6');
+    const magic = parseInt(row.querySelector('.w-magic').value || '0');
+    const profBonus = parseInt(document.getElementById('proficiencyBonus').value) || 2;
+    const mod = abilityMod(ability);
+    const attack = mod + (prof ? profBonus : 0) + magic;
+    const dmgMod = mod + magic;
+    row.querySelector('.w-attack').textContent = (attack>=0?'+':'') + attack;
+    const modStr = dmgMod===0?'':(dmgMod>0?`+${dmgMod}`:`${dmgMod}`);
+    row.querySelector('.w-damage').textContent = `${die.raw||'1d6'}${modStr}`;
+    autoSaveCharacterData();
+}
+
+function recalcAllWeapons() {
+    document.querySelectorAll('#weaponsBody tr').forEach(tr => recalcWeaponRow(tr));
+    const ind = document.getElementById('attackDisadvIndicator');
+    if (ind) ind.hidden = !characterData.conditionFlags?.poisoned;
+}
+
+function getWeaponsFromDOM() {
+    const arr = [];
+    document.querySelectorAll('#weaponsBody tr').forEach(tr => {
+        arr.push({
+            id: tr.dataset.id,
+            name: tr.querySelector('.w-name').value,
+            type: tr.querySelector('.w-type').value,
+            finesse: tr.querySelector('.w-finesse').checked,
+            proficient: tr.querySelector('.w-prof').checked,
+            ability: tr.querySelector('.w-ability').value,
+            baseDie: tr.querySelector('.w-die').value,
+            magicBonus: parseInt(tr.querySelector('.w-magic').value||'0'),
+            damageType: tr.querySelector('.w-dmgtype').value
+        });
+    });
+    return arr;
+}
+
+function setWeaponsToDOM(list) {
+    const tbody = document.getElementById('weaponsBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    (list || []).forEach(w => addWeaponRow(w));
+}
+
+// ===== Inventory & Encumbrance =====
+function initInventoryTable() {
+    const addBtn = document.getElementById('addItemBtn');
+    if (addBtn) addBtn.addEventListener('click', () => addInventoryRow());
+    ['pp','gp','ep','sp','cp'].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', ()=>{ updateCoinsSummary(); updateEncumbrance(); autoSaveCharacterData(); });
+    });
+}
+
+function addInventoryRow(item=null) {
+    const tbody = document.getElementById('inventoryBody');
+    if (!tbody) return;
+    const id = item?.id || `i_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+    const tr = document.createElement('tr');
+    tr.dataset.id = id;
+    tr.innerHTML = `
+        <td><input class="i-name" placeholder="Backpack" value="${item?.name||''}"></td>
+        <td><input class="i-weight table-mini-input" type="number" step="0.1" min="0" value="${item?.weight??0}"></td>
+        <td><input class="i-qty table-mini-input" type="number" min="0" value="${item?.qty??1}"></td>
+        <td class="calc i-total">0</td>
+        <td class="row-actions"><button class="btn-mini">✖</button></td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{ recalcInventoryRow(tr); updateEncumbrance(); autoSaveCharacterData(); }));
+    tr.querySelector('.row-actions .btn-mini').addEventListener('click',()=>{ tr.remove(); updateEncumbrance(); autoSaveCharacterData(); });
+    recalcInventoryRow(tr);
+}
+
+function recalcInventoryRow(tr) {
+    const w = parseFloat(tr.querySelector('.i-weight').value||'0');
+    const q = parseFloat(tr.querySelector('.i-qty').value||'0');
+    const total = Math.max(0, (w*q));
+    tr.querySelector('.i-total').textContent = `${total.toFixed(1)} lb`;
+    updateTotalsWeight();
+}
+
+function updateTotalsWeight() {
+    const items = Array.from(document.querySelectorAll('#inventoryBody tr'));
+    const itemsWeight = items.reduce((sum,tr)=>{ const t=tr.querySelector('.i-total').textContent; const m=t.match(/([0-9.]+)/); return sum + (m?parseFloat(m[1]):0); },0);
+    const coinsW = getCoinsWeight();
+    const total = itemsWeight + coinsW;
+    const totalEl = document.getElementById('totalWeight'); if (totalEl) totalEl.textContent = `${total.toFixed(1)} lb`;
+}
+
+function getCoinsFromDOM() {
+    const val=(id)=>parseInt(document.getElementById(id)?.value||'0');
+    return { pp:val('pp'), gp:val('gp'), ep:val('ep'), sp:val('sp'), cp:val('cp') };
+}
+function setCoinsToDOM(c) {
+    ['pp','gp','ep','sp','cp'].forEach(id=>{ const el=document.getElementById(id); if (el) el.value = c?.[id]??0; });
+    updateCoinsSummary();
+}
+function getCoinsWeight() {
+    const {pp,gp,ep,sp,cp} = getCoinsFromDOM();
+    const totalCoins = (pp*10*10) + (gp*100) + (ep*50) + (sp*10) + (cp*1); // in copper
+    const weight = totalCoins / 50;
+    return weight;
+}
+function updateCoinsSummary() {
+    const c = getCoinsFromDOM();
+    const wealthGp = (c.pp*10) + (c.gp) + (c.ep*0.5) + (c.sp*0.1) + (c.cp*0.01);
+    const weight = getCoinsWeight();
+    const wEl = document.getElementById('coinsWeight'); if (wEl) wEl.textContent = `${weight.toFixed(1)} lb`;
+    const valEl = document.getElementById('coinsWealth'); if (valEl) valEl.textContent = `${wealthGp.toFixed(2)} gp`;
+    updateTotalsWeight();
+}
+
+function getInventoryFromDOM() {
+    const arr=[]; document.querySelectorAll('#inventoryBody tr').forEach(tr=>{
+        arr.push({ id: tr.dataset.id, name: tr.querySelector('.i-name').value, weight: parseFloat(tr.querySelector('.i-weight').value||'0'), qty: parseInt(tr.querySelector('.i-qty').value||'0') });
+    }); return arr;
+}
+function setInventoryToDOM(list) {
+    const tbody=document.getElementById('inventoryBody'); if (!tbody) return; tbody.innerHTML='';
+    (list||[]).forEach(i=>addInventoryRow(i));
+    updateEncumbrance();
+}
+
+function updateEncumbrance() {
+    const str = characterData.abilities?.str || parseInt(document.getElementById('strScore')?.value)||10;
+    const capacity = 15 * str;
+    const enc1 = 5 * str; // Encumbered threshold
+    const enc2 = 10 * str; // Heavily Encumbered threshold
+    const totalEl = document.getElementById('totalWeight');
+    const capacityEl = document.getElementById('carryCapacity'); if (capacityEl) capacityEl.textContent = `${capacity} lb`;
+    const statusEl = document.getElementById('encumbranceStatus');
+    let total = 0; const match = totalEl?.textContent?.match(/([0-9.]+)/); if (match) total = parseFloat(match[1]);
+    let status = 'Unencumbered';
+    if (total > enc2 && total <= capacity) status = 'Heavily Encumbered';
+    else if (total > enc1 && total <= enc2) status = 'Encumbered';
+    else if (total > capacity) status = 'Over Capacity';
+    if (statusEl) { statusEl.textContent = status; statusEl.classList.toggle('warning', status !== 'Unencumbered'); }
+}
+
+// ===== Conditions =====
+const CONDITION_KEYS = ['poisoned','blinded','deafened','frightened','grappled','incapacitated','invisible','paralyzed','petrified','prone','restrained','stunned','unconscious'];
+function initConditions() {
+    document.querySelectorAll('.cond-toggle').forEach(cb=> cb.addEventListener('change', ()=>{ characterData.conditionFlags = getConditionFlagsFromDOM(); recalcAllWeapons(); autoSaveCharacterData(); }));
+    const ex = document.getElementById('exhaustion'); if (ex) ex.addEventListener('input', ()=>autoSaveCharacterData());
+}
+function getConditionFlagsFromDOM() {
+    const flags={}; document.querySelectorAll('.cond-toggle').forEach(cb=> flags[cb.dataset.cond]=cb.checked ); return flags;
+}
+function setConditionFlagsToDOM(flags) {
+    document.querySelectorAll('.cond-toggle').forEach(cb=> cb.checked = !!flags[cb.dataset.cond]);
+    recalcAllWeapons();
+}
+
+// ===== Portrait =====
+function initPortrait() {
+    const portrait = document.getElementById('portrait');
+    const fileInput = document.getElementById('portraitFile');
+    if (!portrait || !fileInput) return;
+    portrait.addEventListener('click', ()=>{
+        const choice = prompt('Set portrait: paste an image URL or leave blank to upload a file.');
+        if (choice && choice.trim()) { setPortrait(choice.trim()); autoSaveCharacterData(); return; }
+        fileInput.click();
+    });
+    fileInput.addEventListener('change', (e)=>{
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader(); reader.onload = ev => { setPortrait(ev.target.result); autoSaveCharacterData(); }; reader.readAsDataURL(file);
+    });
+}
+function setPortrait(url) {
+    const portrait = document.getElementById('portrait'); if (!portrait) return;
+    if (url) {
+        portrait.style.backgroundImage = `url('${url}')`;
+        portrait.dataset.url = url;
+    } else {
+        portrait.style.backgroundImage = '';
+        portrait.dataset.url = '';
+    }
+}
+
+// ===== Auto Spell Slots =====
+function initAutoSlots() {
+    const btn = document.getElementById('autoSlotsBtn'); if (btn) btn.addEventListener('click', autoFillSpellSlots);
+}
+const SLOT_TABLE_FULL = {
+    1:[2,0,0,0,0,0,0,0,0],2:[3,0,0,0,0,0,0,0,0],3:[4,2,0,0,0,0,0,0,0],4:[4,3,0,0,0,0,0,0,0],5:[4,3,2,0,0,0,0,0,0],6:[4,3,3,0,0,0,0,0,0],7:[4,3,3,1,0,0,0,0,0],8:[4,3,3,2,0,0,0,0,0],9:[4,3,3,3,1,0,0,0,0],10:[4,3,3,3,2,0,0,0,0],11:[4,3,3,3,2,1,0,0,0],12:[4,3,3,3,2,1,0,0,0],13:[4,3,3,3,2,1,1,0,0],14:[4,3,3,3,2,1,1,0,0],15:[4,3,3,3,2,1,1,1,0],16:[4,3,3,3,2,1,1,1,0],17:[4,3,3,3,2,1,1,1,1],18:[4,3,3,3,3,1,1,1,1],19:[4,3,3,3,3,2,2,1,1],20:[4,3,3,3,3,2,2,2,2]
+};
+const SLOT_TABLE_HALF = {1:[0,0,0,0,0,0,0,0,0],2:[2,0,0,0,0,0,0,0,0],3:[3,0,0,0,0,0,0,0,0],4:[3,0,0,0,0,0,0,0,0],5:[4,2,0,0,0,0,0,0,0],6:[4,2,0,0,0,0,0,0,0],7:[4,3,0,0,0,0,0,0,0],8:[4,3,0,0,0,0,0,0,0],9:[4,3,2,0,0,0,0,0,0],10:[4,3,2,0,0,0,0,0,0],11:[4,3,3,0,0,0,0,0,0],12:[4,3,3,0,0,0,0,0,0],13:[4,3,3,1,0,0,0,0,0],14:[4,3,3,1,0,0,0,0,0],15:[4,3,3,2,0,0,0,0,0],16:[4,3,3,2,0,0,0,0,0],17:[4,3,3,3,1,0,0,0,0],18:[4,3,3,3,1,0,0,0,0],19:[4,3,3,3,2,0,0,0,0],20:[4,3,3,3,2,0,0,0,0]};
+const SLOT_TABLE_THIRD = {1:[0,0,0,0,0,0,0,0,0],2:[0,0,0,0,0,0,0,0,0],3:[2,0,0,0,0,0,0,0,0],4:[3,0,0,0,0,0,0,0,0],5:[3,0,0,0,0,0,0,0,0],6:[3,0,0,0,0,0,0,0,0],7:[4,2,0,0,0,0,0,0,0],8:[4,2,0,0,0,0,0,0,0],9:[4,2,0,0,0,0,0,0,0],10:[4,3,0,0,0,0,0,0,0],11:[4,3,0,0,0,0,0,0,0],12:[4,3,0,0,0,0,0,0,0],13:[4,3,2,0,0,0,0,0,0],14:[4,3,2,0,0,0,0,0,0],15:[4,3,2,0,0,0,0,0,0],16:[4,3,3,0,0,0,0,0,0],17:[4,3,3,0,0,0,0,0,0],18:[4,3,3,0,0,0,0,0,0],19:[4,3,3,1,0,0,0,0,0],20:[4,3,3,1,0,0,0,0,0]};
+const SLOT_TABLE_PACT = { // warlock pact magic: [slots, level]
+    1:[{n:1,l:1}],2:[{n:2,l:1}],3:[{n:2,l:2}],4:[{n:2,l:2}],5:[{n:2,l:3}],6:[{n:2,l:3}],7:[{n:2,l:4}],8:[{n:2,l:4}],9:[{n:2,l:5}],10:[{n:2,l:5}],11:[{n:3,l:5}],12:[{n:3,l:5}],13:[{n:3,l:5}],14:[{n:3,l:5}],15:[{n:3,l:5}],16:[{n:3,l:5}],17:[{n:4,l:5}],18:[{n:4,l:5}],19:[{n:4,l:5}],20:[{n:4,l:5}]
+};
+
+function classCasterType(clsRaw) {
+    const c = (clsRaw||'').toLowerCase();
+    if (/wizard|cleric|druid|sorcerer|bard|artificer/.test(c)) return 'full';
+    if (/paladin|ranger/.test(c)) return 'half';
+    if (/fighter|rogue/.test(c) && /eldritch|arcane/.test(c)) return 'third';
+    if (/warlock/.test(c)) return 'pact';
+    return 'none';
+}
+
+function autoFillSpellSlots() {
+    const level = parseInt(document.getElementById('level')?.value)||1;
+    const cls = document.getElementById('class')?.value||'';
+    const type = classCasterType(cls);
+    let slots = null;
+    if (type==='full') slots = SLOT_TABLE_FULL[level];
+    else if (type==='half') slots = SLOT_TABLE_HALF[level];
+    else if (type==='third') slots = SLOT_TABLE_THIRD[level];
+    if (slots) {
+        for (let i=1;i<=9;i++){ const maxEl=document.getElementById(`spellSlotsMax${i}`); const curEl=document.getElementById(`spellSlots${i}`); if (maxEl) maxEl.value = slots[i-1]||0; if (curEl) curEl.value = slots[i-1]||0; }
+        showNotification('✨ Spell slots filled from class and level');
+        autoSaveCharacterData();
+        return;
+    }
+    if (type==='pact') {
+        const entry = SLOT_TABLE_PACT[level][0];
+        for (let i=1;i<=9;i++){ const maxEl=document.getElementById(`spellSlotsMax${i}`); const curEl=document.getElementById(`spellSlots${i}`); if (maxEl) maxEl.value = 0; if (curEl) curEl.value = 0; }
+        const lvl = entry.l; const n = entry.n; const maxEl=document.getElementById(`spellSlotsMax${lvl}`); const curEl=document.getElementById(`spellSlots${lvl}`); if (maxEl) maxEl.value = n; if (curEl) curEl.value = n;
+        showNotification('✨ Pact Magic slots set for Warlock');
+        autoSaveCharacterData();
+        return;
+    }
+    showNotification('ℹ️ Selected class has no spell slots');
+}

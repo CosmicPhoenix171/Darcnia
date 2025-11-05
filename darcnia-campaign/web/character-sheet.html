@@ -48,7 +48,8 @@
         <!-- Quick Summary Header (Roll20-like) -->
         <section class="sheet-summary">
             <div class="summary-left">
-                <div class="portrait" aria-label="Character portrait" title="Portrait"></div>
+                <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
+                <input type="file" id="portraitFile" accept="image/*" hidden>
                 <div class="summary-id">
                     <div class="name-line">
                         <span class="level-pill" id="levelPill">1</span>
@@ -442,13 +443,61 @@
                 <!-- Attacks & Spellcasting -->
                 <section class="attacks-section" data-panel="combat">
                     <h3>Attacks & Spellcasting</h3>
-                    <textarea id="attacks" rows="8" placeholder="Weapon Name | Attack Bonus | Damage/Type&#10;e.g., Longsword | +5 | 1d8+3 slashing"></textarea>
+                    <div class="weapons-controls">
+                        <button id="addWeaponBtn" class="btn-mini">+ Add Weapon</button>
+                        <span class="disadv-indicator" id="attackDisadvIndicator" title="Poisoned: Attacks have disadvantage" hidden>Disadvantage (Poisoned)</span>
+                    </div>
+                    <div class="weapons-table-wrapper">
+                        <table class="weapons-table" id="weaponsTable" aria-label="Weapons and attacks">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Prof</th>
+                                    <th>Ability</th>
+                                    <th>Base Die</th>
+                                    <th>Magic</th>
+                                    <th>Damage Type</th>
+                                    <th>Attack</th>
+                                    <th>Damage</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="weaponsBody"></tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <!-- Equipment & Treasure -->
                 <section class="equipment-section" data-panel="inventory">
                     <h3>Equipment & Treasure</h3>
-                    <textarea id="equipment" rows="6" placeholder="List your equipment, gold, and items here..."></textarea>
+                    <div class="coins-grid">
+                        <div class="coin-field"><label for="pp">PP</label><input type="number" id="pp" value="0" min="0"></div>
+                        <div class="coin-field"><label for="gp">GP</label><input type="number" id="gp" value="0" min="0"></div>
+                        <div class="coin-field"><label for="ep">EP</label><input type="number" id="ep" value="0" min="0"></div>
+                        <div class="coin-field"><label for="sp">SP</label><input type="number" id="sp" value="0" min="0"></div>
+                        <div class="coin-field"><label for="cp">CP</label><input type="number" id="cp" value="0" min="0"></div>
+                        <div class="coin-summary">Coins Weight: <strong id="coinsWeight">0 lb</strong> • Wealth: <strong id="coinsWealth">0 gp</strong></div>
+                    </div>
+                    <div class="inventory-controls">
+                        <button id="addItemBtn" class="btn-mini">+ Add Item</button>
+                        <div class="encumbrance">Total Weight: <strong id="totalWeight">0 lb</strong> • Carry Capacity: <strong id="carryCapacity">0 lb</strong> • <span id="encumbranceStatus">Unencumbered</span></div>
+                    </div>
+                    <div class="inventory-table-wrapper">
+                        <table class="inventory-table" id="inventoryTable" aria-label="Inventory items">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Weight (lb)</th>
+                                    <th>Qty</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryBody"></tbody>
+                        </table>
+                    </div>
+                    <textarea id="equipment" rows="4" placeholder="Notes about equipment or treasure..."></textarea>
                 </section>
 
                 <!-- Attunement Slots (D&D 2024) -->
@@ -527,10 +576,26 @@
                 </section>
                 <section class="conditions-section">
                     <h3>Conditions</h3>
-                    <div class="mini-list">
-                        <label for="conditions">Current Conditions</label>
-                        <textarea id="conditions" rows="2" placeholder="No Conditions"></textarea>
+                    <div class="conditions-grid">
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
                     </div>
+                    <div class="exhaustion-row">
+                        <label for="exhaustion">Exhaustion</label>
+                        <input id="exhaustion" type="number" min="0" max="6" value="0">
+                    </div>
+                    <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
                 </section>
                 <section class="senses-section">
                     <h3>Senses</h3>
@@ -558,7 +623,7 @@
                         </div>
                     </div>
                     <div class="spell-slots">
-                        <h4>Spell Slots</h4>
+                        <h4>Spell Slots <button id="autoSlotsBtn" class="btn-mini" style="margin-left:0.5rem">Auto Fill</button></h4>
                         <div class="spell-slot-grid">
                             <div class="spell-slot-level">
                                 <label>1st</label>

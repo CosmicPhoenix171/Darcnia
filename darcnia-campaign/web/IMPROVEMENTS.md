@@ -1,17 +1,174 @@
 # 🎨 Darcnia Campaign Web App - UI/UX Improvements
 
-**Date:** November 3, 2025  
-**Status:** ✅ Complete - All 12 enhancements implemented
+**Date:** November 5, 2025  
+**Status:** ✅ Complete - Character Sheet v2.0 with Advanced Features
 
 ---
 
 ## 📋 Summary
 
-This document outlines the comprehensive design improvements made to the Darcnia Campaign Player Reference web application. All enhancements focus on improving visual appeal, user experience, accessibility, and immersion in the fantasy D&D theme.
+This document outlines the comprehensive design improvements made to the Darcnia Campaign Player Reference web application, including the newly enhanced D&D 2024 Character Sheet with Roll20-inspired layout and advanced gameplay features.
 
 ---
 
-## ✨ Completed Enhancements
+## 🆕 Character Sheet v2.0 (November 5, 2025)
+
+### Roll20-Inspired Layout
+
+**Summary Header:**
+- Portrait with click-to-upload (URL or file)
+- Live-updating Name/Level/Class/Background display
+- Proficiency Bonus at-a-glance
+- Hit Points panel with Current/Max/Temp readouts
+- Damage and Heal inputs with Apply buttons
+- Short Rest and Long Rest buttons
+- AC, Speed, and Initiative summary tiles
+
+**Expanded Tab System:**
+- Combat (attacks, weapons)
+- Spells (slots, list)
+- Inventory (items, coins, weight)
+- Features & Traits (class features)
+- Notes (backstory, journal)
+- About (personality, proficiencies)
+
+**Right Sidebar Widgets:**
+- Defenses (resistances/immunities)
+- Conditions (quick toggles with disadvantage indicators)
+- Senses (passive scores)
+
+---
+
+### Advanced Features
+
+#### 1. ✅ Structured Weapons/Attacks Table
+
+**Implementation:**
+- Dynamic table with Add Weapon button
+- Auto-calculated Attack bonus (ability mod + proficiency + magic)
+- Auto-calculated Damage (die + ability mod + magic)
+- Type: Melee/Ranged with Finesse checkbox
+- Ability selection: Auto (STR for melee, DEX for ranged/finesse), STR, DEX
+- Magic bonus field (+1, +2, +3)
+- Damage type field
+- Proficiency checkbox
+- Delete button per row
+
+**Calculations:**
+- Attack = Ability Mod + (Prof if checked) + Magic
+- Damage = Base Die + Ability Mod + Magic
+- Finesse auto-selects higher of STR or DEX when set to Auto
+
+**Files Modified:**
+- `character-sheet.html` - Weapons table markup
+- `character-sheet.js` - `initWeaponsTable()`, `addWeaponRow()`, `recalcWeaponRow()`, weapon persistence
+- `character-sheet.css` - `.weapons-table`, `.weapons-controls`
+
+---
+
+#### 2. ✅ Inventory Weight & Coin Tracking with Encumbrance
+
+**Implementation:**
+- Structured inventory table: Item, Weight (lb), Qty, Total
+- Coin inputs: PP, GP, EP, SP, CP with auto-weight calculation (50 coins = 1 lb)
+- Coin wealth summary (converted to GP equivalent)
+- Total Weight = Items + Coins
+- Carry Capacity = 15 × STR
+- Encumbrance status:
+  - Unencumbered (≤ 5 × STR)
+  - Encumbered (> 5 × STR, ≤ 10 × STR)
+  - Heavily Encumbered (> 10 × STR, ≤ 15 × STR)
+  - Over Capacity (> 15 × STR) – red warning
+
+**Benefits:**
+- Real-time weight tracking
+- Automatic encumbrance warnings
+- Coin management with wealth conversion
+- RAW D&D 5e rules compliance
+
+**Files Modified:**
+- `character-sheet.html` - Inventory table, coins grid, encumbrance display
+- `character-sheet.js` - `initInventoryTable()`, `addInventoryRow()`, `updateEncumbrance()`, coin persistence
+- `character-sheet.css` - `.inventory-table`, `.coins-grid`, `.encumbrance`
+
+---
+
+#### 3. ✅ Condition Toggles with Disadvantage Indicators
+
+**Implementation:**
+- 13 condition checkboxes: Poisoned, Blinded, Deafened, Frightened, Grappled, Incapacitated, Invisible, Paralyzed, Petrified, Prone, Restrained, Stunned, Unconscious
+- Exhaustion level (0-6)
+- Condition notes textarea
+- Disadvantage indicator on attacks when Poisoned is checked
+
+**Benefits:**
+- Quick condition tracking during combat
+- Visual reminder of active conditions
+- Auto-updates weapon attack disadvantage display
+- Persists with character data
+
+**Files Modified:**
+- `character-sheet.html` - Conditions grid with toggles, exhaustion input
+- `character-sheet.js` - `initConditions()`, `getConditionFlagsFromDOM()`, condition persistence, disadvantage logic
+- `character-sheet.css` - `.conditions-grid`, `.disadv-indicator`
+
+---
+
+#### 4. ✅ Portrait Upload with URL Support
+
+**Implementation:**
+- Click portrait → prompt for URL or trigger file upload
+- URL option: paste image link
+- File option: browse local image (converts to base64 data URL)
+- Portrait stored in character data (Firebase + localStorage)
+- Hover affordance ("Set" label appears on hover)
+
+**Benefits:**
+- Visual character identification
+- Supports external URLs (e.g., D&D Beyond, Heroforge)
+- Offline-capable with base64 encoding
+- Syncs across devices via Firebase
+
+**Files Modified:**
+- `character-sheet.html` - Portrait div with click handler, hidden file input
+- `character-sheet.js` - `initPortrait()`, `setPortrait()`, portrait URL persistence
+- `character-sheet.css` - Portrait hover effect
+
+---
+
+#### 5. ✅ Auto-Fill Spell Slots by Class/Level
+
+**Implementation:**
+- "Auto Fill" button next to Spell Slots heading
+- Detects class from Class input field (Wizard, Cleric, Druid, Sorcerer, Bard, Artificer, Paladin, Ranger, Fighter (Eldritch Knight), Rogue (Arcane Trickster), Warlock)
+- Reads level from Level input field
+- Fills Current and Max slots per D&D 2024 spell progression tables
+- Supports:
+  - Full Casters (Wizard, Cleric, etc.)
+  - Half Casters (Paladin, Ranger)
+  - Third Casters (Eldritch Knight, Arcane Trickster)
+  - Pact Magic (Warlock with unique slot structure)
+
+**Progression Tables:**
+- Full: Standard 1-9 progression
+- Half: Delayed start at level 2, caps at 5th level spells
+- Third: Delayed start at level 3, caps at 4th level spells
+- Pact: Warlock's unique all-slots-same-level system (1-4 slots, levels 1-5)
+
+**Benefits:**
+- Instant slot setup for new characters
+- Eliminates manual lookup of spell tables
+- Reduces errors when leveling up
+- Works for all official D&D 2024 classes
+
+**Files Modified:**
+- `character-sheet.html` - Auto Fill button
+- `character-sheet.js` - `initAutoSlots()`, `autoFillSpellSlots()`, `classCasterType()`, slot progression tables
+- `character-sheet.css` - Button styling
+
+---
+
+## ✨ Completed Enhancements (Prior Updates)
 
 ### 1. ✅ Enhanced Gold Text Contrast and Readability
 
