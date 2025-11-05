@@ -49,11 +49,18 @@ export class TokenManager {
   _onKey(e) {
     const t = this.tokens.find(t=>t.selected && this.canControl(t)); if (!t) return;
     const step = (e.shiftKey? 1 : 0.5) * this.vtt.state.gridSize; // shift for fine move
-    if (e.code === 'ArrowUp') { t.y -= step; }
-    else if (e.code === 'ArrowDown') { t.y += step; }
-    else if (e.code === 'ArrowLeft') { t.x -= step; }
-    else if (e.code === 'ArrowRight') { t.x += step; }
-    else return;
+    const key = (e.key||'').toLowerCase();
+    let moved = false;
+    if (e.code === 'ArrowUp' || key === 'w') { t.y -= step; moved = true; }
+    else if (e.code === 'ArrowDown' || key === 'x' || key === 's') { t.y += step; moved = true; }
+    else if (e.code === 'ArrowLeft' || key === 'a') { t.x -= step; moved = true; }
+    else if (e.code === 'ArrowRight' || key === 'd') { t.x += step; moved = true; }
+    else if (key === 'q') { t.x -= step; t.y -= step; moved = true; }
+    else if (key === 'e') { t.x += step; t.y -= step; moved = true; }
+    else if (key === 'z') { t.x -= step; t.y += step; moved = true; }
+    else if (key === 'c') { t.x += step; t.y += step; moved = true; }
+    if (!moved) return;
+    e.preventDefault();
     if (this.vtt.state.snapToGrid) { const s = this.vtt.snap(t.x, t.y); t.x = s.x; t.y = s.y; }
     this._onTokenMoved(t); this.vtt.requestRender();
   }

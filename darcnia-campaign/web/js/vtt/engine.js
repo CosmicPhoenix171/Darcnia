@@ -272,13 +272,16 @@ export class VTT {
       // keyboard zoom
       if (e.key === '+' || e.key === '=') { this.zoomIn(); }
       else if (e.key === '-') { this.zoomOut(); }
-      // arrow keys pan camera
-      const step = 40 / this.state.camera.scale; // scale-aware step
-      if (e.key === 'ArrowLeft') { this.state.camera.x -= step; this.requestRender(); }
-      else if (e.key === 'ArrowRight') { this.state.camera.x += step; this.requestRender(); }
-      else if (e.key === 'ArrowUp') { this.state.camera.y -= step; this.requestRender(); }
-      else if (e.key === 'ArrowDown') { this.state.camera.y += step; this.requestRender(); }
+      // Let consumers handle keys first (e.g., token movement). If they preventDefault, skip camera pan.
       if (this.onKey) this.onKey(e);
+      if (!e.defaultPrevented) {
+        // arrow keys pan camera
+        const step = 40 / this.state.camera.scale; // scale-aware step
+        if (e.key === 'ArrowLeft') { this.state.camera.x -= step; this.requestRender(); }
+        else if (e.key === 'ArrowRight') { this.state.camera.x += step; this.requestRender(); }
+        else if (e.key === 'ArrowUp') { this.state.camera.y -= step; this.requestRender(); }
+        else if (e.key === 'ArrowDown') { this.state.camera.y += step; this.requestRender(); }
+      }
     });
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space') { this._spaceHeld = false; if (this._prevTool) { this.state.tool = this._prevTool; this._prevTool = null; } }
