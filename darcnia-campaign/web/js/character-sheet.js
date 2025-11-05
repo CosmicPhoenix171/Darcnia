@@ -176,7 +176,12 @@ let characterData = {
     spellList: '',
     
     // Notes
-    notes: ''
+    notes: '',
+
+    // Right sidebar widgets
+    resistances: '',
+    conditions: '',
+    senses: ''
 };
 
 // Skill to ability mapping
@@ -208,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkLoggedInCharacter();
     initTabs();
     calculateAllStats();
+    updateSummaryHeader();
 });
 
 // ===== Tabs: Inventory / Notes / Spells =====
@@ -215,7 +221,7 @@ function initTabs() {
     const tabs = document.querySelectorAll('.sheet-tab');
     if (!tabs || tabs.length === 0) return;
 
-    let saved = localStorage.getItem('characterSheetActiveTab') || 'inventory';
+    let saved = localStorage.getItem('characterSheetActiveTab') || 'combat';
 
     // Migrate old saved value of 'all' (removed) to 'inventory'
     if (saved === 'all') saved = 'inventory';
@@ -498,6 +504,23 @@ function setupEventListeners() {
             }, 1000);
         });
     });
+
+    // HP controls
+    const dmgBtn = document.getElementById('applyDamageBtn');
+    const healBtn = document.getElementById('applyHealBtn');
+    const shortBtn = document.getElementById('shortRestBtn');
+    const longBtn = document.getElementById('longRestBtn');
+    if (dmgBtn) dmgBtn.addEventListener('click', applyDamage);
+    if (healBtn) healBtn.addEventListener('click', applyHeal);
+    if (shortBtn) shortBtn.addEventListener('click', doShortRest);
+    if (longBtn) longBtn.addEventListener('click', doLongRest);
+
+    // Identity updates reflected in summary
+    const syncSummaryIds = ['characterName','level','class','background','proficiencyBonus','armorClass','speed','hpMax','hpCurrent','hpTemp'];
+    syncSummaryIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateSummaryHeader);
+    });
 }
 
 // ===== Theme Management =====
@@ -557,12 +580,25 @@ function calculateAllStats() {
     const dexMod = calculateAbilityModifier(characterData.abilities.dex);
     const initiativeStr = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
     document.getElementById('initiative').textContent = initiativeStr;
+    // Update summary for initiative
+    const initSummary = document.getElementById('initSummary');
+    if (initSummary) initSummary.textContent = initiativeStr;
     
     // Calculate passive perception
     const perceptionBonus = calculateAbilityModifier(characterData.abilities.wis) + 
                             (characterData.skillProficiencies.perception ? profBonus : 0);
     const passivePerception = 10 + perceptionBonus;
     document.getElementById('passivePerception').textContent = passivePerception;
+
+    // Update summary for proficiency bonus
+    const pb = document.getElementById('proficiencyBonus').value || 2;
+    const profBonusDisplay = document.getElementById('profBonusDisplay');
+    if (profBonusDisplay) {
+        const n = parseInt(pb) || 2;
+        profBonusDisplay.textContent = n >= 0 ? `+${n}` : `${n}`;
+    }
+
+    updateSummaryHeader();
 }
 
 // ===== Data Management =====
@@ -648,6 +684,11 @@ function gatherCharacterData() {
     
     // Notes
     characterData.notes = document.getElementById('notes').value;
+
+    // Right sidebar widgets
+    characterData.resistances = document.getElementById('resistances')?.value || '';
+    characterData.conditions = document.getElementById('conditions')?.value || '';
+    characterData.senses = document.getElementById('senses')?.value || '';
     
     return characterData;
 }
@@ -743,9 +784,126 @@ function populateCharacterData(data) {
     
     // Notes
     document.getElementById('notes').value = data.notes || '';
+
+    // Right sidebar widgets
+    if (document.getElementById('resistances')) {
+        document.getElementById('resistances').value = data.resistances || '';
+    }
+    if (document.getElementById('conditions')) {
+        document.getElementById('conditions').value = data.conditions || '';
+    }
+    if (document.getElementById('senses')) {
+        document.getElementById('senses').value = data.senses || '';
+    }
     
     // Recalculate all stats
     calculateAllStats();
+}
+
+// ===== HP & Rest Helpers =====
+function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
+
+function applyDamage() {
+    const dmg = parseInt(document.getElementById('damageInput').value) || 0;
+    if (dmg <= 0) return;
+    // Use temp HP first
+    let temp = parseInt(document.getElementById('hpTemp').value) || 0;
+    let current = parseInt(document.getElementById('hpCurrent').value) || 0;
+    const maxHp = parseInt(document.getElementById('hpMax').value) || 0;
+    let remaining = dmg;
+    if (temp > 0) {
+        const used = Math.min(temp, remaining);
+        temp -= used; remaining -= used;
+    }
+    current = clamp(current - remaining, 0, maxHp);
+    document.getElementById('hpTemp').value = temp;
+    document.getElementById('hpCurrent').value = current;
+    updateSummaryHeader();
+    autoSaveCharacterData();
+}
+
+function applyHeal() {
+    const heal = parseInt(document.getElementById('healInput').value) || 0;
+    if (heal <= 0) return;
+    const maxHp = parseInt(document.getElementById('hpMax').value) || 0;
+    let current = parseInt(document.getElementById('hpCurrent').value) || 0;
+    current = clamp(current + heal, 0, maxHp);
+    document.getElementById('hpCurrent').value = current;
+    updateSummaryHeader();
+    autoSaveCharacterData();
+}
+
+function doShortRest() {
+    // Very simple flow: ask for total healing from Hit Dice; increase hpCurrent and increment hitDiceUsed
+    const dice = (document.getElementById('hitDice').value || '').trim();
+    const healStr = prompt(`Short Rest: Enter total healing from spending Hit Dice (${dice}).`, '0');
+    const heal = parseInt(healStr || '0') || 0;
+    if (heal > 0) {
+        const maxHp = parseInt(document.getElementById('hpMax').value) || 0;
+        let current = parseInt(document.getElementById('hpCurrent').value) || 0;
+        current = clamp(current + heal, 0, maxHp);
+        document.getElementById('hpCurrent').value = current;
+    }
+    const usedStr = prompt('How many Hit Dice did you spend?', '1');
+    const used = parseInt(usedStr || '0') || 0;
+    const hdUsedEl = document.getElementById('hitDiceUsed');
+    if (hdUsedEl) hdUsedEl.value = Math.max(0, (parseInt(hdUsedEl.value) || 0) + used);
+    updateSummaryHeader();
+    autoSaveCharacterData();
+}
+
+function doLongRest() {
+    // Restore HP to max, remove temp HP, regain half of total hit dice (approx via string parse)
+    const maxHp = parseInt(document.getElementById('hpMax').value) || 0;
+    document.getElementById('hpCurrent').value = maxHp;
+    document.getElementById('hpTemp').value = 0;
+    // Regain hit dice: reduce used by floor(total/2)
+    const hdStr = (document.getElementById('hitDice').value || '').trim();
+    let totalHd = 0;
+    const m = hdStr.match(/(\d+)d/i);
+    if (m) totalHd = parseInt(m[1]) || 0;
+    const regain = Math.floor(totalHd / 2);
+    const hdUsedEl = document.getElementById('hitDiceUsed');
+    if (hdUsedEl) {
+        const currentUsed = parseInt(hdUsedEl.value) || 0;
+        hdUsedEl.value = Math.max(0, currentUsed - regain);
+    }
+    updateSummaryHeader();
+    autoSaveCharacterData();
+}
+
+// ===== Summary Header Sync =====
+function updateSummaryHeader() {
+    const name = document.getElementById('characterName')?.value?.trim() || 'Unnamed Adventurer';
+    const level = parseInt(document.getElementById('level')?.value) || 1;
+    const cls = document.getElementById('class')?.value?.trim() || 'Class';
+    const bkg = document.getElementById('background')?.value?.trim() || 'Background';
+    const ac = parseInt(document.getElementById('armorClass')?.value) || 10;
+    const speedStr = document.getElementById('speed')?.value || '30 ft';
+    const speedNum = parseInt(speedStr) || 30;
+    const hpMax = parseInt(document.getElementById('hpMax')?.value) || 0;
+    const hpCur = parseInt(document.getElementById('hpCurrent')?.value) || 0;
+    const hpTmp = parseInt(document.getElementById('hpTemp')?.value) || 0;
+
+    const nameDisplay = document.getElementById('nameDisplay');
+    const levelPill = document.getElementById('levelPill');
+    const classDisplay = document.getElementById('classDisplay');
+    const backgroundDisplay = document.getElementById('backgroundDisplay');
+    const acSummary = document.getElementById('acSummary');
+    const speedSummary = document.getElementById('speedSummary');
+    const hpCurDisp = document.getElementById('hpCurrentDisplay');
+    const hpMaxDisp = document.getElementById('hpMaxDisplay');
+    const hpTmpDisp = document.getElementById('hpTempDisplay');
+
+    if (nameDisplay) nameDisplay.textContent = name;
+    if (levelPill) levelPill.textContent = String(level);
+    if (classDisplay) classDisplay.textContent = cls || 'Class';
+    if (backgroundDisplay) backgroundDisplay.textContent = bkg || 'Background';
+    if (acSummary) acSummary.textContent = String(ac);
+    if (speedSummary) speedSummary.textContent = String(speedNum);
+    if (hpCurDisp) hpCurDisp.textContent = String(hpCur);
+    if (hpMaxDisp) hpMaxDisp.textContent = String(hpMax);
+    if (hpTmpDisp) hpTmpDisp.textContent = String(hpTmp);
 }
 
 // ===== Save/Load Functions =====

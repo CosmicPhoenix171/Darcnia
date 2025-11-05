@@ -45,6 +45,72 @@
 
     <!-- Main Content Area (compact layout applied) -->
     <main class="character-sheet compact">
+        <!-- Quick Summary Header (Roll20-like) -->
+        <section class="sheet-summary">
+            <div class="summary-left">
+                <div class="portrait" aria-label="Character portrait" title="Portrait"></div>
+                <div class="summary-id">
+                    <div class="name-line">
+                        <span class="level-pill" id="levelPill">1</span>
+                        <span class="name-display" id="nameDisplay">Unnamed Adventurer</span>
+                    </div>
+                    <div class="class-line">
+                        <span id="classDisplay">Class</span>
+                        <span class="dot">•</span>
+                        <span id="backgroundDisplay">Background</span>
+                    </div>
+                    <div class="prof-line">Proficiency Bonus: <strong id="profBonusDisplay">+2</strong></div>
+                </div>
+            </div>
+            <div class="summary-center">
+                <div class="hp-panel">
+                    <div class="hp-row">
+                        <div class="hp-box">
+                            <div class="hp-label">Current</div>
+                            <div class="hp-value" id="hpCurrentDisplay">0</div>
+                        </div>
+                        <div class="hp-box">
+                            <div class="hp-label">Max</div>
+                            <div class="hp-value" id="hpMaxDisplay">0</div>
+                        </div>
+                        <div class="hp-box">
+                            <div class="hp-label">Temp</div>
+                            <div class="hp-value" id="hpTempDisplay">0</div>
+                        </div>
+                    </div>
+                    <div class="hp-controls">
+                        <div class="hp-io">
+                            <label for="damageInput">Damage</label>
+                            <input id="damageInput" type="number" min="0" value="0" />
+                            <button id="applyDamageBtn" class="btn-mini danger">Apply</button>
+                        </div>
+                        <div class="hp-io">
+                            <label for="healInput">Heal</label>
+                            <input id="healInput" type="number" min="0" value="0" />
+                            <button id="applyHealBtn" class="btn-mini success">Apply</button>
+                        </div>
+                        <div class="rest-buttons">
+                            <button id="shortRestBtn" class="btn-mini">Short Rest</button>
+                            <button id="longRestBtn" class="btn-mini">Long Rest</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="summary-right">
+                <div class="summary-stat">
+                    <div class="label">ARMOR CLASS</div>
+                    <div class="value" id="acSummary">10</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="label">SPEED (ft)</div>
+                    <div class="value" id="speedSummary">30</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="label">INITIATIVE</div>
+                    <div class="value" id="initSummary">+0</div>
+                </div>
+            </div>
+        </section>
         <!-- Top Identity Section -->
         <section class="identity-section">
             <div class="identity-grid">
@@ -79,11 +145,14 @@
             </div>
         </section>
 
-        <!-- View Tabs: Inventory / Notes / Spells (compact) -->
+        <!-- View Tabs: Combat / Spells / Inventory / Features / Notes / About -->
         <div class="sheet-tabs" role="tablist" aria-label="Character sheet views">
-            <button class="sheet-tab tab-active" data-tab="inventory">Inventory</button>
-            <button class="sheet-tab" data-tab="notes">Notes</button>
+            <button class="sheet-tab tab-active" data-tab="combat">Combat</button>
             <button class="sheet-tab" data-tab="spells">Spells</button>
+            <button class="sheet-tab" data-tab="inventory">Inventory</button>
+            <button class="sheet-tab" data-tab="features">Features &amp; Traits</button>
+            <button class="sheet-tab" data-tab="notes">Notes</button>
+            <button class="sheet-tab" data-tab="about">About</button>
         </div>
 
         <!-- Main Stats Grid -->
@@ -371,7 +440,7 @@
                 </section>
 
                 <!-- Attacks & Spellcasting -->
-                <section class="attacks-section" data-panel="inventory">
+                <section class="attacks-section" data-panel="combat">
                     <h3>Attacks & Spellcasting</h3>
                     <textarea id="attacks" rows="8" placeholder="Weapon Name | Attack Bonus | Damage/Type&#10;e.g., Longsword | +5 | 1d8+3 slashing"></textarea>
                 </section>
@@ -414,7 +483,7 @@
             <!-- Right Column: Features, Traits, & Spells -->
             <aside class="right-column">
                 <!-- Personality & Background -->
-                <section class="personality-section" data-panel="notes">
+                <section class="personality-section" data-panel="about">
                     <h3>Personality</h3>
                     <div class="personality-grid">
                         <div class="form-group">
@@ -437,15 +506,38 @@
                 </section>
 
                 <!-- Class Features & Feats -->
-                <section class="features-section" data-panel="notes">
+                <section class="features-section" data-panel="features">
                     <h3>Class Features & Feats</h3>
                     <textarea id="classFeatures" rows="10" placeholder="List your class features, racial traits, and feats here...&#10;&#10;Example:&#10;• Second Wind (1/short rest)&#10;• Action Surge (1/short rest)&#10;• Fighting Style: Dueling"></textarea>
                 </section>
 
                 <!-- Proficiencies & Languages -->
-                <section class="proficiencies-section" data-panel="notes">
+                <section class="proficiencies-section" data-panel="about">
                     <h3>Proficiencies & Languages</h3>
                     <textarea id="proficiencies" rows="5" placeholder="Armor: Light, Medium, Shields&#10;Weapons: Simple, Martial&#10;Tools: Thieves' Tools&#10;Languages: Common, Elvish"></textarea>
+                </section>
+
+                <!-- Defenses / Conditions / Senses (right sidebar widgets) -->
+                <section class="defenses-section">
+                    <h3>Defenses</h3>
+                    <div class="mini-list">
+                        <label for="resistances">Resistances / Immunities</label>
+                        <textarea id="resistances" rows="3" placeholder="None"></textarea>
+                    </div>
+                </section>
+                <section class="conditions-section">
+                    <h3>Conditions</h3>
+                    <div class="mini-list">
+                        <label for="conditions">Current Conditions</label>
+                        <textarea id="conditions" rows="2" placeholder="No Conditions"></textarea>
+                    </div>
+                </section>
+                <section class="senses-section">
+                    <h3>Senses</h3>
+                    <div class="mini-list">
+                        <label for="senses">Passive Senses</label>
+                        <textarea id="senses" rows="2" placeholder="Investigation 10, Insight 10, Perception 10"></textarea>
+                    </div>
                 </section>
 
                 <!-- Spells -->
@@ -529,8 +621,8 @@
             </aside>
         </div>
 
-        <!-- Bottom Notes Section -->
-        <section class="notes-section">
+        <!-- Bottom Notes Section (Notes tab) -->
+        <section class="notes-section" data-panel="notes">
             <h3>Additional Notes & Backstory</h3>
             <textarea id="notes" rows="6" placeholder="Character backstory, campaign notes, and other details..."></textarea>
         </section>
