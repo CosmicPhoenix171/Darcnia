@@ -1,5 +1,86 @@
 // ===== D&D 2024 Character Sheet JavaScript =====
 
+// ===== XP to Level Conversion Table (D&D 5e/2024) =====
+const XP_TABLE = [
+    { level: 1, xp: 0, next: 300 },
+    { level: 2, xp: 300, next: 600 },
+    { level: 3, xp: 900, next: 1800 },
+    { level: 4, xp: 2700, next: 3800 },
+    { level: 5, xp: 6500, next: 5100 },
+    { level: 6, xp: 14000, next: 9000 },
+    { level: 7, xp: 23000, next: 11000 },
+    { level: 8, xp: 34000, next: 14000 },
+    { level: 9, xp: 48000, next: 16000 },
+    { level: 10, xp: 64000, next: 21000 },
+    { level: 11, xp: 85000, next: 15000 },
+    { level: 12, xp: 100000, next: 20000 },
+    { level: 13, xp: 120000, next: 20000 },
+    { level: 14, xp: 140000, next: 25000 },
+    { level: 15, xp: 165000, next: 30000 },
+    { level: 16, xp: 195000, next: 30000 },
+    { level: 17, xp: 225000, next: 40000 },
+    { level: 18, xp: 265000, next: 40000 },
+    { level: 19, xp: 305000, next: 50000 },
+    { level: 20, xp: 355000, next: 0 }
+];
+
+function calculateLevelFromXP(xp) {
+    xp = parseInt(xp) || 0;
+    let level = 1;
+    let xpToNext = 300;
+    
+    for (let i = XP_TABLE.length - 1; i >= 0; i--) {
+        if (xp >= XP_TABLE[i].xp) {
+            level = XP_TABLE[i].level;
+            xpToNext = XP_TABLE[i].next;
+            break;
+        }
+    }
+    
+    return { level, xpToNext };
+}
+
+function updateLevelFromXP() {
+    const xpInput = document.getElementById('experiencePoints');
+    const xp = parseInt(xpInput.value) || 0;
+    const { level, xpToNext } = calculateLevelFromXP(xp);
+    
+    // Update level pill
+    const levelPill = document.getElementById('levelPill');
+    if (levelPill) {
+        levelPill.textContent = `Lvl ${level}`;
+    }
+    
+    // Update XP to next level display
+    const xpNextDisplay = document.getElementById('xpToNext');
+    if (xpNextDisplay) {
+        if (level >= 20) {
+            xpNextDisplay.textContent = '(Max Level)';
+        } else {
+            xpNextDisplay.textContent = `/ ${xpToNext.toLocaleString()} to next level`;
+        }
+    }
+    
+    // Update character data
+    characterData.level = level;
+    
+    // Update proficiency bonus based on level
+    const profBonus = Math.floor((level - 1) / 4) + 2;
+    const profBonusInput = document.getElementById('proficiencyBonus');
+    if (profBonusInput) {
+        profBonusInput.value = profBonus;
+    }
+    const profBonusDisplay = document.getElementById('profBonusDisplay');
+    if (profBonusDisplay) {
+        profBonusDisplay.textContent = `+${profBonus}`;
+    }
+    characterData.proficiencyBonus = profBonus;
+    
+    // Recalculate all stats with new level
+    calculateAllStats();
+    updateSummaryHeader();
+}
+
 // ===== Firebase Configuration =====
 const firebaseConfig = {
     apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
@@ -527,8 +608,14 @@ function setupEventListeners() {
     if (shortBtn) shortBtn.addEventListener('click', doShortRest);
     if (longBtn) longBtn.addEventListener('click', doLongRest);
 
+    // XP input updates level automatically
+    const xpInput = document.getElementById('experiencePoints');
+    if (xpInput) {
+        xpInput.addEventListener('input', updateLevelFromXP);
+    }
+
     // Identity updates reflected in summary
-    const syncSummaryIds = ['nameDisplay','level','class','background','proficiencyBonus','armorClass','speed','hpMax','hpCurrent','hpTemp'];
+    const syncSummaryIds = ['nameDisplay','class','background','proficiencyBonus','armorClass','speed','hpMax','hpCurrent','hpTemp'];
     syncSummaryIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateSummaryHeader);
@@ -619,8 +706,10 @@ function calculateAllStats() {
 function gatherCharacterData() {
     // Identity
     characterData.characterName = document.getElementById('nameDisplay').value;
-    const levelInput = document.getElementById('level');
-    characterData.level = levelInput ? parseInt(levelInput.value) || 1 : 1;
+    // Level is now calculated from XP
+    const xp = parseInt(document.getElementById('experiencePoints').value) || 0;
+    const { level } = calculateLevelFromXP(xp);
+    characterData.level = level;
     console.log('📊 Gathering character data - Level:', characterData.level);
     characterData.class = document.getElementById('class').value;
     characterData.background = document.getElementById('background').value;
@@ -717,16 +806,14 @@ function gatherCharacterData() {
 function populateCharacterData(data) {
     // Identity
     document.getElementById('nameDisplay').value = data.characterName || '';
-    const levelInput = document.getElementById('level');
-    if (levelInput) {
-        levelInput.value = data.level || 1;
-        console.log('📊 Populated level field with:', data.level || 1);
-    }
     document.getElementById('class').value = data.class || '';
     document.getElementById('background').value = data.background || '';
     document.getElementById('species').value = data.species || '';
     document.getElementById('alignment').value = data.alignment || '';
     document.getElementById('experiencePoints').value = data.experiencePoints || 0;
+    
+    // Update level from XP (this will trigger updateLevelFromXP)
+    updateLevelFromXP();
     
     // Ability Scores
     const abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
@@ -903,7 +990,9 @@ function doLongRest() {
 function updateSummaryHeader() {
     const nameDisplay = document.getElementById('nameDisplay');
     const name = nameDisplay?.value?.trim() || 'Character Name';
-    const level = parseInt(document.getElementById('level')?.value) || 1;
+    // Level is now calculated from XP
+    const xp = parseInt(document.getElementById('experiencePoints')?.value) || 0;
+    const { level } = calculateLevelFromXP(xp);
     const cls = document.getElementById('class')?.value?.trim() || 'Class';
     const bkg = document.getElementById('background')?.value?.trim() || 'Background';
     const ac = parseInt(document.getElementById('armorClass')?.value) || 10;
@@ -926,7 +1015,7 @@ function updateSummaryHeader() {
     if (nameDisplay && !nameDisplay.value) {
         nameDisplay.placeholder = 'Character Name';
     }
-    if (levelPill) levelPill.textContent = String(level);
+    if (levelPill) levelPill.textContent = `Lvl ${level}`;
     if (classDisplay) classDisplay.textContent = cls || 'Class';
     if (backgroundDisplay) backgroundDisplay.textContent = bkg || 'Background';
     if (acSummary) acSummary.textContent = String(ac);

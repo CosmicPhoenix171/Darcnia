@@ -37,6 +37,13 @@
 }
 .summary-id { display: flex; flex-direction: column; gap: 0.35rem; }
 .identity-field { display: flex; align-items: center; gap: 0.5rem; }
+.xp-field { flex-wrap: wrap; }
+.xp-next {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-left: 0.3rem;
+}
 .field-label { 
     font-size: 0.75rem; 
     color: var(--text-secondary); 
