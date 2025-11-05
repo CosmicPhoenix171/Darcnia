@@ -15,12 +15,17 @@ export class UI {
 
     // Default map
     gen.generate({ w: 50, h: 50, biome: 'dungeon', difficulty: 'normal' });
-    // Spawn sample player token at start
-    const s = vtt.state.gridSize; const start = gen.start || { i: 2, j: 2 };
-    tokens.addToken({ name: 'Hero', x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId });
-
-    // Fog initial reveal around hero
-    fog.revealAround(tokens.list[0]);
+    // Spawn a player/DM token at start using character sheet data when available
+    {
+      const s = vtt.state.gridSize; const start = gen.start || { i: 2, j: 2 };
+      const ch = this._readCharacterFromLocal();
+      const name = ch.name || this.currentUser || 'Hero';
+      const hp = ch.hpCurrent ?? ch.hpMax ?? 10; // prefer current HP, fallback to max
+      const ac = ch.armorClass ?? 10;
+      const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId, hp, ac });
+      // Fog initial reveal around token
+      fog.revealAround(t);
+    }
 
     // Controls
     document.querySelectorAll('.tool').forEach(btn=>{
@@ -71,6 +76,10 @@ export class UI {
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
       if (net.role === 'dm') this._broadcastState();
       const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = net.role !== 'dm';
+      // If a player connects, ensure their token exists on the board and announce it
+      if (net.role === 'player') {
+        this._ensurePlayerTokenSpawned(true);
+      }
     });
 
     // Save / Load
@@ -235,7 +244,7 @@ export class UI {
   _installNetHandlers(){
     const { net, tokens, fog } = this;
     net.on('chat', (p)=>{ this.log(`${p.who}: ${p.text}`, 'chat'); });
-    net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); });
+    net.on('state', (s)=>{ if (net.role === 'dm') return; this._applyLoad(s); this._ensurePlayerTokenSpawned(true); });
     net.on('move', (m)=>{ const t = tokens.list.find(t=>t.id===m.id); if (!t) return; t.x = m.x; t.y = m.y; this.vtt.requestRender(); });
     net.on('spawn', ({ token })=>{ if (net.role==='dm') return; tokens.addToken(token); this.vtt.requestRender(); });
     net.on('erase', ({ id })=>{ if (net.role==='dm') return; tokens.removeToken(id); this.vtt.requestRender(); });
@@ -255,6 +264,37 @@ export class UI {
   _isDmUser(name){
     const n = String(name||'').toLowerCase();
     return n === 'dm' || n === 'dungeon master';
+  }
+
+  // Read character sheet data from localStorage (fallback when Firebase not wired in this page)
+  _readCharacterFromLocal(){
+    try {
+      const raw = localStorage.getItem('dnd2024CharacterSheet');
+      if (!raw) return {};
+      const data = JSON.parse(raw);
+      return {
+        name: data.characterName,
+        armorClass: data.armorClass,
+        hpCurrent: data.hpCurrent,
+        hpMax: data.hpMax,
+      };
+    } catch(_) { return {}; }
+  }
+
+  // Ensure a token controlled by this player exists; optionally broadcast spawn
+  _ensurePlayerTokenSpawned(broadcast=false){
+    if (this.isDM || this.tokens.control.role !== 'player') return; // players only
+    const { tokens, vtt, gen } = this;
+    // If a token owned by this player already exists, do nothing
+    if (tokens.list.some(t=> t.owner === tokens.control.playerId)) return;
+    const s = vtt.state.gridSize; const start = gen.start || { i: 2, j: 2 };
+    const ch = this._readCharacterFromLocal();
+    const name = ch.name || this.currentUser || 'Hero';
+    const hp = ch.hpCurrent ?? ch.hpMax ?? 10; const ac = ch.armorClass ?? 10;
+    const t = tokens.addToken({ name, x: start.i*s, y: start.j*s, friendly: true, owner: tokens.control.playerId, hp, ac });
+    this.fog.revealAround(t);
+    this.vtt.requestRender();
+    if (broadcast) this.net.emit('spawn', { token: t });
   }
 }
 
