@@ -6,6 +6,13 @@ export class UI {
     // Bind render source
     vtt.bindRenderSource(() => ({ map, tokens: tokens.list, fog }));
 
+    // Auth: read current site login (localStorage) and set initial role
+    this.currentUser = (localStorage.getItem('loggedInCharacter') || 'Guest');
+    this.dmOverride = localStorage.getItem('vttDmOverride') === 'true';
+    this.isDM = this._isDmUser(this.currentUser) || this.dmOverride;
+    const userEl = document.getElementById('userDisplay'); if (userEl) userEl.textContent = this.isDM ? `${this.currentUser} (DM)` : this.currentUser;
+    if (this.isDM) { els.roleSelect.value = 'dm'; tokens.setRole('dm'); } else { els.roleSelect.value = 'player'; tokens.setRole('player'); }
+
     // Default map
     gen.generate({ w: 50, h: 50, biome: 'dungeon', difficulty: 'normal' });
     // Spawn sample player token at start
@@ -26,6 +33,17 @@ export class UI {
 
     document.getElementById('gridType').addEventListener('change', (e)=>{ vtt.setGridType(e.target.value); });
     document.getElementById('snapToggle').addEventListener('change', (e)=>{ vtt.setSnap(e.target.checked); });
+    // Prevent switching to DM without DM login
+    els.roleSelect.addEventListener('change', (e)=>{
+      const val = e.target.value;
+      if (val === 'dm' && !this.isDM) {
+        e.target.value = 'player';
+        this.tokens.setRole('player');
+        alert('DM login required to select DM role.');
+      } else {
+        this.tokens.setRole(val);
+      }
+    });
 
     document.getElementById('addToInit').addEventListener('click', ()=>{
       const n = document.getElementById('initName').value || 'Creature';
@@ -75,13 +93,42 @@ export class UI {
     // DM View toggle (local-only, not broadcast)
     const dmBtn = document.getElementById('dmViewToggle');
     if (dmBtn){
-      dmBtn.disabled = net.role !== 'dm';
+      dmBtn.disabled = !this.isDM;
       dmBtn.addEventListener('click', ()=>{
-        if (net.role !== 'dm') return;
+        if (!this.isDM) return;
         fog.dmSeeAll = !fog.dmSeeAll;
         dmBtn.classList.toggle('active', fog.dmSeeAll);
         dmBtn.textContent = fog.dmSeeAll ? 'DM View: On' : 'DM View: Off';
         this.vtt.requestRender();
+      });
+    }
+
+    // DM login button
+    const dmLoginBtn = document.getElementById('dmLoginBtn');
+    if (dmLoginBtn) {
+      dmLoginBtn.addEventListener('click', ()=>{
+        if (this.isDM && this.dmOverride) {
+          // logout only if DM came from override (do not log out site DM)
+          this.dmOverride = false; localStorage.removeItem('vttDmOverride');
+          this.isDM = this._isDmUser(this.currentUser);
+          if (!this.isDM) { this.tokens.setRole('player'); this.els.roleSelect.value='player'; }
+          const userEl = document.getElementById('userDisplay'); if (userEl) userEl.textContent = this.isDM ? `${this.currentUser} (DM)` : this.currentUser;
+          if (!this.isDM) { const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = true; fog.dmSeeAll = false; }
+          this.log('[system] DM override removed.');
+          return;
+        }
+        if (this.isDM) { this.log('[system] Already logged in as DM.'); return; }
+        const pass = prompt('Enter DM password');
+        if (!pass) return;
+        if (pass === 'dmpass2025') {
+          this.dmOverride = true; localStorage.setItem('vttDmOverride','true');
+          this.isDM = true; this.tokens.setRole('dm'); this.els.roleSelect.value='dm';
+          const userEl = document.getElementById('userDisplay'); if (userEl) userEl.textContent = `${this.currentUser} (DM)`;
+          const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = false;
+          this.log('[system] DM login successful.');
+        } else {
+          alert('Incorrect DM password.');
+        }
       });
     }
   }
@@ -203,6 +250,11 @@ export class UI {
       initiative: this.initiative||[],
     };
     this.net.emit('state', state);
+  }
+
+  _isDmUser(name){
+    const n = String(name||'').toLowerCase();
+    return n === 'dm' || n === 'dungeon master';
   }
 }
 
