@@ -51,43 +51,60 @@
                 <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
                 <input type="file" id="portraitFile" accept="image/*" hidden>
                 <div class="summary-id">
-                    <!-- Name with Level Pill -->
-                    <div class="identity-field name-row">
-                        <span class="level-pill" id="levelPill" title="Current Level (auto-calculated from XP)">Lvl 1</span>
-                        <input type="text" class="name-display vanishing-textbox" id="nameDisplay" placeholder="Character Name">
-                    </div>
-                    
-                    <!-- XP with Progress -->
-                    <div class="identity-field xp-row">
-                        <div class="xp-input-wrapper">
-                            <label class="field-label">XP</label>
-                            <input type="number" id="experiencePoints" class="vanishing-textbox xp-input" placeholder="0" min="0">
+                    <!-- Hero Section: Name & Level -->
+                    <div class="hero-section">
+                        <div class="hero-name-row">
+                            <input type="text" class="name-display vanishing-textbox hero-name" id="nameDisplay" placeholder="Character Name">
+                            <span class="level-badge" id="levelPill" title="Current Level (auto-calculated from XP)">
+                                <span class="level-number">1</span>
+                            </span>
                         </div>
-                        <span class="xp-next" id="xpToNext">/ 300 to next</span>
-                    </div>
-                    
-                    <!-- Two Column Layout for Other Fields -->
-                    <div class="identity-grid">
-                        <div class="identity-field compact">
-                            <label class="field-label">Class</label>
-                            <input type="text" id="class" class="vanishing-textbox" placeholder="Class">
-                        </div>
-                        <div class="identity-field compact">
-                            <label class="field-label">Background</label>
-                            <input type="text" id="background" class="vanishing-textbox" placeholder="Background">
-                        </div>
-                        <div class="identity-field compact">
-                            <label class="field-label">Species</label>
-                            <input type="text" id="species" class="vanishing-textbox" placeholder="Species">
-                        </div>
-                        <div class="identity-field compact">
-                            <label class="field-label">Alignment</label>
-                            <input type="text" id="alignment" class="vanishing-textbox" placeholder="Alignment">
+                        <div class="hero-subtitle">
+                            <input type="text" id="class" class="vanishing-textbox inline-edit" placeholder="Class">
+                            <span class="divider">•</span>
+                            <input type="text" id="background" class="vanishing-textbox inline-edit" placeholder="Background">
                         </div>
                     </div>
                     
-                    <!-- Proficiency Bonus -->
-                    <div class="prof-line">Prof. Bonus: <strong id="profBonusDisplay">+2</strong></div>
+                    <!-- XP Progress Bar Section -->
+                    <div class="xp-section">
+                        <div class="xp-header">
+                            <span class="xp-label">Experience</span>
+                            <span class="xp-display">
+                                <input type="number" id="experiencePoints" class="vanishing-textbox xp-input" placeholder="0" min="0">
+                                <span class="xp-separator">/</span>
+                                <span class="xp-target" id="xpTarget">300</span>
+                            </span>
+                        </div>
+                        <div class="xp-progress-bar">
+                            <div class="xp-progress-fill" id="xpProgressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="xp-next-text" id="xpToNext">300 XP to level 2</div>
+                    </div>
+                    
+                    <!-- Character Details Grid -->
+                    <div class="char-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-icon">🧬</span>
+                            <div class="detail-content">
+                                <label class="detail-label">Species</label>
+                                <input type="text" id="species" class="vanishing-textbox detail-value" placeholder="Species">
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">⚖️</span>
+                            <div class="detail-content">
+                                <label class="detail-label">Alignment</label>
+                                <input type="text" id="alignment" class="vanishing-textbox detail-value" placeholder="Alignment">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Proficiency Badge -->
+                    <div class="prof-badge">
+                        <span class="prof-label">Proficiency</span>
+                        <strong class="prof-value" id="profBonusDisplay">+2</strong>
+                    </div>
                 </div>
             </div>
             <div class="summary-center">
