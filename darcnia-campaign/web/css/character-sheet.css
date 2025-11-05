@@ -21,6 +21,7 @@
     margin-bottom: 1rem;
     /* Prevent equal-height stretching so cards stay compact */
     align-items: start;
+    justify-content: center;
 }
 
 .summary-left, .summary-center, .summary-right {
@@ -37,8 +38,15 @@
     padding: 0.7rem;
 }
 
-.summary-left { align-self: start; }
-.summary-left .summary-card { display: flex; gap: 0.75rem; align-items: center; }
+.summary-left { align-self: start; justify-self: center; width: 100%; }
+.summary-left .summary-card { 
+    display: flex; 
+    gap: 0.75rem; 
+    align-items: center; 
+    width: 100%;
+    max-width: 980px; /* limit width so hero doesn’t stretch */
+    margin: 0 auto;
+}
 .summary-right { align-self: start; }
 .portrait {
     width: 64px; height: 64px; border-radius: 50%;
