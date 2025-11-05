@@ -2,6 +2,7 @@
 export class FogOfWar {
   constructor(vtt, map, tokens) {
     this.vtt = vtt; this.map = map; this.tokens = tokens; this.revealed = new Set(); // store tile indices
+    this.dmSeeAll = false; // local-only toggle for DM to see full map
     this.radius = 3; // tiles
     tokens.onMoved = (t)=>{ this.revealAround(t); };
   }
@@ -36,6 +37,7 @@ export class FogOfWar {
   }
 
   render(ctx, gridSize) {
+    if (this.dmSeeAll) { return; }
     const w = this.map.w, h = this.map.h;
     ctx.save();
     // global dark overlay

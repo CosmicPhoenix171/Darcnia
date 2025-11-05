@@ -52,6 +52,7 @@ export class UI {
       this._installNetHandlers();
       this.log(`[system] Connected to session ${els.sessionId.value} as ${els.roleSelect.value}`);
       if (net.role === 'dm') this._broadcastState();
+      const dmBtn = document.getElementById('dmViewToggle'); if (dmBtn) dmBtn.disabled = net.role !== 'dm';
     });
 
     // Save / Load
@@ -70,6 +71,19 @@ export class UI {
       // broadcast move
       net.emit('move', { id: t.id, x: t.x, y: t.y });
     };
+
+    // DM View toggle (local-only, not broadcast)
+    const dmBtn = document.getElementById('dmViewToggle');
+    if (dmBtn){
+      dmBtn.disabled = net.role !== 'dm';
+      dmBtn.addEventListener('click', ()=>{
+        if (net.role !== 'dm') return;
+        fog.dmSeeAll = !fog.dmSeeAll;
+        dmBtn.classList.toggle('active', fog.dmSeeAll);
+        dmBtn.textContent = fog.dmSeeAll ? 'DM View: On' : 'DM View: Off';
+        this.vtt.requestRender();
+      });
+    }
   }
 
   _installStageTools(){
