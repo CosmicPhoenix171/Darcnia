@@ -80,7 +80,8 @@ Legend: [ ] Todo · [~] In progress · [x] Done
 - [ ] Place labels/room numbers and auto flavor text (optional AI)
 
 ## 7) Tokens, Combat & Tracker
-- [ ] Token sheet panel: edit HP/AC/conditions; add image; size (2x2, etc.)
+- [x] Token sheet panel (MVP): edit Name/HP/HP Max/AC/conditions; quick Damage/Heal; chat sync
+- [ ] Token image and size (2x2, etc.)
 - [ ] Conditions with icons and effect reminders
 - [ ] Initiative tracker linked to tokens; active turn highlight and next/prev controls
 - [ ] Movement path preview with grid counting; difficult terrain costs
@@ -116,6 +117,27 @@ Legend: [ ] Todo · [~] In progress · [x] Done
 - Mirror current `BroadcastChannel` events in Firebase adapter; prevent echo via clientId stamping
 - Keep state minimal; prefer events for chat/movement; periodic DM snapshots for recovery
 - Validate all server writes with security rules and simple schema checks to avoid bloat
+
+### Firebase Ownership & Persistence (plan)
+- Data shape (Realtime DB):
+  - `sessions/{sessionId}/state`:
+    - `map`: { w,h,tiles,triggers,meta }
+    - `tokens`: [ { id, name, x,y,size, hp,hpMax, ac, init, friendly, ownerUid, conditions } ]
+    - `fog`: [ tileKeys ] (DM master view)
+    - `initiative`: [ { name, init } ]
+    - `meta`: { savedAt, app, v }
+  - `sessions/{sessionId}/events/{timestamp}`: { ev, data, __from }
+  - `sessions/{sessionId}/presence/{uid}`: { displayName, lastSeen }
+- Rules (sketch):
+  - Read: `auth != null` and `root.child('sessions/'+$sessionId+'/members/'+auth.uid).val() == true`
+  - Writes:
+    - Map/fog/spawn/erase/state: `data.child('roleByUid/'+auth.uid).val() == 'dm'`
+    - Token move/update: allowed if `newData.child('ownerUid').val() == auth.uid` OR role is DM
+    - Chat/events: members can append, size-limited; server time via `now`
+  - Validation: types, ranges (hp 0..hpMax), lengths (names, conditions)
+- Client adapter:
+  - Replace LocalAdapter with FirebaseAdapter when online; keep clientId for echo filter
+  - Optimistic local move; reconcile on server acceptance
 
 ## Acceptance (Definition of “Polished”)
 - Stable across browsers; no uncaught errors during a 1-hour session

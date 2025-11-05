@@ -11,8 +11,8 @@ export class TokenManager {
 
   setRole(role) { this.control.role = role; }
 
-  addToken({ name='Token', x=0, y=0, size=1, hp=10, ac=10, init=10, img=null, friendly=true, owner=null }) {
-    const t = { id: randomId(), name, x, y, size, hp, ac, init, img, friendly, owner };
+  addToken({ name='Token', x=0, y=0, size=1, hp=10, hpMax=null, ac=10, init=10, img=null, friendly=true, owner=null, conditions=[] }) {
+    const t = { id: randomId(), name, x, y, size, hp, hpMax: (hpMax ?? hp), ac, init, img, friendly, owner, conditions };
     if (img) { const el = new Image(); el.src = img; t._imgEl = el; }
     this.tokens.push(t); return t;
   }
@@ -33,9 +33,10 @@ export class TokenManager {
       if (!this.canControl(t)) continue;
       const s = this.vtt.state.gridSize * (t.size || 1);
       const cx = t.x + s/2, cy = t.y + s/2; const dx = x - cx, dy = y - cy; const r = s*0.48;
-      if (dx*dx + dy*dy <= r*r) { this.tokens.forEach(k=>k.selected=false); t.selected = true; return t; }
+      if (dx*dx + dy*dy <= r*r) { this.tokens.forEach(k=>k.selected=false); t.selected = true; if (this.onSelected) this.onSelected(t); return t; }
     }
     this.tokens.forEach(k=>k.selected=false);
+    if (this.onSelected) this.onSelected(null);
     return null;
   }
 

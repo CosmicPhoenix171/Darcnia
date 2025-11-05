@@ -57,6 +57,30 @@
           </div>
         </section>
         <section class="panel">
+          <h3>Token</h3>
+          <div class="row"><span id="tokenSelectInfo" style="opacity:.8">No token selected</span></div>
+          <div class="row">
+            <label style="flex:1">Name <input id="tokenName" /></label>
+          </div>
+          <div class="row">
+            <label>AC <input id="tokenAC" type="number" min="0" style="width:5rem" /></label>
+            <label>HP <input id="tokenHpCurrent" type="number" min="0" style="width:6rem" /> / <input id="tokenHpMax" type="number" min="0" style="width:6rem" /></label>
+          </div>
+          <div class="row">
+            <input id="tokenHpDelta" type="number" placeholder="amount" style="width:6rem" />
+            <button id="btnDamage" class="btn">Damage</button>
+            <button id="btnHeal" class="btn">Heal</button>
+          </div>
+          <div class="row">
+            <label style="flex:1">Conditions
+              <input id="tokenConditions" placeholder="comma-separated (poisoned, prone)" />
+            </label>
+          </div>
+          <div class="row">
+            <button id="applyTokenEdits" class="btn">Apply</button>
+          </div>
+        </section>
+        <section class="panel">
           <h3>Tools</h3>
           <div class="tool-grid">
             <button data-tool="pan" class="tool active" title="Pan (Space)">🖐️</button>

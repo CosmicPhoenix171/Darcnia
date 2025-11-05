@@ -20,9 +20,10 @@ export class UI {
       const s = vtt.state.gridSize; const start = gen.start || { i: 2, j: 2 };
       const ch = this._readCharacterFromLocal();
       const name = ch.name || this.currentUser || 'Hero';
-      const hp = ch.hpCurrent ?? ch.hpMax ?? 10; // prefer current HP, fallback to max
-      const ac = ch.armorClass ?? 10;
-      const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId, hp, ac });
+  const hp = ch.hpCurrent ?? ch.hpMax ?? 10; // prefer current HP, fallback to max
+  const ac = ch.armorClass ?? 10;
+  const hpMax = ch.hpMax ?? hp;
+  const t = tokens.addToken({ name, x: start.i * s, y: start.j * s, friendly: true, owner: tokens.control.playerId, hp, hpMax, ac });
       // Fog initial reveal around token
       fog.revealAround(t);
     }
@@ -140,6 +141,12 @@ export class UI {
         }
       });
     }
+
+    // Token details panel
+    this._setupTokenPanel();
+
+    // Optional: live character sync from Firebase if available
+    this._maybeSetupFirebaseCharacterSync();
   }
 
   _installStageTools(){
@@ -249,6 +256,7 @@ export class UI {
     net.on('spawn', ({ token })=>{ if (net.role==='dm') return; tokens.addToken(token); this.vtt.requestRender(); });
     net.on('erase', ({ id })=>{ if (net.role==='dm') return; tokens.removeToken(id); this.vtt.requestRender(); });
     net.on('fog', ({ op, i, j, r })=>{ if (net.role==='dm') return; if (op==='reveal') fog.dmReveal(i,j,r); else fog.dmHide(i,j,r); });
+    net.on('tokenUpdate', (u)=>{ const t = tokens.list.find(t=>t.id===u.id); if (!t) return; Object.assign(t, u.patch||{}); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); });
   }
 
   _broadcastState(){
@@ -264,6 +272,94 @@ export class UI {
   _isDmUser(name){
     const n = String(name||'').toLowerCase();
     return n === 'dm' || n === 'dungeon master';
+  }
+
+  _setupTokenPanel(){
+    this.selectedToken = null;
+    const $ = (id)=>document.getElementById(id);
+    const info = $('tokenSelectInfo');
+    const nameEl = $('tokenName'); const acEl = $('tokenAC');
+    const hpCurEl = $('tokenHpCurrent'); const hpMaxEl = $('tokenHpMax');
+    const condEl = $('tokenConditions'); const applyBtn = $('applyTokenEdits');
+    const dmgBtn = $('btnDamage'); const healBtn = $('btnHeal'); const deltaEl = $('tokenHpDelta');
+
+    const canEdit = ()=>{
+      const t = this.selectedToken; if (!t) return false;
+      return this.tokens.canControl(t) || this.isDM;
+    };
+
+    this._refreshTokenPanel = ()=>{
+      const t = this.selectedToken;
+      if (!t){ info.textContent = 'No token selected'; [nameEl, acEl, hpCurEl, hpMaxEl, condEl, applyBtn, dmgBtn, healBtn, deltaEl].forEach(el=>{ if (el) el.disabled = true; }); return; }
+      info.textContent = `${t.name} ${t.friendly?'(friendly)':'(hostile)'} ${this.tokens.canControl(t)?'• yours':''}`;
+      [nameEl, acEl, hpCurEl, hpMaxEl, condEl, applyBtn, dmgBtn, healBtn, deltaEl].forEach(el=>{ if (el) el.disabled = !canEdit(); });
+      if (nameEl) nameEl.value = t.name||'';
+      if (acEl) acEl.value = t.ac||0;
+      if (hpCurEl) hpCurEl.value = t.hp||0;
+      if (hpMaxEl) hpMaxEl.value = t.hpMax||t.hp||0;
+      if (condEl) condEl.value = (t.conditions||[]).join(', ');
+    };
+
+    const applyPatch = (patch)=>{
+      const t = this.selectedToken; if (!t) return;
+      if (!canEdit()) return;
+      const oldHp = t.hp;
+      Object.assign(t, patch);
+      // Clamp hp
+      t.hpMax = Math.max(0, parseInt(t.hpMax||0,10));
+      t.hp = Math.max(0, Math.min(parseInt(t.hp||0,10), t.hpMax||t.hp||0));
+      this.vtt.requestRender();
+      this._refreshTokenPanel();
+      // Broadcast
+      this.net.emit('tokenUpdate', { id: t.id, patch });
+      // Chat for HP changes
+      if (typeof oldHp === 'number' && typeof t.hp === 'number' && oldHp !== t.hp){
+        const diff = t.hp - oldHp;
+        const verb = diff < 0 ? 'takes' : 'heals';
+        const amt = Math.abs(diff);
+        this.log(`${t.name} ${verb} ${amt} HP, HP ${t.hp}/${t.hpMax||t.hp}`);
+      }
+    };
+
+    if (applyBtn){ applyBtn.addEventListener('click', ()=>{
+      const t = this.selectedToken; if (!t) return;
+      const conds = (condEl?.value||'').split(',').map(s=>s.trim()).filter(Boolean);
+      applyPatch({ name: nameEl?.value||t.name, ac: parseInt(acEl?.value||t.ac||0,10), hp: parseInt(hpCurEl?.value||t.hp||0,10), hpMax: parseInt(hpMaxEl?.value||t.hpMax||0,10), conditions: conds });
+    }); }
+    if (dmgBtn){ dmgBtn.addEventListener('click', ()=>{
+      const t = this.selectedToken; if (!t) return; const n = parseInt(deltaEl?.value||'0',10)||0; if (n<=0) return; applyPatch({ hp: Math.max(0, (t.hp||0)-n) }); }); }
+    if (healBtn){ healBtn.addEventListener('click', ()=>{
+      const t = this.selectedToken; if (!t) return; const n = parseInt(deltaEl?.value||'0',10)||0; if (n<=0) return; applyPatch({ hp: Math.min((t.hpMax||t.hp||0), (t.hp||0)+n) }); }); }
+
+    // Update panel on selection change
+    this.tokens.onSelected = (t)=>{ this.selectedToken = t; this._refreshTokenPanel(); };
+    // Initialize disabled state
+    this._refreshTokenPanel();
+  }
+
+  _maybeSetupFirebaseCharacterSync(){
+    try {
+      const db = (typeof window !== 'undefined') ? window.database : null; if (!db) return;
+      const user = (this.currentUser||'').trim(); if (!user || user.toLowerCase()==='guest') return;
+      const sanitized = user.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const ref = db.ref(`characters/${sanitized}/characterSheet`);
+      ref.on('value', (snap)=>{
+        const data = snap.val(); if (!data) return;
+        // Find or create the player's token
+        let t = this.tokens.list.find(t=> t.owner === this.tokens.control.playerId);
+        if (!t){ this._ensurePlayerTokenSpawned(false); t = this.tokens.list.find(t=> t.owner === this.tokens.control.playerId); }
+        if (!t) return;
+        const patch = {};
+        if (data.characterName && data.characterName !== t.name) patch.name = data.characterName;
+        if (typeof data.armorClass === 'number' && data.armorClass !== t.ac) patch.ac = data.armorClass;
+        let hpCur = (typeof data.hpCurrent === 'number') ? data.hpCurrent : undefined;
+        let hpMax = (typeof data.hpMax === 'number') ? data.hpMax : undefined;
+        if (typeof hpMax === 'number' && hpMax !== t.hpMax) patch.hpMax = hpMax;
+        if (typeof hpCur === 'number' && hpCur !== t.hp) patch.hp = hpCur;
+        if (Object.keys(patch).length){ Object.assign(t, patch); this.vtt.requestRender(); if (this.selectedToken && this.selectedToken.id===t.id) this._refreshTokenPanel(); }
+      });
+      this.log('[system] Firebase character sync active.');
+    } catch(e) { /* ignore */ }
   }
 
   // Read character sheet data from localStorage (fallback when Firebase not wired in this page)
