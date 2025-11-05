@@ -122,6 +122,40 @@
                             <span class="mini-value" id="initQuick">+0</span>
                         </div>
                     </div>
+
+                    <!-- Quick HP block -->
+                    <div class="hp-quick" aria-label="Quick HP">
+                        <div class="hpq-grid">
+                            <div class="mini-stat">
+                                <span class="mini-label">Current</span>
+                                <span class="mini-value" id="hpCurrentQuick">0</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-label">Max</span>
+                                <span class="mini-value" id="hpMaxQuick">0</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-label">Temp</span>
+                                <span class="mini-value" id="hpTempQuick">0</span>
+                            </div>
+                        </div>
+                        <div class="hpq-controls">
+                            <div class="hpq-group">
+                                <label for="damageQuick" class="hpq-label">Damage</label>
+                                <input id="damageQuick" type="number" min="0" value="0" />
+                                <button id="applyDamageQuick" class="btn-mini danger">Apply</button>
+                            </div>
+                            <div class="hpq-group">
+                                <label for="healQuick" class="hpq-label">Heal</label>
+                                <input id="healQuick" type="number" min="0" value="0" />
+                                <button id="applyHealQuick" class="btn-mini success">Apply</button>
+                            </div>
+                            <div class="hpq-rest">
+                                <button id="shortRestQuick" class="btn-mini">Short Rest</button>
+                                <button id="longRestQuick" class="btn-mini">Long Rest</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="summary-center">

@@ -349,6 +349,25 @@
     box-shadow: 0 2px 10px rgba(120, 160, 255, 0.25) inset;
 }
 
+/* ===== HP Quick (in hero card) ===== */
+.hp-quick { margin-top: 0.5rem; }
+.hpq-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+.hpq-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.5rem;
+    align-items: end;
+    margin-top: 0.5rem;
+}
+.hpq-group { display: grid; grid-template-columns: auto 1fr auto; gap: 0.4rem; align-items: center; }
+.hpq-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
+.hpq-group input { width: 70px; text-align: right; }
+.hpq-rest { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
 /* ===== OLD STYLES - Keep for compatibility ===== */
 .identity-field { display: flex; align-items: center; gap: 0.5rem; }
 .xp-field { flex-wrap: wrap; }

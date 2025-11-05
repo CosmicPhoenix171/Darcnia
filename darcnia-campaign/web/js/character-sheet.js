@@ -661,6 +661,24 @@ function setupEventListeners() {
     if (shortBtn) shortBtn.addEventListener('click', doShortRest);
     if (longBtn) longBtn.addEventListener('click', doLongRest);
 
+    // Quick HP controls (hero card) — mirror the main handlers
+    const dmgQuickBtn = document.getElementById('applyDamageQuick');
+    const healQuickBtn = document.getElementById('applyHealQuick');
+    const shortQuickBtn = document.getElementById('shortRestQuick');
+    const longQuickBtn = document.getElementById('longRestQuick');
+    if (dmgQuickBtn) dmgQuickBtn.addEventListener('click', () => {
+        const v = parseInt(document.getElementById('damageQuick').value) || 0;
+        const main = document.getElementById('damageInput'); if (main) main.value = v;
+        applyDamage();
+    });
+    if (healQuickBtn) healQuickBtn.addEventListener('click', () => {
+        const v = parseInt(document.getElementById('healQuick').value) || 0;
+        const main = document.getElementById('healInput'); if (main) main.value = v;
+        applyHeal();
+    });
+    if (shortQuickBtn) shortQuickBtn.addEventListener('click', doShortRest);
+    if (longQuickBtn) longQuickBtn.addEventListener('click', doLongRest);
+
     // XP input updates level automatically
     const xpInput = document.getElementById('experiencePoints');
     if (xpInput) {
@@ -1069,6 +1087,10 @@ function updateSummaryHeader() {
     const acQuick = document.getElementById('acQuick');
     const speedQuick = document.getElementById('speedQuick');
     const initQuick = document.getElementById('initQuick');
+    // HP quick values
+    const hpCurQuick = document.getElementById('hpCurrentQuick');
+    const hpMaxQuick = document.getElementById('hpMaxQuick');
+    const hpTempQuick = document.getElementById('hpTempQuick');
 
     // nameDisplay is now an input, so just update placeholder if empty
     if (nameDisplay && !nameDisplay.value) {
@@ -1095,6 +1117,9 @@ function updateSummaryHeader() {
         const dexMod = calculateAbilityModifier(characterData.abilities.dex || parseInt(document.getElementById('dexScore')?.value) || 10);
         initQuick.textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
     }
+    if (hpCurQuick) hpCurQuick.textContent = String(hpCur);
+    if (hpMaxQuick) hpMaxQuick.textContent = String(hpMax);
+    if (hpTempQuick) hpTempQuick.textContent = String(hpTmp);
 }
 
 // ===== Save/Load Functions =====
