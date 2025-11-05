@@ -749,10 +749,15 @@ function calculateAllStats() {
     // Calculate initiative
     const dexMod = calculateAbilityModifier(characterData.abilities.dex);
     const initiativeStr = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
-    document.getElementById('initiative').textContent = initiativeStr;
+    const initEl = document.getElementById('initiative') || document.getElementById('initiativeQuick');
+    if (initEl) {
+        if (initEl.tagName === 'INPUT') initEl.value = initiativeStr; else initEl.textContent = initiativeStr;
+    }
     // Update summary for initiative
-    const initSummary = document.getElementById('initSummary');
-    if (initSummary) initSummary.textContent = initiativeStr;
+    const initSummary = document.getElementById('initSummary') || document.getElementById('initiativeQuick');
+    if (initSummary && initSummary !== initEl) {
+        if (initSummary.tagName === 'INPUT') initSummary.value = initiativeStr; else initSummary.textContent = initiativeStr;
+    }
     
     // Calculate passive perception
     const perceptionBonus = calculateAbilityModifier(characterData.abilities.wis) + 
@@ -989,7 +994,7 @@ function populateCharacterData(data) {
 function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
 
 function applyDamage() {
-    const dmg = parseInt(document.getElementById('damageInput').value) || 0;
+    const dmg = parseInt(document.getElementById('damageQuick')?.value || document.getElementById('damageInput')?.value || '0') || 0;
     if (dmg <= 0) return;
     // Use temp HP first
     let temp = parseInt(document.getElementById('hpTemp').value) || 0;
@@ -1009,7 +1014,7 @@ function applyDamage() {
 }
 
 function applyHeal() {
-    const heal = parseInt(document.getElementById('healInput').value) || 0;
+    const heal = parseInt(document.getElementById('healQuick')?.value || document.getElementById('healInput')?.value || '0') || 0;
     if (heal <= 0) return;
     const maxHp = parseInt(document.getElementById('hpMax').value) || 0;
     let current = parseInt(document.getElementById('hpCurrent').value) || 0;
@@ -1083,14 +1088,7 @@ function updateSummaryHeader() {
     const hpCurDisp = document.getElementById('hpCurrentDisplay');
     const hpMaxDisp = document.getElementById('hpMaxDisplay');
     const hpTmpDisp = document.getElementById('hpTempDisplay');
-    // Quick stats on hero card
-    const acQuick = document.getElementById('acQuick');
-    const speedQuick = document.getElementById('speedQuick');
-    const initQuick = document.getElementById('initQuick');
-    // HP quick values
-    const hpCurQuick = document.getElementById('hpCurrentQuick');
-    const hpMaxQuick = document.getElementById('hpMaxQuick');
-    const hpTempQuick = document.getElementById('hpTempQuick');
+    const initiativeQuick = document.getElementById('initiativeQuick');
 
     // nameDisplay is now an input, so just update placeholder if empty
     if (nameDisplay && !nameDisplay.value) {
@@ -1111,15 +1109,16 @@ function updateSummaryHeader() {
     if (hpCurDisp) hpCurDisp.textContent = String(hpCur);
     if (hpMaxDisp) hpMaxDisp.textContent = String(hpMax);
     if (hpTmpDisp) hpTmpDisp.textContent = String(hpTmp);
-    if (acQuick) acQuick.textContent = String(ac);
-    if (speedQuick) speedQuick.textContent = String(speedNum);
-    if (initQuick) {
+    // Reflect values into hero inputs if present (without overriding user edits for initiative)
+    const acInput = document.getElementById('armorClass'); if (acInput && acInput !== document.activeElement) acInput.value = String(ac);
+    const speedInput = document.getElementById('speed'); if (speedInput && speedInput !== document.activeElement) speedInput.value = String(speedNum);
+    const hpCurInput = document.getElementById('hpCurrent'); if (hpCurInput && hpCurInput !== document.activeElement) hpCurInput.value = String(hpCur);
+    const hpMaxInput = document.getElementById('hpMax'); if (hpMaxInput && hpMaxInput !== document.activeElement) hpMaxInput.value = String(hpMax);
+    const hpTempInput = document.getElementById('hpTemp'); if (hpTempInput && hpTempInput !== document.activeElement) hpTempInput.value = String(hpTmp);
+    if (initiativeQuick && initiativeQuick !== document.activeElement) {
         const dexMod = calculateAbilityModifier(characterData.abilities.dex || parseInt(document.getElementById('dexScore')?.value) || 10);
-        initQuick.textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
+        initiativeQuick.value = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
     }
-    if (hpCurQuick) hpCurQuick.textContent = String(hpCur);
-    if (hpMaxQuick) hpMaxQuick.textContent = String(hpMax);
-    if (hpTempQuick) hpTempQuick.textContent = String(hpTmp);
 }
 
 // ===== Save/Load Functions =====

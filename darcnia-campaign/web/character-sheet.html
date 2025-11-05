@@ -111,15 +111,15 @@
                     <div class="quick-stats" aria-label="Quick combat stats">
                         <div class="mini-stat">
                             <span class="mini-label">AC</span>
-                            <span class="mini-value" id="acQuick">10</span>
+                            <input type="number" min="0" id="armorClass" class="mini-value-input" value="10" />
                         </div>
                         <div class="mini-stat">
                             <span class="mini-label">Speed</span>
-                            <span class="mini-value" id="speedQuick">30</span>
+                            <input type="text" id="speed" class="mini-value-input" value="30" />
                         </div>
                         <div class="mini-stat">
                             <span class="mini-label">Init</span>
-                            <span class="mini-value" id="initQuick">+0</span>
+                            <input type="text" id="initiativeQuick" class="mini-value-input" value="+0" />
                         </div>
                     </div>
 
@@ -128,15 +128,15 @@
                         <div class="hpq-grid">
                             <div class="mini-stat">
                                 <span class="mini-label">Current</span>
-                                <span class="mini-value" id="hpCurrentQuick">0</span>
+                                <input type="number" min="0" id="hpCurrent" class="mini-value-input" value="0" />
                             </div>
                             <div class="mini-stat">
                                 <span class="mini-label">Max</span>
-                                <span class="mini-value" id="hpMaxQuick">0</span>
+                                <input type="number" min="0" id="hpMax" class="mini-value-input" value="0" />
                             </div>
                             <div class="mini-stat">
                                 <span class="mini-label">Temp</span>
-                                <span class="mini-value" id="hpTempQuick">0</span>
+                                <input type="number" min="0" id="hpTemp" class="mini-value-input" value="0" />
                             </div>
                         </div>
                         <div class="hpq-controls">
@@ -158,40 +158,7 @@
                     </div>
                 </div>
             </div>
-            <div class="summary-center">
-                <div class="hp-panel">
-                    <div class="hp-row">
-                        <div class="hp-box">
-                            <div class="hp-label">Current</div>
-                            <div class="hp-value" id="hpCurrentDisplay">0</div>
-                        </div>
-                        <div class="hp-box">
-                            <div class="hp-label">Max</div>
-                            <div class="hp-value" id="hpMaxDisplay">0</div>
-                        </div>
-                        <div class="hp-box">
-                            <div class="hp-label">Temp</div>
-                            <div class="hp-value" id="hpTempDisplay">0</div>
-                        </div>
-                    </div>
-                    <div class="hp-controls">
-                        <div class="hp-io">
-                            <label for="damageInput">Damage</label>
-                            <input id="damageInput" type="number" min="0" value="0" />
-                            <button id="applyDamageBtn" class="btn-mini danger">Apply</button>
-                        </div>
-                        <div class="hp-io">
-                            <label for="healInput">Heal</label>
-                            <input id="healInput" type="number" min="0" value="0" />
-                            <button id="applyHealBtn" class="btn-mini success">Apply</button>
-                        </div>
-                        <div class="rest-buttons">
-                            <button id="shortRestBtn" class="btn-mini">Short Rest</button>
-                            <button id="longRestBtn" class="btn-mini">Long Rest</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </section>
 
         <!-- View Tabs: Combat / Spells / Inventory / Features / Notes / About -->
