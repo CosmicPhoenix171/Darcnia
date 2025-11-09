@@ -1,3 +1,14 @@
+import {
+    calculateWMI,
+    calculateCategoryAdjustment,
+    calculateVendorAdjustment,
+    calculateFinalPrice,
+    getCategoryKey,
+    EVENT_ADJUSTMENTS,
+    getISOWeek,
+    getDateString
+} from './pricing.js';
+
 // ===== Firebase Configuration =====
 const firebaseConfig = {
     apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
