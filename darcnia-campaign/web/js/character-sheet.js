@@ -133,17 +133,10 @@ function updateLevelFromXP() {
     updateSummaryHeader();
 }
 
-// ===== Firebase Configuration =====
-const firebaseConfig = {
-    apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
-    authDomain: "dnd-5e-e1ad1.firebaseapp.com",
-    databaseURL: "https://dnd-5e-e1ad1-default-rtdb.firebaseio.com",
-    projectId: "dnd-5e-e1ad1",
-    storageBucket: "dnd-5e-e1ad1.firebasestorage.app",
-    messagingSenderId: "630611257093",
-    appId: "1:630611257093:web:5fafca4be805d4679bb96c",
-    measurementId: "G-Y4Y25TDECL"
-};
+// Use shared config modules
+import { firebaseConfig } from './config/firebase-config.js';
+import { STORAGE_KEYS } from './config/app-config.js';
+import { simpleHash, characterDatabase } from './data/character-db.js';
 
 // Initialize Firebase
 let database = null;
@@ -163,39 +156,6 @@ let firebaseListener = null;
 let isUpdatingFromFirebase = false;
 
 // ===== Character Database & Login System =====
-function simpleHash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return hash.toString(36);
-}
-
-const characterDatabase = {
-    'nyra vex': {
-        name: 'Nyra Vex',
-        password: simpleHash('rogue123'),
-        race: 'Human',
-        class: 'Rogue',
-        guild: 'Guild Crystalia',
-        accessLevel: 'player',
-        bank: { gold: 0, silver: 0, copper: 0 }
-    },
-    'dm': {
-        name: 'Dungeon Master',
-        password: simpleHash('dmpass2025'),
-        accessLevel: 'dm',
-        bank: { gold: 9999, silver: 99, copper: 99 }
-    },
-    'dungeon master': {
-        name: 'Dungeon Master',
-        password: simpleHash('dmpass2025'),
-        accessLevel: 'dm',
-        bank: { gold: 9999, silver: 99, copper: 99 }
-    }
-};
 
 // Character data structure
 let characterData = {
@@ -368,7 +328,7 @@ function initTabs() {
     const tabs = document.querySelectorAll('.sheet-tab');
     if (!tabs || tabs.length === 0) return;
 
-    let saved = localStorage.getItem('characterSheetActiveTab') || 'combat';
+    let saved = localStorage.getItem(STORAGE_KEYS.characterSheetActiveTab) || 'combat';
 
     // Migrate old saved value of 'all' (removed) to 'inventory'
     if (saved === 'all') saved = 'inventory';
@@ -384,7 +344,7 @@ function initTabs() {
         tab.addEventListener('click', (e) => {
             const name = tab.dataset.tab;
             applyTab(name);
-            localStorage.setItem('characterSheetActiveTab', name);
+            localStorage.setItem(STORAGE_KEYS.characterSheetActiveTab, name);
 
             // Update active class
             tabs.forEach(t => t.classList.toggle('tab-active', t === tab));
@@ -417,7 +377,7 @@ function initializeSheet() {
 
 function checkLoggedInCharacter() {
     // Check if user is logged in from main campaign page
-    const savedCharacterName = localStorage.getItem('loggedInCharacter');
+    const savedCharacterName = localStorage.getItem(STORAGE_KEYS.loggedInCharacter);
     
     if (savedCharacterName && characterDatabase[savedCharacterName]) {
         const character = characterDatabase[savedCharacterName];
@@ -530,7 +490,7 @@ function showLogin() {
             }
             
             // Clear saved character from localStorage
-            localStorage.removeItem('loggedInCharacter');
+            localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
             currentCharacterName = null;
             
             loginBtn.textContent = '👤 Login';
@@ -582,7 +542,7 @@ async function attemptLogin() {
     currentCharacterName = character.name;
     
     // Save logged-in character to localStorage
-    localStorage.setItem('loggedInCharacter', username);
+    localStorage.setItem(STORAGE_KEYS.loggedInCharacter, username);
     
     const loginBtn = document.getElementById('loginBtn');
     loginBtn.textContent = `👤 ${character.name}`;
@@ -697,7 +657,7 @@ function setupEventListeners() {
 // ===== Theme Management =====
 function setTheme(theme) {
     document.body.setAttribute('data-theme', theme);
-    localStorage.setItem('characterSheetTheme', theme);
+    localStorage.setItem(STORAGE_KEYS.characterSheetTheme, theme);
 }
 
 // ===== Calculations =====
@@ -1125,7 +1085,7 @@ function updateSummaryHeader() {
 // ===== Save/Load Functions =====
 function autoSaveCharacterData() {
     const data = gatherCharacterData();
-    localStorage.setItem('dnd2024CharacterSheet', JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEYS.characterSheetData, JSON.stringify(data));
     
     // Also save to Firebase if logged in
     if (currentCharacterName && currentCharacterName !== 'Guest') {
@@ -1139,7 +1099,7 @@ function saveCharacterData() {
     const data = gatherCharacterData();
     
     // Save to localStorage
-    localStorage.setItem('dnd2024CharacterSheet', JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEYS.characterSheetData, JSON.stringify(data));
     
     // Save to Firebase if logged in
     if (currentCharacterName && currentCharacterName !== 'Guest') {
@@ -1165,7 +1125,7 @@ function saveCharacterData() {
 }
 
 function loadCharacterData() {
-    const savedData = localStorage.getItem('dnd2024CharacterSheet');
+    const savedData = localStorage.getItem(STORAGE_KEYS.characterSheetData);
     if (savedData) {
         try {
             const data = JSON.parse(savedData);
@@ -1296,6 +1256,23 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+const CharacterSheetAPI = {
+    attemptLogin,
+    closeLoginModal,
+    saveCharacterData,
+    loadCharacterData,
+    loadFromFile,
+    exportToPDF
+};
+
+window.CharacterSheet = {
+    ...(window.CharacterSheet || {}),
+    ...CharacterSheetAPI
+};
+
+window.attemptLogin = attemptLogin;
+window.closeLoginModal = closeLoginModal;
 
 console.log('🐉 D&D 2024 Character Sheet initialized');
 

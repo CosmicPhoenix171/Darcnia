@@ -1,11 +1,10 @@
 // ===== Dynamic Pricing Engine for Bluebrick Market =====
 // Implements realistic price fluctuations using 2d6 bell curves
-console.log('💵 Pricing.js loaded -', window.APP_VERSION); // Single source of truth from version.js
 
 /**
  * Roll 2d6 and return the sum (2-12, centered on 7)
  */
-function roll2d6() {
+export function roll2d6() {
     return Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
 }
 
@@ -32,7 +31,7 @@ function offsetToMultiplier(offset, stepSize, min, max) {
 /**
  * Category configuration for different item types
  */
-const CATEGORY_CONFIG = {
+export const CATEGORY_CONFIG = {
     // Essentials: Food, Drink, Lodging, General L0 gear
     'essentials': {
         stepSize: 0.01,
@@ -106,7 +105,7 @@ const CATEGORY_CONFIG = {
 /**
  * Map shop/category names to category configs
  */
-function getCategoryKey(shopId, categoryName, itemRarity) {
+export function getCategoryKey(shopId, categoryName, itemRarity) {
     const shopLower = (shopId || '').toLowerCase();
     const catLower = (categoryName || '').toLowerCase();
     const rarityLower = (itemRarity || '').toLowerCase();
@@ -136,7 +135,7 @@ function getCategoryKey(shopId, categoryName, itemRarity) {
  * Calculate Weekly Market Index (WMI)
  * Affects all items citywide
  */
-function calculateWMI() {
+export function calculateWMI() {
     const roll = roll2d6();
     const offset = rollToOffset(roll);
     return {
@@ -149,7 +148,7 @@ function calculateWMI() {
 /**
  * Calculate Category Adjustment (CatAdj)
  */
-function calculateCategoryAdjustment(categoryKey) {
+export function calculateCategoryAdjustment(categoryKey) {
     const config = CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG['essentials'];
     const roll = roll2d6();
     const offset = rollToOffset(roll);
@@ -164,7 +163,7 @@ function calculateCategoryAdjustment(categoryKey) {
  * Calculate Vendor Adjustment (VendorAdj)
  * Daily per-shop variance (haggling, mood, traffic)
  */
-function calculateVendorAdjustment() {
+export function calculateVendorAdjustment() {
     const roll = roll2d6();
     const offset = rollToOffset(roll);
     return {
@@ -177,7 +176,7 @@ function calculateVendorAdjustment() {
 /**
  * Event adjustments (manual/DM-triggered)
  */
-const EVENT_ADJUSTMENTS = {
+export const EVENT_ADJUSTMENTS = {
     'none': 1.00,
     'festival-sale': 0.95,
     'harvest-glut': 0.90,
@@ -191,7 +190,7 @@ const EVENT_ADJUSTMENTS = {
  * Parse a price string like "5 gp", "3 sp 2 cp", "1,500 gp"
  * Returns total in copper pieces
  */
-function parsePriceToCopper(priceStr) {
+export function parsePriceToCopper(priceStr) {
     let copper = 0;
     
     // Remove commas and extra spaces
@@ -211,31 +210,24 @@ function parsePriceToCopper(priceStr) {
 /**
  * Convert copper to a price object {gp, sp, cp}
  */
-function copperToPrice(totalCopper) {
+export function copperToPrice(totalCopper) {
     const gp = Math.floor(totalCopper / 100);
     const remaining = totalCopper - (gp * 100);
     const sp = Math.floor(remaining / 10);
     const cp = remaining % 10;
-    
-    // DEBUG: Log conversion for verification
-    if (totalCopper === 208) {
-        console.log('🔍 copperToPrice(208):', { gp, sp, cp, remaining });
-    }
-    
+
     return { gp, sp, cp };
 }
 
 /**
  * Format a price object to string
  */
-function formatPrice(priceObj) {
-    console.log('🔍 formatPrice input:', priceObj);
+export function formatPrice(priceObj) {
     const parts = [];
     if (priceObj.gp > 0) parts.push(`${priceObj.gp.toLocaleString()} gp`);
     if (priceObj.sp > 0) parts.push(`${priceObj.sp} sp`);
     if (priceObj.cp > 0) parts.push(`${priceObj.cp} cp`);
     const result = parts.length > 0 ? parts.join(', ') : '0 cp';
-    console.log('🔍 formatPrice output:', result, 'parts:', parts);
     return result;
 }
 
@@ -245,8 +237,7 @@ function formatPrice(priceObj) {
  * @param {object} multipliers - {wmi, catAdj, vendorAdj, eventAdj, scarcityAdj}
  * @returns {object} - {baseCopper, finalCopper, basePriceStr, finalPriceStr, breakdown}
  */
-function calculateFinalPrice(basePrice, multipliers) {
-    console.log('🔍 calculateFinalPrice called with:', basePrice);
+export function calculateFinalPrice(basePrice, multipliers) {
     const baseCopper = parsePriceToCopper(basePrice);
     
     const {
@@ -266,9 +257,7 @@ function calculateFinalPrice(basePrice, multipliers) {
     
     // Convert copper to price components
     const priceObj = copperToPrice(finalCopper);
-    console.log('🔍 About to format price:', priceObj);
-    const formattedPrice = formatPrice(priceObj.gp, priceObj.sp, priceObj.cp);
-    console.log('🔍 Formatted result:', formattedPrice);
+    const formattedPrice = formatPrice(priceObj);
     
     return {
         baseCopper,
@@ -289,7 +278,7 @@ function calculateFinalPrice(basePrice, multipliers) {
 /**
  * Get ISO week number for consistent weekly rerolls
  */
-function getISOWeek(date = new Date()) {
+export function getISOWeek(date = new Date()) {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() + 4 - (d.getDay() || 7));
@@ -301,22 +290,6 @@ function getISOWeek(date = new Date()) {
 /**
  * Get current date string (YYYY-MM-DD) for daily rerolls
  */
-function getDateString(date = new Date()) {
+export function getDateString(date = new Date()) {
     return date.toISOString().split('T')[0];
-}
-
-// Export functions for use in app.js
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        roll2d6,
-        calculateWMI,
-        calculateCategoryAdjustment,
-        calculateVendorAdjustment,
-        calculateFinalPrice,
-        getCategoryKey,
-        getISOWeek,
-        getDateString,
-        EVENT_ADJUSTMENTS,
-        CATEGORY_CONFIG
-    };
 }

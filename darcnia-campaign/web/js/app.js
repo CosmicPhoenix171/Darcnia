@@ -1,14 +1,23 @@
+import { firebaseConfig } from './config/firebase-config.js';
+import { APP_CONFIG, STORAGE_KEYS } from './config/app-config.js';
+import { characterDatabase, simpleHash } from './data/character-db.js';
+import {
+    CATEGORY_CONFIG,
+    EVENT_ADJUSTMENTS,
+    calculateCategoryAdjustment,
+    calculateFinalPrice,
+    calculateVendorAdjustment,
+    calculateWMI,
+    getCategoryKey,
+    getDateString,
+    getISOWeek
+} from './pricing.js';
+import { APP_VERSION } from './version.js';
+
+const CONFIG = APP_CONFIG;
+const STORAGE = STORAGE_KEYS;
+
 // ===== Firebase Configuration =====
-const firebaseConfig = {
-    apiKey: "AIzaSyDPJBVFRpDeT06syTehuGPep5zIIoac1L0",
-    authDomain: "dnd-5e-e1ad1.firebaseapp.com",
-    databaseURL: "https://dnd-5e-e1ad1-default-rtdb.firebaseio.com",
-    projectId: "dnd-5e-e1ad1",
-    storageBucket: "dnd-5e-e1ad1.firebasestorage.app",
-    messagingSenderId: "630611257093",
-    appId: "1:630611257093:web:5fafca4be805d4679bb96c",
-    measurementId: "G-Y4Y25TDECL"
-};
 
 // Initialize Firebase
 let database = null;
@@ -32,71 +41,6 @@ const marketState = {
 };
 
 // ===== Configuration =====
-const CONFIG = {
-    campaignPath: '../', // Path to campaign files
-    playerAccessible: {
-        // Define what players can access (DM sections excluded)
-        guilds: true,
-        npcs: ['eldonthorne', 'tessawindfern'], // Only specific NPCs (not Sophia secrets)
-        locations: true,
-        items: true,
-        quests: true,
-        handouts: true,
-        lore: ['world', 'guilds'], // Not full dungeon.md (has DM secrets)
-    }
-};
-
-// ===== Character Database =====
-// Simple hash function for password verification (in production, use proper authentication)
-function simpleHash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash.toString(36);
-}
-
-const characterDatabase = {
-    'nyra vex': {
-        name: 'Nyra Vex',
-        password: simpleHash('rogue123'), // Default password: rogue123
-        race: 'Human',
-        class: 'Rogue',
-        level: 1, // Character level (used for item rarity gating)
-        guild: 'Guild Crystalia',
-        relationships: ['Eldon Thorne', 'Tessa Windfern'],
-        knownLocations: ['Guild Crystalia Hall', 'Heart Plaza', 'Hearthstone Inn'],
-        knownGuilds: ['Guild Crystalia', 'The Crimson Vanguard', "Merchants' Concord", 'City Watch'],
-        completedQuests: ['Missing Cat'],
-        activeQuests: ['Shadows in the Basement'],
-        knownSecrets: [],
-        accessLevel: 'player',
-        discoveredHandouts: ['Tavern Rumors', 'Guild Job Board', 'Thug Note'],
-        bank: { gold: 0, silver: 0, copper: 0 } // Starting funds
-    },
-    'dm': {
-        name: 'Dungeon Master',
-        password: simpleHash('dmpass2025'), // Default DM password: dmpass2025
-        accessLevel: 'dm',
-        level: 20, // Max level for testing
-        knownGuilds: 'all',
-        knownLocations: 'all',
-        knownSecrets: 'all',
-        discoveredHandouts: 'all'
-    },
-    'dungeon master': {
-        name: 'Dungeon Master',
-        password: simpleHash('dmpass2025'), // Default DM password: dmpass2025
-        accessLevel: 'dm',
-        level: 20, // Max level for testing
-        knownGuilds: 'all',
-        knownLocations: 'all',
-        knownSecrets: 'all',
-        discoveredHandouts: 'all'
-    }
-};
 
 // ===== State Management =====
 const state = {
@@ -1069,7 +1013,7 @@ const contentData = {
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
     // Check for saved logged-in character
-    const savedCharacterName = localStorage.getItem('loggedInCharacter');
+    const savedCharacterName = localStorage.getItem(STORAGE.loggedInCharacter);
     
     if (savedCharacterName && characterDatabase[savedCharacterName]) {
         // Restore logged-in character
@@ -1180,11 +1124,11 @@ function createRipple(event, element) {
 
 function initializeApp() {
     // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem(STORAGE.theme) || 'dark';
     setTheme(savedTheme);
     
     // Load bank balance from localStorage first, then from character as fallback
-    const savedBank = localStorage.getItem('bankBalance');
+    const savedBank = localStorage.getItem(STORAGE.bank);
     if (savedBank) {
         state.bank = JSON.parse(savedBank);
     } else if (state.currentCharacter && state.currentCharacter.bank) {
@@ -1228,7 +1172,7 @@ function initializeApp() {
 }
 
 function saveBankToLocalStorage() {
-    localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+    localStorage.setItem(STORAGE.bank, JSON.stringify(state.bank));
     
     // Also save to Firebase if logged in
     if (state.currentCharacter && state.currentCharacter.name !== 'Guest') {
@@ -1309,7 +1253,7 @@ function setupFirebaseRealtimeSync(characterName) {
                     
                     if (currentBank !== newBank) {
                         state.bank = { ...data.bank };
-                        localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+                        localStorage.setItem(STORAGE.bank, JSON.stringify(state.bank));
                         updateBankDisplay();
                         console.log('🔄 Bank balance synced from Firebase');
                         hasChanges = true;
@@ -1592,7 +1536,7 @@ async function calculateItemPrice(basePrice, shopId, categoryName, itemRarity) {
 function setTheme(theme) {
     state.theme = theme;
     document.body.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    localStorage.setItem(STORAGE.theme, theme);
 }
 
 function toggleTheme() {
@@ -3120,7 +3064,7 @@ function showLogin() {
             stopFirebaseRealtimeSync();
             
             // Clear saved character from localStorage
-            localStorage.removeItem('loggedInCharacter');
+            localStorage.removeItem(STORAGE.loggedInCharacter);
             
             state.currentCharacter = { 
                 name: 'Guest', 
@@ -3132,7 +3076,7 @@ function showLogin() {
             loginBtn.classList.remove('logged-in');
             
             // Reset bank to saved or default
-            const savedBank = localStorage.getItem('bankBalance');
+            const savedBank = localStorage.getItem(STORAGE.bank);
             if (savedBank) {
                 state.bank = JSON.parse(savedBank);
             } else {
@@ -3183,7 +3127,7 @@ async function attemptLogin() {
     state.accessLevel = character.accessLevel || 'player';
     
     // Save logged-in character to localStorage
-    localStorage.setItem('loggedInCharacter', username);
+    localStorage.setItem(STORAGE.loggedInCharacter, username);
     
     // Try to load from Firebase first, fall back to character default
     const firebaseData = await loadCharacterDataFromFirebase(character.name);
@@ -4085,7 +4029,7 @@ async function dmShowPriceInfo() {
 // ===== Utility Functions =====
 // Wait to log until after login
 function logSuccess() {
-    const version = window.APP_VERSION; // Single source of truth from version.js
+    const version = APP_VERSION;
     const buildTime = window.BUILD_TIME ? new Date(window.BUILD_TIME).toLocaleString() : 'Unknown';
     const commit = window.GIT_COMMIT_SHORT || 'manual';
     
@@ -4102,10 +4046,46 @@ function logSuccess() {
 function updateVersionDisplay() {
     const versionDisplay = document.querySelector('.version-display');
     if (versionDisplay) {
-        const version = window.APP_VERSION; // Single source of truth from version.js
+    const version = APP_VERSION;
         const commit = window.GIT_COMMIT_SHORT || '';
         versionDisplay.textContent = version;
         versionDisplay.title = `Build: ${commit}\nTime: ${window.BUILD_TIME || 'Unknown'}`;
     }
+}
+
+const globalBindings = {
+    showGuildDetail,
+    showNPCDetail,
+    showShopDetail,
+    dmForceRerollWMI,
+    dmForceRerollCategories,
+    dmShowEventControls,
+    dmShowPriceInfo,
+    dmSetEvent,
+    showBank,
+    showCart,
+    showLogin,
+    closeLoginModal,
+    attemptLogin,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    clearCart,
+    startNegotiation,
+    attemptNegotiation,
+    checkout,
+    depositFunds,
+    withdrawFunds,
+    closeModal
+};
+
+if (typeof window !== 'undefined') {
+    window.App = {
+        ...globalBindings,
+        state,
+        CONFIG,
+        marketState
+    };
+    Object.assign(window, globalBindings);
 }
 

@@ -1,7 +1,14 @@
 // ===== SINGLE SOURCE OF TRUTH FOR VERSION =====
-// Update ONLY this file when bumping version - all other files read from here
-window.APP_VERSION = 'v1.50';
-window.BUILD_TIME = document.lastModified; // Automatically uses file modification time
-window.GIT_COMMIT = 'main';
+// Update ONLY this file when bumping version - all other files import from here
 
-console.log('📦 Version.js loaded:', window.APP_VERSION);
+export const APP_VERSION = 'v1.50';
+export const BUILD_TIME = document.lastModified;
+export const GIT_COMMIT = 'main';
+
+if (typeof window !== 'undefined') {
+	window.APP_VERSION = APP_VERSION;
+	window.BUILD_TIME = BUILD_TIME;
+	window.GIT_COMMIT = GIT_COMMIT;
+}
+
+console.log('📦 Version initialized:', APP_VERSION);
