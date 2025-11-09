@@ -2313,163 +2313,191 @@ async function showShopDetail(shopId) {
         console.error('Shop not found:', shopId);
         return;
     }
-    const isDM = state.currentCharacter?.accessLevel === 'dm';
     const stockSet = (state._currentMarketStock || generateDailyStock(shops))[shop.id] || new Set();
-        const ALL_RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary'];
-        const filters = state.shopFilters[shop.id] || { q: '', inStockOnly: true, rarities: new Set() };
-    
-        let html = `<h2>${shop.name}</h2>`;
-    if (shop.description) html += `<p>${shop.description}</p>`;
-        html += `<div class="card-meta">Showing today's stock with dynamic pricing. Prices fluctuate daily/weekly.</div>`;
+    const ALL_RARITIES = ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary'];
+    const filters = state.shopFilters[shop.id] || { q: '', inStockOnly: true, rarities: new Set() };
+    filters.rarities = filters.rarities instanceof Set ? filters.rarities : new Set(Array.isArray(filters.rarities) ? filters.rarities : []);
+    filters.inStockOnly = true;
+    state.shopFilters[shop.id] = filters;
 
-        // Filter bar (in stock only is forced on by default)
-        html += `
-            <div class="shop-filters card">
-                <div class="filters-row">
-                    <input type="search" id="shop-q" placeholder="Search in ${shop.name}..." value="${filters.q?.replace(/"/g,'&quot;')||''}" />
-                </div>
-                <div class="filters-row rarity-chips">
-                    ${ALL_RARITIES.map(r => {
-                        const on = filters.rarities instanceof Set ? filters.rarities.has(r) : false;
-                        return `<button class="chip ${on?'on':''}" data-rarity="${r}">${r}</button>`;
-                    }).join('')}
-                    <button class="chip clear" id="rarity-clear">Clear</button>
-                </div>
-            </div>`;
-    
-    // Build initial HTML with all items (showing loading icons for prices)
+    const collapsedForShop = state.shopCategoryCollapsed[shop.id] || (state.shopCategoryCollapsed[shop.id] = {});
+    const density = state.marketDensity === 'compact' ? 'compact' : 'comfortable';
+    const viewMode = state.marketViewMode === 'list' ? 'list' : 'grid';
+    const viewClass = viewMode === 'list' ? 'market-items-list' : 'market-items-grid';
+    const densityToggleLabel = density === 'compact' ? 'Comfort View' : 'Compact View';
+    const viewToggleLabel = viewMode === 'grid' ? 'List View' : 'Grid View';
+
     console.log(`🏪 Loading shop ${shopId}, categories:`, shop.categories?.length || 0);
+
+    const filteredCategories = [];
     for (const cat of shop.categories) {
         console.log(`📦 Category: ${cat.name}, items:`, cat.items?.length || 0);
-        const items = (cat.items || []).filter(it => {
-            const req = Number(it.level ?? 0);
-            const inStock = req <= 0 || stockSet.has(it._key);
+        const items = [];
+        for (const it of cat.items || []) {
+            const reqLevel = Number(it.level ?? 0);
+            const inStock = reqLevel <= 0 || stockSet.has(it._key) || !it._key;
             const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            if (filters.inStockOnly && !inStock) return false;
-            if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) return false;
-            if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) return false;
-            return true;
-        });
-        
+            if (filters.inStockOnly && !inStock) continue;
+            if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) continue;
+            if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) continue;
+            const canAccess = canAccessItemByRarity(it);
+            items.push({ item: it, rarity, inStock, canAccess });
+        }
         console.log(`✅ Filtered items for ${cat.name}:`, items.length);
-        let shown = 0;
-        html += `<h3>${cat.name}</h3>`;
-        if (cat.note) html += `<p class="card-meta">${cat.note}</p>`;
-        html += '<ul class="market-list">';
-        
-        for (const it of items) {
-            const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            const inStock = stockSet.has(it._key) || !it._key;
-            const canAccess = canAccessItemByRarity(it);
-            const cls = (!inStock || !canAccess) ? 'item-dim' : '';
-            
-            // Status badge
-            let badge = '';
-            if (!canAccess) {
-                const reqLevel = getRarityRequirement(rarity);
-                badge = `Requires Level ${reqLevel}`;
-            } else if (!inStock) {
-                badge = 'Out of stock';
-            } else {
-                badge = 'Available';
-            }
-            
-            const statusTag = `<span class="tag">${badge}</span>`;
-            const rarityTag = rarity ? `<span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
-            const attuneTag = it.attunement ? `<span class="tag attune" title="Requires attunement">⚡ Attunement</span>` : '';
-            const note = it.note ? `<div class="card-meta" style="margin-top: 0.25rem;">${it.note}</div>` : '';
-            
-            const itemKey = `${shopId}-${cat.name}-${it.name}`;
-            const itemId = `item-${itemKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
-            
-            // Show loading spinner for price initially
-            const priceDisplay = `<span class="price-loading" id="${itemId}-price">⏳ Loading...</span>`;
-            const cartBtn = `<span id="${itemId}-cart"></span>`; // Placeholder for cart button
-            
-            html += `<li class="${cls}">
-                <div class="item-content">
-                    <strong>${it.name}</strong>
-                    <div class="item-tags">${statusTag}${rarityTag}${attuneTag}</div>
-                    <div class="item-price-row">${priceDisplay}</div>
-                    ${note}
-                </div>
-                ${cartBtn}
-            </li>`;
-            shown++;
-        }
-        
-        html += '</ul>';
-        if (shown === 0) {
-            html += '<p class="card-meta">No items match your filters.</p>';
-        }
+        filteredCategories.push({ cat, items });
     }
-    
-    // Show modal immediately with all items (prices loading)
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
-    
-    // Wire up filters immediately
+
+    const navButtons = filteredCategories.length > 1
+        ? filteredCategories.map(({ cat, items }) => {
+            const catKey = slugify(`${shop.id}-${cat.name}`);
+            const disabledAttr = items.length === 0 ? ' disabled' : '';
+            const disabledClass = items.length === 0 ? ' chip-disabled' : '';
+            return `<button class="chip${disabledClass}" data-market-target="category-${catKey}"${disabledAttr}>${cat.name}</button>`;
+        }).join('')
+        : '';
+
+    const navSection = navButtons ? `<div class="market-category-nav">${navButtons}</div>` : '';
+
+    const categoriesHtml = filteredCategories.map(({ cat, items }) => {
+        const categoryKey = slugify(`${shop.id}-${cat.name}`);
+        const collapsed = !!collapsedForShop[categoryKey];
+        let sectionHtml = `<section class="market-category ${collapsed ? 'collapsed' : ''}" id="category-${categoryKey}">`;
+        sectionHtml += `<button class="category-header" data-category="${categoryKey}" aria-expanded="${(!collapsed).toString()}">`;
+        sectionHtml += `<span class="category-name">${cat.name}</span>`;
+        sectionHtml += `<span class="category-count">${items.length}</span>`;
+        sectionHtml += `<span class="category-chevron" aria-hidden="true"></span>`;
+        sectionHtml += `</button>`;
+        sectionHtml += `<div class="category-body">`;
+        if (cat.note) sectionHtml += `<p class="category-note">${cat.note}</p>`;
+        if (items.length > 0) {
+            sectionHtml += `<div class="market-items ${viewClass}">`;
+            sectionHtml += items.map(({ item: it, rarity, inStock, canAccess }) => {
+                const classes = ['item-card'];
+                if (!inStock || !canAccess) classes.push('item-dim');
+                let badge = 'Available';
+                if (!canAccess) {
+                    badge = `Requires Level ${getRarityRequirement(rarity)}`;
+                } else if (!inStock) {
+                    badge = 'Out of stock';
+                }
+                const statusTag = `<span class="tag">${badge}</span>`;
+                const rarityTag = rarity ? `<span class="tag rarity" data-rarity="${rarity}">${rarity}</span>` : '';
+                const attuneTag = it.attunement ? `<span class="tag attune" title="Requires attunement">⚡ Attunement</span>` : '';
+                const itemKey = `${shopId}-${cat.name}-${it.name}`;
+                const itemId = `item-${itemKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                const priceDisplay = `<span class="price-loading" id="${itemId}-price">⏳ Loading...</span>`;
+                const noteHtml = it.note ? `<p class="item-note">${it.note}</p>` : '';
+                let cardHtml = `<article class="${classes.join(' ')}">`;
+                cardHtml += '<div class="item-card-head">';
+                cardHtml += `<h4>${it.name}</h4>`;
+                cardHtml += `<div class="item-tags">${statusTag}${rarityTag}${attuneTag}</div>`;
+                cardHtml += '</div>';
+                if (noteHtml) cardHtml += noteHtml;
+                cardHtml += '<div class="item-footer">';
+                cardHtml += `<div class="item-price-row">${priceDisplay}</div>`;
+                cardHtml += `<div class="item-actions" id="${itemId}-cart"></div>`;
+                cardHtml += '</div>';
+                cardHtml += '</article>';
+                return cardHtml;
+            }).join('');
+            sectionHtml += '</div>';
+        } else {
+            sectionHtml += '<p class="category-empty card-meta">No items match your filters.</p>';
+        }
+        sectionHtml += '</div>';
+        sectionHtml += '</section>';
+        return sectionHtml;
+    }).join('');
+
+    const filtersHtml = `
+        <section class="market-filters">
+            <div class="filters-row">
+                <input type="search" id="shop-q" placeholder="Search in ${shop.name}..." value="${filters.q?.replace(/"/g, '&quot;') || ''}" />
+            </div>
+            <div class="filters-row rarity-chips">
+                ${ALL_RARITIES.map(r => {
+                    const on = filters.rarities instanceof Set ? filters.rarities.has(r) : false;
+                    return `<button class="chip ${on ? 'on' : ''}" data-rarity="${r}">${r}</button>`;
+                }).join('')}
+                <button class="chip clear" id="rarity-clear">Clear</button>
+            </div>
+            <div class="filters-footnote">Showing in-stock items only</div>
+        </section>`;
+
+    const html = `
+        <div class="market-modal" data-density="${density}" data-view="${viewMode}">
+            <header class="market-header">
+                <div class="market-header-info">
+                    <h2>${shop.name}</h2>
+                    ${shop.description ? `<p class="market-description">${shop.description}</p>` : ''}
+                    <div class="card-meta">Showing today's stock with dynamic pricing. Prices fluctuate daily/weekly.</div>
+                </div>
+                <div class="market-header-controls">
+                    <button type="button" class="market-control-btn" data-market-action="toggle-density">${densityToggleLabel}</button>
+                    <button type="button" class="market-control-btn" data-market-action="toggle-view">${viewToggleLabel}</button>
+                </div>
+            </header>
+            ${filtersHtml}
+            <div class="market-body">
+                ${navSection}
+                <div class="market-content" id="marketScrollArea">
+                    ${categoriesHtml}
+                </div>
+            </div>
+        </div>`;
+
+    openModal(html, 'market');
+
+    // Wire up filters and enhanced controls
     wireShopFilters(shop.id);
-    
+    wireMarketModalUI(shop.id);
+
     // Now calculate prices in background and update each item as ready
-    for (const cat of shop.categories) {
-        const items = (cat.items || []).filter(it => {
-            const req = Number(it.level ?? 0);
-            const inStock = req <= 0 || stockSet.has(it._key);
-            const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            if (filters.inStockOnly && !inStock) return false;
-            if (filters.q && !(`${it.name} ${cat.name}`.toLowerCase().includes(filters.q.toLowerCase()))) return false;
-            if (filters.rarities instanceof Set && filters.rarities.size > 0 && !filters.rarities.has(rarity)) return false;
-            return true;
-        });
-        
-        for (const it of items) {
-            const rarity = it.rarity ? it.rarity : getItemRarity(it);
-            const inStock = stockSet.has(it._key) || !it._key;
-            const canAccess = canAccessItemByRarity(it);
+    for (const { cat, items } of filteredCategories) {
+        for (const entry of items) {
+            const { item: it, rarity, inStock, canAccess } = entry;
             const itemKey = `${shopId}-${cat.name}-${it.name}`;
             const itemId = `item-${itemKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
-            
+
             // Calculate price asynchronously
             calculateItemPrice(it.price, shopId, cat.name, rarity).then(priceData => {
                 const priceEl = document.getElementById(`${itemId}-price`);
                 const cartEl = document.getElementById(`${itemId}-cart`);
                 if (!priceEl || !cartEl) return; // Element may have been removed by filter
-                
+
                 const isPriceChanged = priceData.finalPriceStr !== priceData.basePriceStr;
-                
+
                 // Update price display
                 let priceDisplay = '';
                 if (isPriceChanged) {
-                    const percentChange = ((priceData.finalCopper - priceData.baseCopper) / priceData.baseCopper * 100).toFixed(1);
+                    const percentChange = priceData.baseCopper === 0
+                        ? 0
+                        : ((priceData.finalCopper - priceData.baseCopper) / priceData.baseCopper * 100).toFixed(1);
                     const isIncrease = priceData.finalCopper > priceData.baseCopper;
                     const changeColor = isIncrease ? '#ff4444' : '#44ff44';
                     const changeSign = isIncrease ? '+' : '';
-                    const percentBadge = `<span style="color: ${changeColor}; font-size: 0.85em; font-weight: 600; margin-left: 4px;">(${changeSign}${percentChange}%)</span>`;
+                    const percentBadge = priceData.baseCopper === 0
+                        ? ''
+                        : `<span style="color: ${changeColor}; font-size: 0.85em; font-weight: 600; margin-left: 4px;">(${changeSign}${percentChange}%)</span>`;
                     priceDisplay = `<span class="price-final" style="color: var(--accent-gold); font-weight: 600;">${priceData.finalPriceStr}</span>${percentBadge}`;
                 } else {
                     priceDisplay = `<span class="price-final">${priceData.finalPriceStr}</span>`;
                 }
                 priceEl.innerHTML = priceDisplay;
-                
+
                 // Update cart button (use plain text price, not colored HTML)
                 if (canAccess && inStock) {
-                    // Parse price back to gold/silver/copper and create plain text version
                     const plainPrice = formatPrice(
                         Math.floor(priceData.finalCopper / 100),
                         Math.floor((priceData.finalCopper % 100) / 10),
                         priceData.finalCopper % 10,
-                        false // No color for onclick attribute
+                        false
                     );
                     cartEl.innerHTML = `<button class="add-to-cart-btn" onclick="addToCart('${itemKey.replace(/'/g, "\\'")}', '${it.name.replace(/'/g, "\\'")}', '${plainPrice}', '${shopId}')" title="Add to cart">🛒</button>`;
                 }
             });
         }
     }
-
-        // Wire up filters
-        wireShopFilters(shop.id);
 }
 
 function resolveShop(targetId, shops) {
@@ -2507,6 +2535,53 @@ function wireShopFilters(shopId) {
     if (clearEl) clearEl.addEventListener('click', async () => {
         filters.rarities.clear();
         await showShopDetail(shopId);
+    });
+}
+
+function wireMarketModalUI(shopId) {
+    const root = document.querySelector('.market-modal');
+    if (!root) return;
+
+    const densityBtn = root.querySelector('[data-market-action="toggle-density"]');
+    if (densityBtn) {
+        densityBtn.addEventListener('click', () => {
+            state.marketDensity = state.marketDensity === 'compact' ? 'comfortable' : 'compact';
+            showShopDetail(shopId);
+        }, { once: true });
+    }
+
+    const viewBtn = root.querySelector('[data-market-action="toggle-view"]');
+    if (viewBtn) {
+        viewBtn.addEventListener('click', () => {
+            state.marketViewMode = state.marketViewMode === 'grid' ? 'list' : 'grid';
+            showShopDetail(shopId);
+        }, { once: true });
+    }
+
+    const scrollArea = root.querySelector('.market-content');
+    const navButtons = root.querySelectorAll('[data-market-target]');
+    navButtons.forEach(btn => {
+        if (btn.disabled) return;
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-market-target');
+            const target = root.querySelector(`#${targetId}`);
+            if (!scrollArea || !target) return;
+            const offset = target.getBoundingClientRect().top - scrollArea.getBoundingClientRect().top + scrollArea.scrollTop - 8;
+            scrollArea.scrollTo({ top: offset, behavior: 'smooth' });
+        });
+    });
+
+    const collapsedMap = state.shopCategoryCollapsed[shopId] || (state.shopCategoryCollapsed[shopId] = {});
+    root.querySelectorAll('.category-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const categoryId = header.getAttribute('data-category');
+            const section = header.closest('.market-category');
+            if (!categoryId || !section) return;
+            const next = !section.classList.contains('collapsed');
+            section.classList.toggle('collapsed', next);
+            header.setAttribute('aria-expanded', (!next).toString());
+            collapsedMap[categoryId] = next;
+        });
     });
 }
 
@@ -2888,9 +2963,6 @@ function showCartNotification(message) {
 }
 
 function startNegotiation() {
-    const modal = document.getElementById('searchModal');
-    const resultsDiv = document.getElementById('searchResults');
-    
     let html = '<h2>💬 Negotiate with Shopkeeper</h2>';
     html += '<p style="margin-bottom: 20px;">Try to convince the shopkeeper to lower their prices. Choose your approach:</p>';
     
@@ -2915,8 +2987,8 @@ function startNegotiation() {
     html += '<div style="margin-top: 20px;">';
     html += '<button onclick="showCart()" class="btn-secondary">← Back to Cart</button>';
     html += '</div>';
-    
-    resultsDiv.innerHTML = html;
+
+    openModal(html);
 }
 
 function attemptNegotiation(skillType) {
@@ -2973,9 +3045,6 @@ function attemptNegotiation(skillType) {
     state.negotiationDiscount = discount;
     
     // Build result display
-    const modal = document.getElementById('searchModal');
-    const resultsDiv = document.getElementById('searchResults');
-    
     let html = `<h2>${resultEmoji} Negotiation Result</h2>`;
     
     html += '<div class="negotiation-result">';
@@ -3006,8 +3075,8 @@ function attemptNegotiation(skillType) {
     html += '<div class="cart-actions" style="margin-top: 30px;">';
     html += '<button onclick="showCart()" class="btn-primary">← Back to Cart</button>';
     html += '</div>';
-    
-    resultsDiv.innerHTML = html;
+
+    openModal(html);
 }
 
 // ===== Bank Management =====
