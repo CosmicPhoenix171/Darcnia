@@ -1,7 +1,7 @@
 // ===== SINGLE SOURCE OF TRUTH FOR VERSION =====
 // Update ONLY this file when bumping version - all other files import from here
 
-export const APP_VERSION = 'v1.50';
+export const APP_VERSION = 'v1.51';
 export const BUILD_TIME = document.lastModified;
 export const GIT_COMMIT = 'main';
 
