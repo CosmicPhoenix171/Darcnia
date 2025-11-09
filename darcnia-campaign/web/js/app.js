@@ -1597,6 +1597,9 @@ function toggleTheme() {
 
 function updateThemeIcon() {
     const btn = document.getElementById('themeToggle');
+    if (!btn) {
+        return;
+    }
     btn.textContent = state.theme === 'dark' ? '☀️' : '🌙';
 }
 
