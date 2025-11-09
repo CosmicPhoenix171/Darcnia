@@ -118,6 +118,9 @@ const state = {
     currentCharacter: null,
     accessLevel: 'guest',
     shopFilters: {},
+    shopCategoryCollapsed: {},
+    marketDensity: 'comfortable',
+    marketViewMode: 'grid',
     dice: {
         mode: 'normal', // 'normal' | 'adv' | 'dis'
         history: []     // keep last 10 results
@@ -1817,9 +1820,7 @@ function showGuildDetail(guildId) {
         <ul>${guild.services.map(s => `<li>${s}</li>`).join('')}</ul>
     `;
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 function renderNPCs() {
@@ -1868,9 +1869,7 @@ function showNPCDetail(npcId) {
         <ul>${npc.interactions.map(i => `<li>${i}</li>`).join('')}</ul>
     `;
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 function renderLocations() {
@@ -2734,9 +2733,7 @@ function showCart() {
     html += `<button onclick="checkout()" class="btn-primary">Checkout</button>`;
     html += '</div>';
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 function calculateItemTotal(priceStr, quantity) {
@@ -3058,9 +3055,7 @@ function showBank() {
     html += '</div>';
     html += '</div>';
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 function depositFunds() {
@@ -3184,9 +3179,7 @@ function showLogin() {
     html += '</div>';
     html += '</div>';
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 async function attemptLogin() {
@@ -3560,27 +3553,24 @@ function performSearch() {
 }
 
 function displaySearchResults(results, query) {
-    const modal = document.getElementById('searchModal');
-    const resultsDiv = document.getElementById('searchResults');
-    
     if (results.length === 0) {
-        resultsDiv.innerHTML = '<p>No results found for "' + query + '"</p>';
-    } else {
-        let html = `<p>Found ${results.length} result(s) for "<strong>${query}</strong>"</p>`;
-        html += results.map(result => {
-            const excerpt = getExcerpt(result.content, query);
-            return `
-                <div class="search-result-item" onclick='${result.showFunction.toString()}()'>
-                    <div class="search-result-title">${result.title}</div>
-                    <div class="search-result-type">${result.type}</div>
-                    <div class="search-result-excerpt">${excerpt}</div>
-                </div>
-            `;
-        }).join('');
-        resultsDiv.innerHTML = html;
+        openModal(`<p>No results found for "${query}"</p>`);
+        return;
     }
-    
-    modal.classList.remove('hidden');
+
+    let html = `<p>Found ${results.length} result(s) for "<strong>${query}</strong>"</p>`;
+    html += results.map(result => {
+        const excerpt = getExcerpt(result.content, query);
+        return `
+            <div class="search-result-item" onclick='${result.showFunction.toString()}()'>
+                <div class="search-result-title">${result.title}</div>
+                <div class="search-result-type">${result.type}</div>
+                <div class="search-result-excerpt">${excerpt}</div>
+            </div>
+        `;
+    }).join('');
+
+    openModal(html);
 }
 
 function getExcerpt(text, query) {
@@ -3601,7 +3591,26 @@ function getExcerpt(text, query) {
     return excerpt;
 }
 
+function setModalVariant(variant = 'default') {
+    const modal = document.getElementById('searchModal');
+    const shell = modal ? modal.querySelector('.modal-content') : null;
+    const isMarket = variant === 'market';
+    if (modal) modal.classList.toggle('market-modal-open', isMarket);
+    if (shell) shell.classList.toggle('market-modal-shell', isMarket);
+}
+
+function openModal(html, variant = 'default') {
+    const modal = document.getElementById('searchModal');
+    const results = document.getElementById('searchResults');
+    if (!modal || !results) return null;
+    setModalVariant(variant);
+    results.innerHTML = html;
+    modal.classList.remove('hidden');
+    return modal;
+}
+
 function closeModal() {
+    setModalVariant('default');
     document.getElementById('searchModal').classList.add('hidden');
 }
 
@@ -4053,9 +4062,7 @@ async function dmShowEventControls() {
     html += '</ul>';
     html += '</div>';
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 async function dmSetEvent(eventKey) {
@@ -4107,9 +4114,7 @@ async function dmShowPriceInfo() {
     
     html += '<button onclick="closeModal()" class="btn-primary" style="margin-top: 1rem;">Close</button>';
     
-    const modal = document.getElementById('searchModal');
-    document.getElementById('searchResults').innerHTML = html;
-    modal.classList.remove('hidden');
+    openModal(html);
 }
 
 // ===== Utility Functions =====
