@@ -1633,9 +1633,9 @@ function setupEventListeners() {
     // Keyboard shortcuts for dice tray
     window.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-        if (e.key.toLowerCase() === 'a') setDiceMode('adv');
-        if (e.key.toLowerCase() === 'd') setDiceMode('dis');
-        if (e.key.toLowerCase() === 'n') setDiceMode('normal');
+    if (e.key.toLowerCase() === 'a') { setTrayDiceMode('adv'); setDiceMode('adv'); }
+    if (e.key.toLowerCase() === 'd') { setTrayDiceMode('dis'); setDiceMode('dis'); }
+    if (e.key.toLowerCase() === 'n') { setTrayDiceMode('normal'); setDiceMode('normal'); }
         if (e.key.toLowerCase() === 'r') rollFromFormula('1d20');
     });
 }
@@ -3257,66 +3257,71 @@ function injectDiceTray() {
       <div class="dice-log" id="diceLog"></div>
     `;
     document.body.appendChild(tray);
-    updateDiceModeButtons();
+    updateTrayDiceModeButtons();
     tray.querySelectorAll('.die').forEach(btn => btn.addEventListener('click', () => {
         const sides = parseInt(btn.getAttribute('data-sides'),10);
-        if (sides === 20) rollFromFormula('1d20'); else rollFromFormula(`1d${sides}`);
+        if (sides === 20) rollTrayFromFormula('1d20'); else rollTrayFromFormula(`1d${sides}`);
     }));
     tray.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
+        setTrayDiceMode(btn.getAttribute('data-mode'));
         setDiceMode(btn.getAttribute('data-mode'));
     }));
     const rollBtn = tray.querySelector('#rollCustom');
     const input = tray.querySelector('#diceFormula');
-    rollBtn.addEventListener('click', () => rollFromFormula(input.value || '1d20'));
-    input.addEventListener('keypress', (e) => { if (e.key==='Enter') rollFromFormula(input.value||'1d20'); });
+    rollBtn.addEventListener('click', () => rollTrayFromFormula(input.value || '1d20'));
+    input.addEventListener('keypress', (e) => { if (e.key==='Enter') rollTrayFromFormula(input.value||'1d20'); });
 }
 
-function setDiceMode(mode) {
+function setTrayDiceMode(mode) {
     state.dice.mode = ['normal','adv','dis'].includes(mode) ? mode : 'normal';
-    updateDiceModeButtons();
+    updateTrayDiceModeButtons();
 }
 
-function updateDiceModeButtons() {
+function updateTrayDiceModeButtons() {
     document.querySelectorAll('#diceTray .mode-btn').forEach(btn => {
         const active = btn.getAttribute('data-mode') === state.dice.mode;
         btn.classList.toggle('active', active);
     });
 }
 
-function rollFromFormula(formula) {
+function rollTrayFromFormula(formula) {
     const f = (formula || '1d20').toLowerCase().replace(/\s+/g, '');
     const m = f.match(/^(\d*)d(\d+)([+\-]\d+)?$/);
-    if (!m) return logDice(`❓ Invalid formula: ${formula}`);
+    if (!m) return logTrayDice(`❓ Invalid formula: ${formula}`);
     const n = parseInt(m[1] || '1', 10);
     const sides = parseInt(m[2], 10);
     const mod = parseInt(m[3] || '0', 10);
-    rollDice(n, sides, mod, state.dice.mode);
+    trayRollDice(n, sides, mod, state.dice.mode);
 }
 
-function rollDice(n, sides, mod = 0, mode = 'normal') {
+function trayRollDice(n, sides, mod = 0, mode = 'normal') {
     const results = [];
     if ((mode === 'adv' || mode === 'dis') && n === 1 && sides === 20) {
-        const a = rollDie(20); const b = rollDie(20);
+        const a = trayRollDie(20); const b = trayRollDie(20);
         const picked = mode === 'adv' ? Math.max(a,b) : Math.min(a,b);
         const total = picked + mod;
-        logDice(`d20 ${mode === 'adv' ? 'adv' : 'dis'}: [${a}, ${b}] ⇒ ${picked}${mod?` ${mod>=0?'+':''}${mod}`:''} = <strong>${total}</strong>`);
+        logTrayDice(`d20 ${mode === 'adv' ? 'adv' : 'dis'}: [${a}, ${b}] ⇒ ${picked}${mod?` ${mod>=0?'+':''}${mod}`:''} = <strong>${total}</strong>`);
         return;
     }
-    for (let i=0; i<n; i++) results.push(rollDie(sides));
+    for (let i=0; i<n; i++) results.push(trayRollDie(sides));
     const sum = results.reduce((a,b)=>a+b,0);
     const total = sum + mod;
-    logDice(`${n}d${sides}${mod?` ${mod>=0?'+':''}${mod}`:''}: [${results.join(', ')}] = <strong>${total}</strong>`);
+    logTrayDice(`${n}d${sides}${mod?` ${mod>=0?'+':''}${mod}`:''}: [${results.join(', ')}] = <strong>${total}</strong>`);
 }
 
-function rollDie(sides) { return 1 + Math.floor(Math.random() * sides); }
+function trayRollDie(sides) { return 1 + Math.floor(Math.random() * sides); }
 
-function logDice(message) {
+function logTrayDice(message) {
     state.dice.history.unshift({ t: Date.now(), msg: message });
     state.dice.history = state.dice.history.slice(0, 10);
     const log = document.getElementById('diceLog');
     if (log) {
         log.innerHTML = state.dice.history.map(h => `<div class="dice-line">${h.msg}</div>`).join('');
     }
+}
+
+function rollFromFormula(formula) {
+    rollTrayFromFormula(formula);
 }
 
 function renderItems() {
