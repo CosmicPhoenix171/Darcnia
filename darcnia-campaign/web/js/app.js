@@ -1633,10 +1633,11 @@ function setupEventListeners() {
     // Keyboard shortcuts for dice tray
     window.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-    if (e.key.toLowerCase() === 'a') { setTrayDiceMode('adv'); setDiceMode('adv'); }
-    if (e.key.toLowerCase() === 'd') { setTrayDiceMode('dis'); setDiceMode('dis'); }
-    if (e.key.toLowerCase() === 'n') { setTrayDiceMode('normal'); setDiceMode('normal'); }
-        if (e.key.toLowerCase() === 'r') rollFromFormula('1d20');
+        const key = e.key.toLowerCase();
+        if (key === 'a') setDiceMode('adv');
+        if (key === 'd') setDiceMode('dis');
+        if (key === 'n') setDiceMode('normal');
+        if (key === 'r') rollFromFormula('1d20');
     });
 }
 
@@ -3263,18 +3264,12 @@ function injectDiceTray() {
         if (sides === 20) rollTrayFromFormula('1d20'); else rollTrayFromFormula(`1d${sides}`);
     }));
     tray.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
-        setTrayDiceMode(btn.getAttribute('data-mode'));
         setDiceMode(btn.getAttribute('data-mode'));
     }));
     const rollBtn = tray.querySelector('#rollCustom');
     const input = tray.querySelector('#diceFormula');
     rollBtn.addEventListener('click', () => rollTrayFromFormula(input.value || '1d20'));
     input.addEventListener('keypress', (e) => { if (e.key==='Enter') rollTrayFromFormula(input.value||'1d20'); });
-}
-
-function setTrayDiceMode(mode) {
-    state.dice.mode = ['normal','adv','dis'].includes(mode) ? mode : 'normal';
-    updateTrayDiceModeButtons();
 }
 
 function updateTrayDiceModeButtons() {
@@ -3739,18 +3734,22 @@ function initializeDiceRoller() {
             }
         });
     }
+
+    // Sync the dice tab buttons with the current mode (shared with the tray)
+    setDiceMode(state.dice.mode);
 }
 
 function setDiceMode(mode) {
-    diceState.mode = mode;
-    
-    // Update button states
+    const normalized = ['normal', 'adv', 'dis'].includes(mode) ? mode : 'normal';
+    state.dice.mode = normalized;
+    diceState.mode = normalized;
+
+    // Keep the floating tray buttons in sync
+    updateTrayDiceModeButtons();
+
+    // Update the dice tab toggle buttons
     document.querySelectorAll('.dice-mode-btn').forEach(btn => {
-        if (btn.dataset.mode === mode) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+        btn.classList.toggle('active', btn.dataset.mode === normalized);
     });
 }
 
