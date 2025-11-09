@@ -3668,6 +3668,7 @@ function openModal(html, variant = 'default') {
     const results = document.getElementById('searchResults');
     if (!modal || !results) return null;
     setModalVariant(variant);
+    results.scrollTop = 0;
     results.innerHTML = html;
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
