@@ -16,12 +16,10 @@
 /* ===== Summary Header (Roll20-like) ===== */
 .sheet-summary {
     display: grid;
-    grid-template-columns: 1fr; /* single column: hero card only */
-    gap: 1rem;
-    margin-bottom: 1rem;
-    /* Prevent equal-height stretching so cards stay compact */
-    align-items: start;
-    justify-content: center;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    align-items: stretch;
 }
 
 .summary-left, .summary-center, .summary-right {
@@ -38,16 +36,66 @@
     padding: 0.7rem;
 }
 
-.summary-left { align-self: start; justify-self: center; width: 100%; }
+.summary-left { align-self: stretch; justify-self: stretch; width: 100%; }
 .summary-left .summary-card { 
     display: flex; 
     gap: 0.75rem; 
     align-items: center; 
     width: 100%;
     max-width: 980px; /* limit width so hero doesn’t stretch */
-    margin: 0 auto;
+    margin: 0;
 }
 .summary-right { align-self: start; }
+.summary-abilities {
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+}
+.summary-abilities .ability-card {
+    margin-bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+.summary-abilities .ability-card h2 {
+    margin-bottom: 0.5rem;
+}
+.summary-abilities .abilities-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+@media (max-width: 1280px) {
+    .sheet-summary {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    }
+    .summary-abilities .abilities-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 950px) {
+    .sheet-summary {
+        grid-template-columns: 1fr;
+    }
+    .summary-left .summary-card {
+        max-width: 100%;
+    }
+    .summary-abilities {
+        width: 100%;
+    }
+    .summary-abilities .abilities-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .summary-abilities .abilities-grid {
+        grid-template-columns: 1fr;
+    }
+}
 .portrait {
     width: 64px; height: 64px; border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(0,0,0,0.2)), url('') center/cover, rgba(40,20,80,0.5);
@@ -471,6 +519,15 @@
 .btn-mini:hover { border-color: var(--accent-gold); box-shadow: 0 4px 16px rgba(255,215,0,.25); transform: translateY(-1px); }
 .btn-mini.danger { border-color: var(--accent-red); }
 .btn-mini.success { border-color: var(--accent-green); }
+.btn-mini.icon-btn {
+    padding: 0.35rem;
+    min-width: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    line-height: 1;
+}
 .rest-buttons { display: flex; gap: 0.5rem; }
 
 .summary-right { display: block; }
@@ -1156,7 +1213,7 @@ textarea {
 .table-mini-input.center { text-align:center; }
 .weapons-table .calc { font-weight:800; color: var(--accent-gold); text-align:center; }
 .row-actions { display:flex; gap:0.3rem; justify-content:flex-end; }
-.row-actions .btn-mini { padding: 0.25rem 0.4rem; }
+.row-actions .btn-mini:not(.icon-btn) { padding: 0.25rem 0.35rem; }
 
 /* Inventory */
 .coins-grid { display:grid; grid-template-columns: repeat(6, 1fr); gap:0.5rem; margin-bottom:0.5rem; align-items:end; }

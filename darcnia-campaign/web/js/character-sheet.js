@@ -1403,7 +1403,7 @@ function addInventoryRow(item=null) {
         <td><input class="i-weight table-mini-input" type="number" step="0.1" min="0" value="${item?.weight??0}"></td>
         <td><input class="i-qty table-mini-input" type="number" min="0" value="${item?.qty??1}"></td>
         <td class="calc i-total">0</td>
-        <td class="row-actions"><button class="btn-mini">✖</button></td>
+        <td class="row-actions"><button type="button" class="btn-mini icon-btn inventory-remove" title="Remove item" aria-label="Remove item">🗑️</button></td>
     `;
     // Hidden container field to sync with board
     const hidden = document.createElement('input');
@@ -1411,7 +1411,14 @@ function addInventoryRow(item=null) {
     tr.appendChild(hidden);
     tbody.appendChild(tr);
     tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{ recalcInventoryRow(tr); updateEncumbrance(); renderInventoryBoard(); autoSaveCharacterData(); }));
-    tr.querySelector('.row-actions .btn-mini').addEventListener('click',()=>{ tr.remove(); updateEncumbrance(); autoSaveCharacterData(); });
+    const remover = tr.querySelector('.inventory-remove');
+    if (remover) remover.addEventListener('click',()=>{
+        tr.remove();
+        updateTotalsWeight();
+        updateEncumbrance();
+        renderInventoryBoard();
+        autoSaveCharacterData();
+    });
     recalcInventoryRow(tr);
     renderInventoryBoard();
 }
