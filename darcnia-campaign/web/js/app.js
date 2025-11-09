@@ -1675,10 +1675,15 @@ function loadContent(tab) {
             break;
         case 'market':
             contentArea.innerHTML = '<div class="loading">Loading market...</div>';
-            ensureMarketLoaded().then(() => {
-                contentArea.innerHTML = renderMarket();
-                startRestockCountdown();
-            });
+            ensureMarketLoaded()
+                .then(() => {
+                    contentArea.innerHTML = renderMarket();
+                    startRestockCountdown();
+                })
+                .catch(error => {
+                    console.error('❌ Market failed to load', error);
+                    contentArea.innerHTML = '<div class="error">Unable to load the market right now. Please refresh or try again later.</div>';
+                });
             break;
         case 'quests':
             contentArea.innerHTML = '<div class="loading">Loading quests...</div>';
@@ -1961,10 +1966,17 @@ async function loadText(path) {
 async function ensureMarketLoaded() {
     if (state.marketShopsLoaded) return state.marketShopsLoaded;
     const mdPath = CONFIG.campaignPath + 'handouts/bluebrick-market.md';
-    const text = await loadText(mdPath);
-    const shops = parseBluebrickMarketMarkdown(text);
-    state.marketShopsLoaded = shops;
-    return shops;
+
+    try {
+        const text = await loadText(mdPath);
+        const shops = parseBluebrickMarketMarkdown(text);
+        state.marketShopsLoaded = shops;
+    } catch (error) {
+        console.warn('⚠️ Failed to load market markdown, using embedded data instead.', error);
+        state.marketShopsLoaded = contentData.marketShops || [];
+    }
+
+    return state.marketShopsLoaded;
 }
 
 function getMarketShops() {
