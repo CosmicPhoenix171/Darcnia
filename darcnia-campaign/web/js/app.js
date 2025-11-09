@@ -2666,8 +2666,7 @@ function removeFromCart(itemKey) {
         if (state.cart.length > 0) {
             showCart();
         } else {
-            const modal = document.getElementById('searchModal');
-            if (modal) modal.classList.add('hidden');
+            closeModal();
             alert('Your cart is now empty!');
         }
     }
@@ -2853,8 +2852,7 @@ function clearCart() {
         saveCartToFirebase();
         
         // Close the modal since cart is empty
-        const modal = document.getElementById('searchModal');
-        if (modal) modal.classList.add('hidden');
+        closeModal();
         alert('Cart cleared!');
     }
 }
@@ -2940,8 +2938,7 @@ function checkout() {
     updateBankDisplay();
     
     // Close modal
-    const modal = document.getElementById('searchModal');
-    if (modal) modal.classList.add('hidden');
+    closeModal();
     
     showCartNotification(notificationMsg);
 }
@@ -3299,15 +3296,13 @@ async function attemptLogin() {
     setupFirebaseRealtimeSync(character.name);
     
     // Close modal
-    const modal = document.getElementById('searchModal');
-    modal.classList.add('hidden');
+    closeModal();
     
     showCartNotification(`✅ Welcome, ${character.name}!`);
 }
 
 function closeLoginModal() {
-    const modal = document.getElementById('searchModal');
-    modal.classList.add('hidden');
+    closeModal();
 }
 
 // ===== Dice Roller =====
@@ -3675,12 +3670,16 @@ function openModal(html, variant = 'default') {
     setModalVariant(variant);
     results.innerHTML = html;
     modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     return modal;
 }
 
 function closeModal() {
+    const modal = document.getElementById('searchModal');
+    if (!modal) return;
     setModalVariant('default');
-    document.getElementById('searchModal').classList.add('hidden');
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
 }
 
 // ===== Login System =====

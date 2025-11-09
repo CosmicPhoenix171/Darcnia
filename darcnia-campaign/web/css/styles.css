@@ -56,6 +56,11 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+body.modal-open {
+    overflow: hidden;
+    touch-action: none;
+}
+
 /* ===== BREATHTAKING NIGHT SKY SYSTEM ===== */
 
 /* Layer 1: Distant stars with depth-of-field blur */
