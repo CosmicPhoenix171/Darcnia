@@ -202,6 +202,31 @@
                         </div>
                     </div>
                 </section>
+                
+                <!-- Conditions Section (moved next to abilities) -->
+                <section class="conditions-section summary-card">
+                    <h3>Conditions</h3>
+                    <div class="conditions-grid">
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
+                    </div>
+                    <div class="exhaustion-row">
+                        <label for="exhaustion">Exhaustion</label>
+                        <input id="exhaustion" type="number" min="0" max="6" value="0">
+                    </div>
+                    <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
+                </section>
             </div>
             
         </section>
@@ -610,29 +635,6 @@
                         <label for="resistances">Resistances / Immunities</label>
                         <textarea id="resistances" rows="3" placeholder="None"></textarea>
                     </div>
-                </section>
-                <section class="conditions-section">
-                    <h3>Conditions</h3>
-                    <div class="conditions-grid">
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
-                    </div>
-                    <div class="exhaustion-row">
-                        <label for="exhaustion">Exhaustion</label>
-                        <input id="exhaustion" type="number" min="0" max="6" value="0">
-                    </div>
-                    <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
                 </section>
                 <section class="senses-section">
                     <h3>Senses</h3>
