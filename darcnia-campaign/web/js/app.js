@@ -4109,3 +4109,44 @@ function updateVersionDisplay() {
     }
 }
 
+
+const AppAPI = {
+    switchTab,
+    showBank,
+    showCart,
+    showLogin,
+    closeLoginModal,
+    attemptLogin,
+    showGuildDetail,
+    showNPCDetail,
+    showShopDetail,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    clearCart,
+    startNegotiation,
+    checkout,
+    attemptNegotiation,
+    depositFunds,
+    withdrawFunds,
+    dmForceRerollWMI,
+    dmForceRerollCategories,
+    dmShowEventControls,
+    dmSetEvent,
+    dmShowPriceInfo,
+    closeModal,
+    performSearch,
+    rollFromFormula,
+    toggleTheme,
+    setTheme
+};
+
+if (typeof window !== 'undefined') {
+    window.App = { ...(window.App || {}), ...AppAPI };
+    Object.entries(AppAPI).forEach(([name, fn]) => {
+        if (typeof fn === 'function') {
+            window[name] = fn;
+        }
+    });
+}
+

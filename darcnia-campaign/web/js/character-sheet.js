@@ -1650,3 +1650,22 @@ function autoFillSpellSlots() {
     }
     showNotification('ℹ️ Selected class has no spell slots');
 }
+
+
+const CharacterSheetAPI = {
+    attemptLogin,
+    closeLoginModal,
+    saveCharacterData,
+    loadCharacterData,
+    loadFromFile,
+    exportToPDF
+};
+
+if (typeof window !== 'undefined') {
+    window.CharacterSheet = { ...(window.CharacterSheet || {}), ...CharacterSheetAPI };
+    Object.entries(CharacterSheetAPI).forEach(([name, fn]) => {
+        if (typeof fn === 'function') {
+            window[name] = fn;
+        }
+    });
+}
