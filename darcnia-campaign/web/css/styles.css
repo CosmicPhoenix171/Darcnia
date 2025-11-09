@@ -1533,6 +1533,19 @@ a:active {
     flex-direction: column;
 }
 
+/* Allow the market layout to occupy the modal shell and preserve interior scrolling */
+.modal-content.market-modal-shell #searchResults {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+.modal-content.market-modal-shell #searchResults > .market-modal {
+    flex: 1;
+    min-height: 0;
+}
+
 .modal-content.market-modal-shell .modal-close {
     top: 16px;
     right: 16px;
