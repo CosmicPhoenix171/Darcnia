@@ -127,6 +127,7 @@ const state = {
         history: []     // keep last 10 results
     },
     cart: [], // Shopping cart: [{key, name, price, shop, quantity}]
+    cartUseCredit: false, // Whether to apply Platinum Sky credit at checkout
     bank: { gold: 0, silver: 0, copper: 0, creditCopper: 0 } // Player's bank balance + Platinum Sky credit
 };
 
@@ -2904,6 +2905,25 @@ function showCart() {
     html += `<div class="cart-total" style="font-size: 1.2em; border-top: 2px solid var(--primary-color); margin-top: 10px; padding-top: 10px;">
         <strong>TOTAL:</strong> <span class="cart-total-price">${finalTotal}</span>
     </div>`;
+
+    const creditBalanceCoins = copperToGSC(state.bank.creditCopper || 0);
+    const creditBalanceDisplay = formatPrice(creditBalanceCoins.gold, creditBalanceCoins.silver, creditBalanceCoins.copper);
+    const bankBalanceDisplay = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper);
+
+    html += `
+        <div class="cart-payment-options">
+            <label class="credit-checkbox">
+                <input type="checkbox" id="cartUseCredit" ${state.cartUseCredit ? 'checked' : ''} onchange="toggleCartCredit(this.checked)">
+                <div>
+                    <span class="credit-label">Charge this order to Platinum Sky credit</span>
+                    <small>Outstanding balance: ${creditBalanceDisplay}</small>
+                </div>
+            </label>
+            <div class="cart-payment-note">
+                Bank balance: ${bankBalanceDisplay}
+            </div>
+        </div>
+    `;
     
     html += '<div class="cart-actions">';
     html += `<button onclick="clearCart()" class="btn-secondary">Clear Cart</button>`;
@@ -3002,18 +3022,12 @@ function checkout() {
     const playerCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
     const costCopper = (totalGold * COPPER_VALUES.gp) + (totalSilver * COPPER_VALUES.sp) + (totalCopper * COPPER_VALUES.cp);
     const canDebit = costCopper <= playerCopper;
-    let paymentMode = 'debit';
+    const wantsCredit = !!state.cartUseCredit;
+    let paymentMode = wantsCredit ? 'credit' : 'debit';
     
-    if (canDebit) {
-        const useCredit = confirm('Pay with Platinum Sky credit instead of your bank balance?\nOK = Charge to credit (0% first lunar cycle).\nCancel = Pay with bank funds.');
-        paymentMode = useCredit ? 'credit' : 'debit';
-    } else {
-        const approveCredit = confirm('Your bank balance is too low for this purchase. Charge the total to your Platinum Sky credit line?');
-        if (!approveCredit) {
-            alert('Purchase cancelled. Add funds or enable credit to continue.');
-            return;
-        }
-        paymentMode = 'credit';
+    if (!wantsCredit && !canDebit) {
+        alert('Bank balance is too low. Enable the Platinum Sky credit checkbox in your cart to complete this purchase.');
+        return;
     }
     
     if (paymentMode === 'debit') {
@@ -3078,6 +3092,14 @@ function showCartNotification(message) {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 2000);
+}
+
+function toggleCartCredit(checked) {
+    state.cartUseCredit = !!checked;
+    const message = checked
+        ? 'Platinum Sky credit will be used at checkout.'
+        : 'Checkout will draw from your bank balance.';
+    showCartNotification(message);
 }
 
 function startNegotiation() {
