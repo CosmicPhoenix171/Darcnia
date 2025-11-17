@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initInventoryTable();
     renderInventoryBoard();
     initConditions();
+    initHpCardTabs();
     initPortrait();
     initAutoSlots();
     updateBankBalanceDisplay();
@@ -398,6 +399,34 @@ function applyTab(name) {
         } else {
             p.classList.add('hidden-by-tab');
         }
+    });
+}
+
+// ===== Hit Points Tabs =====
+function initHpCardTabs() {
+    const tabs = document.querySelectorAll('.hp-tab');
+    const panels = document.querySelectorAll('.hp-panel');
+    if (!tabs.length || !panels.length) return;
+
+    const applyHpTab = (target) => {
+        if (!target) return;
+        tabs.forEach(tab => {
+            const isActive = tab.dataset.hpTab === target;
+            tab.classList.toggle('hp-tab-active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        panels.forEach(panel => {
+            const shouldShow = panel.dataset.hpPanel === target;
+            panel.classList.toggle('hp-panel-active', shouldShow);
+            panel.hidden = !shouldShow;
+        });
+    };
+
+    const defaultTab = document.querySelector('.hp-tab.hp-tab-active')?.dataset.hpTab || tabs[0].dataset.hpTab;
+    applyHpTab(defaultTab);
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => applyHpTab(tab.dataset.hpTab));
     });
 }
 

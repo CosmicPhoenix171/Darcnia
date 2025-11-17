@@ -99,6 +99,53 @@
     gap: 1rem;
 }
 
+.hp-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.hp-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.hp-tab {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(40, 20, 80, 0.35);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hp-tab:hover {
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+}
+
+.hp-tab-active {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.hp-panel {
+    display: none;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.hp-panel-active {
+    display: flex;
+}
+
 .ability-band {
     margin-bottom: 1.5rem;
 }

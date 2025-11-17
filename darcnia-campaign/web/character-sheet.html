@@ -121,8 +121,14 @@
                 </div>
             </div>
             <section class="summary-card hp-card">
-                <h3 class="summary-card-title">Hit Points</h3>
-                <div class="hp-quick" aria-label="Quick HP snapshot">
+                <div class="hp-card-head">
+                    <h3 class="summary-card-title">Hit Points</h3>
+                    <div class="hp-tabs" role="tablist" aria-label="Hit points views">
+                        <button class="hp-tab hp-tab-active" id="hpVitalsTab" role="tab" aria-selected="true" aria-controls="hpVitalsPanel" type="button" data-hp-tab="vitals">Vitals</button>
+                        <button class="hp-tab" id="hpConditionsTab" role="tab" aria-selected="false" aria-controls="hpConditionsPanel" type="button" data-hp-tab="conditions">Conditions</button>
+                    </div>
+                </div>
+                <div class="hp-panel hp-panel-active" id="hpVitalsPanel" role="tabpanel" aria-labelledby="hpVitalsTab" data-hp-panel="vitals" aria-label="Quick HP snapshot">
                     <div class="hpq-grid">
                         <div class="mini-stat">
                             <label class="mini-label" for="hpCurrent">Current</label>
@@ -180,6 +186,28 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="hp-panel" id="hpConditionsPanel" role="tabpanel" aria-labelledby="hpConditionsTab" data-hp-panel="conditions" hidden>
+                    <div class="conditions-grid">
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
+                    </div>
+                    <div class="exhaustion-row">
+                        <label for="exhaustion">Exhaustion</label>
+                        <input id="exhaustion" type="number" min="0" max="6" value="0">
+                    </div>
+                    <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
                 </div>
             </section>
         </section>
@@ -651,30 +679,6 @@
             </div>
 
             <aside class="character-right">
-                <section class="conditions-section summary-card">
-                    <h3>Conditions</h3>
-                    <div class="conditions-grid">
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
-                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
-                    </div>
-                    <div class="exhaustion-row">
-                        <label for="exhaustion">Exhaustion</label>
-                        <input id="exhaustion" type="number" min="0" max="6" value="0">
-                    </div>
-                    <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
-                </section>
-
                 <section class="defenses-section summary-card">
                     <h3>Resistances</h3>
                     <div class="mini-list">
