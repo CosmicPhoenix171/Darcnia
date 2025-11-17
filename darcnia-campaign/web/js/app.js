@@ -3414,7 +3414,7 @@ function payCreditBalance() {
     const copper = parseInt(document.getElementById('creditPayCopper')?.value) || 0;
 
     let paymentCopper = (gold * COPPER_VALUES.gp) + (silver * COPPER_VALUES.sp) + (copper * COPPER_VALUES.cp);
-
+    const requestedCopper = paymentCopper;
     const outstanding = state.bank.creditCopper || 0;
     if (outstanding <= 0) {
         alert('Your Platinum Sky credit balance is already at zero.');
@@ -3426,16 +3426,13 @@ function payCreditBalance() {
         // Default to the maximum we can afford if no amount was entered
         paymentCopper = Math.min(outstanding, bankCopper);
     }
+    paymentCopper = Math.min(paymentCopper, outstanding, bankCopper);
     if (paymentCopper <= 0) {
         alert('No available bank funds to apply toward your credit balance.');
         return;
     }
-    if (paymentCopper > bankCopper) {
-        alert('Insufficient bank funds to cover that payment amount.');
-        return;
-    }
 
-    const actualPayment = Math.min(paymentCopper, outstanding);
+    const actualPayment = paymentCopper;
     const remainingBankCopper = bankCopper - actualPayment;
     const newBank = copperToGSC(remainingBankCopper);
     state.bank.gold = newBank.gold;
@@ -3451,7 +3448,13 @@ function payCreditBalance() {
     updateBankDisplay();
     showBank();
     const paidBreakdown = copperToGSC(actualPayment);
-    showCartNotification(`✅ Paid ${formatPrice(paidBreakdown.gold, paidBreakdown.silver, paidBreakdown.copper, false)} toward your credit balance.`);
+    let message = `✅ Paid ${formatPrice(paidBreakdown.gold, paidBreakdown.silver, paidBreakdown.copper, false)} toward your credit balance.`;
+    if (requestedCopper > 0 && actualPayment < requestedCopper) {
+        const shortfallCoins = copperToGSC(requestedCopper - actualPayment);
+        const shortfallText = formatPrice(shortfallCoins.gold, shortfallCoins.silver, shortfallCoins.copper, false);
+        message += ` (Partial payment applied—short ${shortfallText} in bank funds)`;
+    }
+    showCartNotification(message);
 }
 
 // ===== Login System =====
