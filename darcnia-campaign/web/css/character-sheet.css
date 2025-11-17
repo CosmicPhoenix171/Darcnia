@@ -455,25 +455,27 @@
 .hpq-group input { width: 70px; text-align: right; }
 .hpq-rest { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
-/* ===== Saves Snapshot (Death Saves + Saving Throws) ===== */
-.summary-saves {
+/* ===== Saves Snapshot embedded in hero card ===== */
+.hero-saves {
     display: grid;
     grid-template-columns: minmax(180px, 1fr) minmax(220px, 1fr);
     gap: 1rem;
     align-items: stretch;
     margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-.summary-saves h3 {
+.hero-saves h3 {
     font-family: 'Cinzel', serif;
     font-size: 1rem;
     margin: 0 0 0.5rem;
     color: var(--accent-gold);
     text-align: center;
 }
-.summary-saves .death-saves {
+.hero-saves .death-saves {
     margin: 0;
 }
-.summary-saves .skill-list {
+.hero-saves .skill-list {
     gap: 0.4rem;
 }
 .saving-throws-mini {
@@ -1127,7 +1129,7 @@ textarea {
 }
 
 .stat-box {
-    background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
+       background: rgba(30, 15, 60, 0.5);
     padding: 1.5rem;
     border: 2px solid var(--accent-purple);
     border-radius: 8px;
@@ -1546,7 +1548,7 @@ textarea {
         grid-template-columns: 1fr;
     }
     
-    .summary-saves {
+    .hero-saves {
         grid-template-columns: 1fr;
     }
     
@@ -1634,9 +1636,9 @@ textarea {
         color: black;
     }
     
-    .ability-block,
-    .stat-box,
-    .skills-section,
+        .ability-block,
+        .stat-box,
+        .skills-section,
     .attacks-section,
     .equipment-section,
     .attunement-section,

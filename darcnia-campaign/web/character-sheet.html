@@ -20,60 +20,60 @@
         <!-- Header (Same as main page) -->
         <header>
             <div class="header-top">
+                    <div class="hero-saves">
+                        <div class="death-saves" aria-label="Death saving throws">
+                            <h4>Death Saves</h4>
+                            <div class="death-save-row">
+                                <span>Successes:</span>
+                                <input type="checkbox" id="deathSave1">
+                                <input type="checkbox" id="deathSave2">
+                                <input type="checkbox" id="deathSave3">
+                            </div>
+                            <div class="death-save-row">
+                                <span>Failures:</span>
+                                <input type="checkbox" id="deathFail1">
+                                <input type="checkbox" id="deathFail2">
+                                <input type="checkbox" id="deathFail3">
+                            </div>
+                        </div>
+                        <div class="saving-throws-mini">
+                            <h3>Saving Throws</h3>
+                            <div class="skill-list">
+                                <div class="skill-item">
+                                    <input type="checkbox" id="strSaveProf" class="save-prof">
+                                    <span class="skill-bonus" id="strSave">+0</span>
+                                    <label for="strSaveProf">Strength</label>
+                                </div>
+                                <div class="skill-item">
+                                    <input type="checkbox" id="dexSaveProf" class="save-prof">
+                                    <span class="skill-bonus" id="dexSave">+0</span>
+                                    <label for="dexSaveProf">Dexterity</label>
+                                </div>
+                                <div class="skill-item">
+                                    <input type="checkbox" id="conSaveProf" class="save-prof">
+                                    <span class="skill-bonus" id="conSave">+0</span>
+                                    <label for="conSaveProf">Constitution</label>
+                                </div>
+                                <div class="skill-item">
+                                    <input type="checkbox" id="intSaveProf" class="save-prof">
+                                    <span class="skill-bonus" id="intSave">+0</span>
+                                    <label for="intSaveProf">Intelligence</label>
+                                </div>
+                                <div class="skill-item">
+                                    <input type="checkbox" id="wisSaveProf" class="save-prof">
+                                    <span class="skill-bonus" id="wisSave">+0</span>
+                                    <label for="wisSaveProf">Wisdom</label>
+                                </div>
+                                <div class="skill-item">
+                                    <input type="checkbox" id="chaSaveProf" class="save-prof">
+                                    <span class="skill-bonus" id="chaSave">+0</span>
+                                    <label for="chaSaveProf">Charisma</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 <div>
                     <h1>Darcnia: The Floating Continent</h1>
-                    <p class="subtitle">D&D 2024 Character Sheet</p>
-                </div>
-                <div class="header-buttons">
-                    <!-- Search Bar -->
-                    <div class="search-container">
-                        <button id="loginBtn" class="login-button">👤 Login</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Theme Toggle removed per user request -->
-        </header>
-
-        <!-- Navigation Tabs -->
-        <nav class="tabs">
-            <a href="index.html#market" class="tab-btn" title="Market">Market</a>
-            <a href="index.html#quests" class="tab-btn" title="Quests">Quests</a>
-            <button class="tab-btn active">📋 Character Sheet</button>
-            <a href="index.html#dice" class="tab-btn" title="Dice Roller">🎲 Dice Roller</a>
-            <a href="map.html" class="tab-btn" title="VTT Map">🗺️ VTT Map</a>
-        </nav>
-
-    <!-- Main Content Area (compact layout applied) -->
-    <main class="character-sheet compact">
-        <!-- Quick Summary Header (Roll20-like) -->
-        <section class="sheet-summary">
-            <div class="summary-column summary-left">
-                <div class="summary-card">
-                    <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
-                    <input type="file" id="portraitFile" accept="image/*" hidden>
-                    <div class="summary-id">
-                    <!-- Hero Section: Name & Level -->
-                    <div class="hero-section">
-                        <div class="hero-name-row">
-                            <input type="text" class="name-display vanishing-textbox hero-name" id="nameDisplay" placeholder="Character Name">
-                            <span class="level-badge" id="levelPill" title="Current Level (auto-calculated from XP)">
-                                <span class="level-number">1</span>
-                            </span>
-                        </div>
-                        <div class="hero-subtitle">
-                            <input type="text" id="class" class="vanishing-textbox inline-edit" placeholder="Class">
-                            <span class="divider">•</span>
-                            <input type="text" id="background" class="vanishing-textbox inline-edit" placeholder="Background">
-                        </div>
-                    </div>
-                    
-                    <!-- XP Progress Bar Section -->
-                    <div class="xp-section">
-                        <div class="xp-header">
-                            <span class="xp-label">Experience</span>
-                            <span class="xp-display">
-                                <input type="number" id="experiencePoints" class="vanishing-textbox xp-input" placeholder="0" min="0">
                                 <span class="xp-separator">/</span>
                                 <span class="xp-target" id="xpTarget">300</span>
                             </span>
