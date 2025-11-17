@@ -242,7 +242,7 @@ let characterData = {
     attacks: '', // legacy free-text
     weapons: [], // structured attacks list
     inventory: [],
-    coins: { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 },
+    coins: { pp: 0, gp: 0, sp: 0, cp: 0 },
     equipment: '',
     
     // Attunement
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!data?.coins) return;
                 const incoming = data.coins;
                 const current = getCoinsFromDOM();
-                const changed = ['pp','gp','ep','sp','cp'].some((denom) => (parseInt(current[denom]) || 0) !== (parseInt(incoming[denom]) || 0));
+                const changed = ['pp','gp','sp','cp'].some((denom) => (parseInt(current[denom]) || 0) !== (parseInt(incoming[denom]) || 0));
                 if (changed) {
                     setCoinsToDOM(incoming);
                     updateEncumbrance();
@@ -975,7 +975,7 @@ function populateCharacterData(data) {
     document.getElementById('equipment').value = data.equipment || '';
     setWeaponsToDOM(data.weapons || []);
     setInventoryToDOM(data.inventory || []);
-    setCoinsToDOM(data.coins || { pp:0,gp:0,ep:0,sp:0,cp:0 });
+    setCoinsToDOM(data.coins || { pp:0,gp:0,sp:0,cp:0 });
     
     // Attunement
     if (data.attunement) {
@@ -1447,7 +1447,7 @@ function setWeaponsToDOM(list) {
 function initInventoryTable() {
     const addBtn = document.getElementById('addItemBtn');
     if (addBtn) addBtn.addEventListener('click', () => addInventoryRow());
-    ['pp','gp','ep','sp','cp'].forEach(id=>{
+    ['pp','gp','sp','cp'].forEach(id=>{
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', ()=>{ updateCoinsSummary(); updateEncumbrance(); autoSaveCharacterData(); });
     });
@@ -1515,21 +1515,21 @@ function updateTotalsWeight() {
 
 function getCoinsFromDOM() {
     const val=(id)=>parseInt(document.getElementById(id)?.value||'0');
-    return { pp:val('pp'), gp:val('gp'), ep:val('ep'), sp:val('sp'), cp:val('cp') };
+    return { pp:val('pp'), gp:val('gp'), sp:val('sp'), cp:val('cp') };
 }
 function setCoinsToDOM(c) {
-    ['pp','gp','ep','sp','cp'].forEach(id=>{ const el=document.getElementById(id); if (el) el.value = c?.[id]??0; });
+    ['pp','gp','sp','cp'].forEach(id=>{ const el=document.getElementById(id); if (el) el.value = c?.[id]??0; });
     updateCoinsSummary();
 }
 function getCoinsWeight() {
-    const {pp,gp,ep,sp,cp} = getCoinsFromDOM();
-    const totalCoins = (pp*10*10) + (gp*100) + (ep*50) + (sp*10) + (cp*1); // in copper
+    const {pp,gp,sp,cp} = getCoinsFromDOM();
+    const totalCoins = (pp * 1000) + (gp * 100) + (sp * 10) + cp; // in copper
     const weight = totalCoins / 50;
     return weight;
 }
 function updateCoinsSummary() {
     const c = getCoinsFromDOM();
-    const wealthGp = (c.pp*10) + (c.gp) + (c.ep*0.5) + (c.sp*0.1) + (c.cp*0.01);
+    const wealthGp = (c.pp*10) + (c.gp) + (c.sp*0.1) + (c.cp*0.01);
     const weight = getCoinsWeight();
     const wEl = document.getElementById('coinsWeight'); if (wEl) wEl.textContent = `${weight.toFixed(1)} lb`;
     const valEl = document.getElementById('coinsWealth'); if (valEl) valEl.textContent = `${wealthGp.toFixed(2)} gp`;

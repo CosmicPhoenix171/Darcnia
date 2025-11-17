@@ -133,7 +133,7 @@ const state = {
 
 // ===== Shared Character Sheet Helpers =====
 const CHARACTER_SHEET_STORAGE_KEY = STORAGE_KEYS?.characterSheetData || 'dnd2024CharacterSheet';
-const COPPER_VALUES = { pp: 1000, gp: 100, ep: 50, sp: 10, cp: 1 };
+const COPPER_VALUES = { pp: 1000, gp: 100, sp: 10, cp: 1 };
 const CREDIT_DISCOUNT_RATE = 0.05; // 5% discount when charging Platinum Sky credit
 
 function readCharacterSheetData() {
@@ -156,13 +156,15 @@ function writeCharacterSheetData(data) {
 }
 
 function normalizeCoins(coins = {}) {
-    return {
-        pp: Math.max(0, parseInt(coins.pp) || 0),
-        gp: Math.max(0, parseInt(coins.gp) || 0),
-        ep: Math.max(0, parseInt(coins.ep) || 0),
-        sp: Math.max(0, parseInt(coins.sp) || 0),
-        cp: Math.max(0, parseInt(coins.cp) || 0)
-    };
+    const pp = Math.max(0, parseInt(coins.pp) || 0);
+    const gp = Math.max(0, parseInt(coins.gp) || 0);
+    const sp = Math.max(0, parseInt(coins.sp) || 0);
+    const cp = Math.max(0, parseInt(coins.cp) || 0);
+    const totalCopper = (pp * COPPER_VALUES.pp)
+        + (gp * COPPER_VALUES.gp)
+        + (sp * COPPER_VALUES.sp)
+        + cp;
+    return copperToCoins(totalCopper);
 }
 
 function normalizeBankState(bank = {}) {
@@ -189,18 +191,20 @@ function setCarriedCoins(snapshot, coins) {
 }
 
 function coinsToCopper(coins = {}) {
-    const normalized = normalizeCoins(coins);
-    return (normalized.pp * COPPER_VALUES.pp)
-        + (normalized.gp * COPPER_VALUES.gp)
-        + (normalized.ep * COPPER_VALUES.ep)
-        + (normalized.sp * COPPER_VALUES.sp)
-        + normalized.cp;
+    const pp = Math.max(0, parseInt(coins.pp) || 0);
+    const gp = Math.max(0, parseInt(coins.gp) || 0);
+    const sp = Math.max(0, parseInt(coins.sp) || 0);
+    const cp = Math.max(0, parseInt(coins.cp) || 0);
+    return (pp * COPPER_VALUES.pp)
+        + (gp * COPPER_VALUES.gp)
+        + (sp * COPPER_VALUES.sp)
+    + cp;
 }
 
 function copperToCoins(totalCopper = 0, referenceCoins = null) {
     let remaining = Math.max(0, totalCopper);
-    const breakdown = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
-    const order = ['pp', 'gp', 'ep', 'sp', 'cp'];
+    const breakdown = { pp: 0, gp: 0, sp: 0, cp: 0 };
+    const order = ['pp', 'gp', 'sp', 'cp'];
     const reference = referenceCoins ? normalizeCoins(referenceCoins) : null;
 
     if (reference) {
@@ -243,7 +247,6 @@ function formatCarriedCoinsSummary(coins = {}) {
     const parts = [];
     if (normalized.pp) parts.push(`${normalized.pp} pp`);
     if (normalized.gp) parts.push(`${normalized.gp} gp`);
-    if (normalized.ep) parts.push(`${normalized.ep} ep`);
     if (normalized.sp) parts.push(`${normalized.sp} sp`);
     if (normalized.cp || parts.length === 0) parts.push(`${normalized.cp} cp`);
     return parts.join(', ');
