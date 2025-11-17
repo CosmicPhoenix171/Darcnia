@@ -455,6 +455,33 @@
 .hpq-group input { width: 70px; text-align: right; }
 .hpq-rest { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
+/* ===== Saves Snapshot (Death Saves + Saving Throws) ===== */
+.summary-saves {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(220px, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+    margin-top: 1rem;
+}
+.summary-saves h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+    color: var(--accent-gold);
+    text-align: center;
+}
+.summary-saves .death-saves {
+    margin: 0;
+}
+.summary-saves .skill-list {
+    gap: 0.4rem;
+}
+.saving-throws-mini {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
 /* ===== OLD STYLES - Keep for compatibility ===== */
 .identity-field { display: flex; align-items: center; gap: 0.5rem; }
 .xp-field { flex-wrap: wrap; }
@@ -558,9 +585,7 @@
 .character-sheet.compact section,
 .character-sheet.compact .ability-scores,
 .character-sheet.compact .bonus-section,
-.character-sheet.compact .saves-section,
 .character-sheet.compact .skills-section,
-.character-sheet.compact .hp-section,
 .character-sheet.compact .attacks-section,
 .character-sheet.compact .equipment-section,
 .character-sheet.compact .attunement-section,
@@ -998,7 +1023,6 @@ textarea {
 }
 
 /* ===== Saving Throws & Skills ===== */
-.saves-section,
 .skills-section {
     background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
     padding: 1.5rem;
@@ -1007,7 +1031,6 @@ textarea {
     margin-bottom: 1.5rem;
 }
 
-.saves-section h3,
 .skills-section h3 {
     font-family: 'Cinzel', serif;
     font-size: 1.1rem;
@@ -1135,15 +1158,6 @@ textarea {
     align-items: center;
     justify-content: center;
     padding: 0;
-}
-
-/* ===== Hit Points ===== */
-.hp-section {
-    background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
-    padding: 1.5rem;
-    border: 2px solid var(--accent-purple);
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
 }
 
 .death-saves {
@@ -1532,6 +1546,10 @@ textarea {
         grid-template-columns: 1fr;
     }
     
+    .summary-saves {
+        grid-template-columns: 1fr;
+    }
+    
     .identity-grid {
         grid-template-columns: 1fr;
     }
@@ -1618,7 +1636,6 @@ textarea {
     
     .ability-block,
     .stat-box,
-    .saves-section,
     .skills-section,
     .attacks-section,
     .equipment-section,

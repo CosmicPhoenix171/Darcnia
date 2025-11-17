@@ -169,6 +169,58 @@
                     </div>
                     </div>
                 </div>
+                <section class="summary-card summary-saves">
+                    <div class="death-saves" aria-label="Death saving throws">
+                        <h4>Death Saves</h4>
+                        <div class="death-save-row">
+                            <span>Successes:</span>
+                            <input type="checkbox" id="deathSave1">
+                            <input type="checkbox" id="deathSave2">
+                            <input type="checkbox" id="deathSave3">
+                        </div>
+                        <div class="death-save-row">
+                            <span>Failures:</span>
+                            <input type="checkbox" id="deathFail1">
+                            <input type="checkbox" id="deathFail2">
+                            <input type="checkbox" id="deathFail3">
+                        </div>
+                    </div>
+                    <div class="saving-throws-mini">
+                        <h3>Saving Throws</h3>
+                        <div class="skill-list">
+                            <div class="skill-item">
+                                <input type="checkbox" id="strSaveProf" class="save-prof">
+                                <span class="skill-bonus" id="strSave">+0</span>
+                                <label for="strSaveProf">Strength</label>
+                            </div>
+                            <div class="skill-item">
+                                <input type="checkbox" id="dexSaveProf" class="save-prof">
+                                <span class="skill-bonus" id="dexSave">+0</span>
+                                <label for="dexSaveProf">Dexterity</label>
+                            </div>
+                            <div class="skill-item">
+                                <input type="checkbox" id="conSaveProf" class="save-prof">
+                                <span class="skill-bonus" id="conSave">+0</span>
+                                <label for="conSaveProf">Constitution</label>
+                            </div>
+                            <div class="skill-item">
+                                <input type="checkbox" id="intSaveProf" class="save-prof">
+                                <span class="skill-bonus" id="intSave">+0</span>
+                                <label for="intSaveProf">Intelligence</label>
+                            </div>
+                            <div class="skill-item">
+                                <input type="checkbox" id="wisSaveProf" class="save-prof">
+                                <span class="skill-bonus" id="wisSave">+0</span>
+                                <label for="wisSaveProf">Wisdom</label>
+                            </div>
+                            <div class="skill-item">
+                                <input type="checkbox" id="chaSaveProf" class="save-prof">
+                                <span class="skill-bonus" id="chaSave">+0</span>
+                                <label for="chaSaveProf">Charisma</label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
             <section class="summary-column ability-scores summary-card ability-card">
                     <h2>Ability Scores</h2>
@@ -265,43 +317,6 @@
                             <input type="checkbox" id="inspiration">
                             Inspiration
                         </label>
-                    </div>
-                </section>
-
-                <!-- Saving Throws -->
-                <section class="saves-section">
-                    <h3>Saving Throws</h3>
-                    <div class="skill-list">
-                        <div class="skill-item">
-                            <input type="checkbox" id="strSaveProf" class="save-prof">
-                            <span class="skill-bonus" id="strSave">+0</span>
-                            <label for="strSaveProf">Strength</label>
-                        </div>
-                        <div class="skill-item">
-                            <input type="checkbox" id="dexSaveProf" class="save-prof">
-                            <span class="skill-bonus" id="dexSave">+0</span>
-                            <label for="dexSaveProf">Dexterity</label>
-                        </div>
-                        <div class="skill-item">
-                            <input type="checkbox" id="conSaveProf" class="save-prof">
-                            <span class="skill-bonus" id="conSave">+0</span>
-                            <label for="conSaveProf">Constitution</label>
-                        </div>
-                        <div class="skill-item">
-                            <input type="checkbox" id="intSaveProf" class="save-prof">
-                            <span class="skill-bonus" id="intSave">+0</span>
-                            <label for="intSaveProf">Intelligence</label>
-                        </div>
-                        <div class="skill-item">
-                            <input type="checkbox" id="wisSaveProf" class="save-prof">
-                            <span class="skill-bonus" id="wisSave">+0</span>
-                            <label for="wisSaveProf">Wisdom</label>
-                        </div>
-                        <div class="skill-item">
-                            <input type="checkbox" id="chaSaveProf" class="save-prof">
-                            <span class="skill-bonus" id="chaSave">+0</span>
-                            <label for="chaSaveProf">Charisma</label>
-                        </div>
                     </div>
                 </section>
 
@@ -436,25 +451,6 @@
 
             <!-- Center Column: Combat Stats & Resources -->
             <div class="center-column">
-                <!-- Hit Points -->
-                <section class="hp-section">
-                    <div class="death-saves">
-                        <h4>Death Saves</h4>
-                        <div class="death-save-row">
-                            <span>Successes:</span>
-                            <input type="checkbox" id="deathSave1">
-                            <input type="checkbox" id="deathSave2">
-                            <input type="checkbox" id="deathSave3">
-                        </div>
-                        <div class="death-save-row">
-                            <span>Failures:</span>
-                            <input type="checkbox" id="deathFail1">
-                            <input type="checkbox" id="deathFail2">
-                            <input type="checkbox" id="deathFail3">
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Attacks & Spellcasting -->
                 <section class="attacks-section" data-panel="combat">
                     <h3>Attacks & Spellcasting</h3>
