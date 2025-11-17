@@ -294,6 +294,7 @@
         <!-- View Tabs: Combat / Spells / Inventory / Features / Notes / About -->
         <div class="sheet-tabs" role="tablist" aria-label="Character sheet views">
             <button class="sheet-tab tab-active" data-tab="combat">Combat</button>
+            <button class="sheet-tab" data-tab="skills">Skills</button>
             <button class="sheet-tab" data-tab="spells">Spells</button>
             <button class="sheet-tab" data-tab="inventory">Inventory</button>
             <button class="sheet-tab" data-tab="features">Features &amp; Traits</button>
@@ -321,7 +322,7 @@
                 </section>
 
                 <!-- Skills (Grouped by Ability) -->
-                <section class="skills-section">
+                <section class="skills-section" data-panel="skills">
                     <h3>Skills</h3>
                     
                     <!-- Strength Skills -->
@@ -441,7 +442,7 @@
                 </section>
 
                 <!-- Passive Perception -->
-                <section class="passive-section">
+                <section class="passive-section" data-panel="skills">
                     <div class="passive-item">
                         <label>Passive Perception</label>
                         <div class="passive-value" id="passivePerception">10</div>
