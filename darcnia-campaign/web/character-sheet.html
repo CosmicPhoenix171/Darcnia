@@ -48,7 +48,7 @@
     <main class="character-sheet compact">
         <!-- Quick Summary Header (Roll20-like) -->
         <section class="sheet-summary">
-            <div class="summary-left">
+            <div class="summary-column summary-left">
                 <div class="summary-card">
                     <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
                     <input type="file" id="portraitFile" accept="image/*" hidden>
@@ -160,8 +160,7 @@
                     </div>
                 </div>
             </div>
-            <div class="summary-abilities">
-                <section class="ability-scores summary-card ability-card">
+            <section class="summary-column ability-scores summary-card ability-card">
                     <h2>Ability Scores</h2>
                     <div class="abilities-grid">
                         <div class="ability-block" data-ability="str">
@@ -201,10 +200,10 @@
                             <div class="ability-label">Charisma</div>
                         </div>
                     </div>
-                </section>
-                
-                <!-- Conditions Section (moved next to abilities) -->
-                <section class="conditions-section summary-card">
+            </section>
+            
+            <!-- Conditions Section (moved next to abilities) -->
+            <section class="summary-column conditions-section summary-card">
                     <h3>Conditions</h3>
                     <div class="conditions-grid">
                         <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
@@ -226,8 +225,7 @@
                         <input id="exhaustion" type="number" min="0" max="6" value="0">
                     </div>
                     <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
-                </section>
-            </div>
+            </section>
             
         </section>
 

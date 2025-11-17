@@ -11,15 +11,23 @@
     padding: 1rem;
     position: relative;
     z-index: 1;
+    max-width: 1440px;
+    margin: 0 auto;
 }
 
 /* ===== Summary Header (Roll20-like) ===== */
 .sheet-summary {
+    /* Desktop column layout: hero ~55%, ability ~25%, conditions ~20% */
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.55fr) minmax(0, 0.5fr);
+    gap: 1.25rem;
     margin-bottom: 1.5rem;
     align-items: stretch;
+}
+
+.sheet-summary .summary-column {
+    width: 100%;
+    align-self: stretch;
 }
 
 .summary-left, .summary-center, .summary-right {
@@ -42,36 +50,42 @@
     gap: 0.75rem; 
     align-items: center; 
     width: 100%;
-    max-width: 980px; /* limit width so hero doesn’t stretch */
+    max-width: none;
+    height: 100%;
     margin: 0;
 }
 .summary-right { align-self: start; }
-.summary-abilities {
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
-}
-.summary-abilities .ability-card {
+.ability-card {
     margin-bottom: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     flex: 1;
+    height: 100%;
 }
-.summary-abilities .ability-card h2 {
+.ability-card h2 {
     margin-bottom: 0.5rem;
 }
-.summary-abilities .abilities-grid {
+.ability-card .abilities-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.9rem;
+}
+.summary-column.conditions-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+.summary-column.conditions-section .conditions-grid {
+    flex: 1;
 }
 
 @media (max-width: 1280px) {
     .sheet-summary {
         grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
     }
-    .summary-abilities .abilities-grid {
+    .ability-card .abilities-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
@@ -83,16 +97,13 @@
     .summary-left .summary-card {
         max-width: 100%;
     }
-    .summary-abilities {
-        width: 100%;
-    }
-    .summary-abilities .abilities-grid {
+    .ability-card .abilities-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 600px) {
-    .summary-abilities .abilities-grid {
+    .ability-card .abilities-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -599,6 +610,7 @@
     gap: 0.5rem;
     margin: 1rem 0 1.5rem 0;
     align-items: center;
+    justify-content: center;
 }
 .sheet-tab {
     background: rgba(40, 20, 80, 0.6);
