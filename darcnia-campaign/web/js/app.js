@@ -8,6 +8,7 @@ import {
     getISOWeek,
     getDateString
 } from './pricing.js';
+import { STORAGE_KEYS } from './config/app-config.js';
 
 // ===== Firebase Configuration =====
 const firebaseConfig = {
@@ -128,6 +129,97 @@ const state = {
     cart: [], // Shopping cart: [{key, name, price, shop, quantity}]
     bank: { gold: 0, silver: 0, copper: 0 } // Player's bank balance
 };
+
+// ===== Shared Character Sheet Helpers =====
+const CHARACTER_SHEET_STORAGE_KEY = STORAGE_KEYS?.characterSheetData || 'dnd2024CharacterSheet';
+const COPPER_VALUES = { pp: 1000, gp: 100, ep: 50, sp: 10, cp: 1 };
+
+function readCharacterSheetData() {
+    try {
+        const raw = localStorage.getItem(CHARACTER_SHEET_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+        console.warn('Unable to parse character sheet data:', error);
+        return null;
+    }
+}
+
+function writeCharacterSheetData(data) {
+    if (!data) return;
+    try {
+        localStorage.setItem(CHARACTER_SHEET_STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+        console.warn('Unable to persist character sheet data:', error);
+    }
+}
+
+function normalizeCoins(coins = {}) {
+    return {
+        pp: Math.max(0, parseInt(coins.pp) || 0),
+        gp: Math.max(0, parseInt(coins.gp) || 0),
+        ep: Math.max(0, parseInt(coins.ep) || 0),
+        sp: Math.max(0, parseInt(coins.sp) || 0),
+        cp: Math.max(0, parseInt(coins.cp) || 0)
+    };
+}
+
+function getCarriedCoinsSnapshot() {
+    const data = readCharacterSheetData();
+    if (!data) return null;
+    return { data, coins: normalizeCoins(data.coins || {}) };
+}
+
+function setCarriedCoins(snapshot, coins) {
+    const base = snapshot?.data || readCharacterSheetData() || {};
+    const normalizedCoins = normalizeCoins(coins);
+    base.coins = normalizedCoins;
+    writeCharacterSheetData(base);
+    return normalizedCoins;
+}
+
+function coinsToCopper(coins = {}) {
+    const normalized = normalizeCoins(coins);
+    return (normalized.pp * COPPER_VALUES.pp)
+        + (normalized.gp * COPPER_VALUES.gp)
+        + (normalized.ep * COPPER_VALUES.ep)
+        + (normalized.sp * COPPER_VALUES.sp)
+        + normalized.cp;
+}
+
+function copperToCoins(totalCopper = 0) {
+    let remaining = Math.max(0, totalCopper);
+    const breakdown = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
+    breakdown.pp = Math.floor(remaining / COPPER_VALUES.pp);
+    remaining %= COPPER_VALUES.pp;
+    breakdown.gp = Math.floor(remaining / COPPER_VALUES.gp);
+    remaining %= COPPER_VALUES.gp;
+    breakdown.ep = Math.floor(remaining / COPPER_VALUES.ep);
+    remaining %= COPPER_VALUES.ep;
+    breakdown.sp = Math.floor(remaining / COPPER_VALUES.sp);
+    remaining %= COPPER_VALUES.sp;
+    breakdown.cp = remaining;
+    return breakdown;
+}
+
+function copperToGSC(totalCopper = 0) {
+    let remaining = Math.max(0, totalCopper);
+    const gold = Math.floor(remaining / COPPER_VALUES.gp);
+    remaining %= COPPER_VALUES.gp;
+    const silver = Math.floor(remaining / COPPER_VALUES.sp);
+    remaining %= COPPER_VALUES.sp;
+    return { gold, silver, copper: remaining };
+}
+
+function formatCarriedCoinsSummary(coins = {}) {
+    const normalized = normalizeCoins(coins);
+    const parts = [];
+    if (normalized.pp) parts.push(`${normalized.pp} pp`);
+    if (normalized.gp) parts.push(`${normalized.gp} gp`);
+    if (normalized.ep) parts.push(`${normalized.ep} ep`);
+    if (normalized.sp) parts.push(`${normalized.sp} sp`);
+    if (normalized.cp || parts.length === 0) parts.push(`${normalized.cp} cp`);
+    return parts.join(', ');
+}
 
 // ===== Data Structure =====
 const contentData = {
@@ -3088,6 +3180,10 @@ function updateBankDisplay() {
 
 function showBank() {
     const balance = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper);
+    const carriedSnapshot = getCarriedCoinsSnapshot();
+    const carriedCoins = carriedSnapshot?.coins;
+    const carriedSummary = carriedCoins ? formatCarriedCoinsSummary(carriedCoins) : null;
+    const carriedWorth = carriedCoins ? copperToGSC(coinsToCopper(carriedCoins)) : null;
     
     let html = '<h2>💰 Bank Account</h2>';
     html += '<div class="bank-info">';
@@ -3095,10 +3191,16 @@ function showBank() {
         <strong>Current Balance:</strong>
         <div class="bank-balance-amount">${balance}</div>
     </div>`;
+    html += `<div class="bank-balance">
+        <strong>Carried Coins${carriedCoins ? '' : ' (sync required)'}:</strong>
+        <div class="bank-balance-amount">${carriedSummary || 'Open and save your character sheet to enable transfers.'}</div>
+        <div class="bank-note">${carriedWorth ? `≈ ${formatPrice(carriedWorth.gold, carriedWorth.silver, carriedWorth.copper)}` : 'We need your latest character sheet data to track coins.'}</div>
+    </div>`;
     html += '</div>';
     
     html += '<div class="bank-deposit">';
     html += '<h3>Deposit Funds</h3>';
+    html += `<p class="bank-note">${carriedSummary ? `Available to deposit: ${carriedSummary}` : 'Deposits pull from the coins saved on your character sheet.'}</p>`;
     html += '<div class="bank-form">';
     html += '<div class="currency-input">';
     html += '<label>Gold: <input type="number" id="depositGold" min="0" value="0" /></label>';
@@ -3111,6 +3213,7 @@ function showBank() {
     
     html += '<div class="bank-withdraw">';
     html += '<h3>Withdraw Funds</h3>';
+    html += '<p class="bank-note">Withdrawals move coins back into your character sheet automatically.</p>';
     html += '<div class="bank-form">';
     html += '<div class="currency-input">';
     html += '<label>Gold: <input type="number" id="withdrawGold" min="0" value="0" /></label>';
@@ -3133,6 +3236,24 @@ function depositFunds() {
         alert('Please enter an amount to deposit.');
         return;
     }
+    const depositCopper = (gold * COPPER_VALUES.gp) + (silver * COPPER_VALUES.sp) + (copper * COPPER_VALUES.cp);
+    if (depositCopper <= 0) {
+        alert('Enter a positive amount to deposit.');
+        return;
+    }
+
+    const carriedSnapshot = getCarriedCoinsSnapshot();
+    if (!carriedSnapshot) {
+        alert('Open and save your character sheet before transferring coins to the bank.');
+        return;
+    }
+    const carriedCopper = coinsToCopper(carriedSnapshot.coins);
+    if (depositCopper > carriedCopper) {
+        alert(`Insufficient carried coins. Available: ${formatCarriedCoinsSummary(carriedSnapshot.coins)}.`);
+        return;
+    }
+    const updatedCoins = copperToCoins(carriedCopper - depositCopper);
+    setCarriedCoins(carriedSnapshot, updatedCoins);
     
     state.bank.gold += gold;
     state.bank.silver += silver;
@@ -3153,7 +3274,8 @@ function depositFunds() {
     updateBankDisplay();
     showBank();
     // Notification uses textContent; pass plain string
-    showCartNotification(`✅ Deposited ${formatPrice(gold, silver, copper, false)}`);
+    const remainingSummary = formatCarriedCoinsSummary(updatedCoins);
+    showCartNotification(`✅ Deposited ${formatPrice(gold, silver, copper, false)} (carried left: ${remainingSummary})`);
 }
 
 function withdrawFunds() {
@@ -3167,7 +3289,7 @@ function withdrawFunds() {
     }
     
     // Convert to copper for comparison
-    const withdrawCopper = (gold * 100) + (silver * 10) + copper;
+    const withdrawCopper = (gold * COPPER_VALUES.gp) + (silver * COPPER_VALUES.sp) + (copper * COPPER_VALUES.cp);
     const bankCopper = (state.bank.gold * 100) + (state.bank.silver * 10) + state.bank.copper;
     
     if (withdrawCopper > bankCopper) {
@@ -3175,9 +3297,16 @@ function withdrawFunds() {
         return;
     }
     
+    const carriedSnapshot = getCarriedCoinsSnapshot();
+    if (!carriedSnapshot) {
+        alert('Open and save your character sheet before withdrawing coins from the bank.');
+        return;
+    }
+    const updatedCoins = copperToCoins(coinsToCopper(carriedSnapshot.coins) + withdrawCopper);
+
     // Deduct from balance
     let remainingCopper = bankCopper - withdrawCopper;
-    
+
     state.bank.copper = remainingCopper % 10;
     remainingCopper = Math.floor(remainingCopper / 10);
     state.bank.silver = remainingCopper % 10;
@@ -3188,11 +3317,13 @@ function withdrawFunds() {
     if (state.currentCharacter && state.currentCharacter.bank) {
         state.currentCharacter.bank = { ...state.bank };
     }
-    
+
     updateBankDisplay();
     showBank();
+    setCarriedCoins(carriedSnapshot, updatedCoins);
+    const summary = formatCarriedCoinsSummary(updatedCoins);
     // Notification uses textContent; pass plain string
-    showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper, false)}`);
+    showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper, false)} (carried now: ${summary})`);
 }
 
 // ===== Login System =====

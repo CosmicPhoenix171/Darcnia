@@ -335,6 +335,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.key === BANK_STORAGE_KEY) {
             updateBankBalanceDisplay();
         }
+        if (event.key === STORAGE_KEYS.characterSheetData && event.newValue) {
+            try {
+                const data = JSON.parse(event.newValue);
+                if (!data?.coins) return;
+                const incoming = data.coins;
+                const current = getCoinsFromDOM();
+                const changed = ['pp','gp','ep','sp','cp'].some((denom) => (parseInt(current[denom]) || 0) !== (parseInt(incoming[denom]) || 0));
+                if (changed) {
+                    setCoinsToDOM(incoming);
+                    updateEncumbrance();
+                    showToast('💰 Coins synced from market', 'info');
+                }
+            } catch (error) {
+                console.warn('Unable to sync character sheet data from storage:', error);
+            }
+        }
     });
 });
 
