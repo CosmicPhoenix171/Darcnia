@@ -112,32 +112,32 @@
                     <div class="quick-stats" aria-label="Quick combat stats">
                         <div class="mini-stat">
                             <span class="mini-label">AC</span>
-                            <input type="number" min="0" id="armorClass" class="mini-value-input" value="10" />
+                            <span class="mini-value" id="acSummary">10</span>
                         </div>
                         <div class="mini-stat">
                             <span class="mini-label">Speed</span>
-                            <input type="text" id="speed" class="mini-value-input" value="30" />
+                            <span class="mini-value" id="speedSummary">30</span>
                         </div>
                         <div class="mini-stat">
                             <span class="mini-label">Init</span>
-                            <input type="text" id="initiativeQuick" class="mini-value-input" value="+0" />
+                            <span class="mini-value" id="initSummary">+0</span>
                         </div>
                     </div>
 
                     <!-- Quick HP block -->
-                    <div class="hp-quick" aria-label="Quick HP">
+                    <div class="hp-quick" aria-label="Quick HP snapshot">
                         <div class="hpq-grid">
                             <div class="mini-stat">
                                 <span class="mini-label">Current</span>
-                                <input type="number" min="0" id="hpCurrent" class="mini-value-input" value="0" />
+                                <span class="mini-value" id="hpCurrentDisplay">0</span>
                             </div>
                             <div class="mini-stat">
                                 <span class="mini-label">Max</span>
-                                <input type="number" min="0" id="hpMax" class="mini-value-input" value="0" />
+                                <span class="mini-value" id="hpMaxDisplay">0</span>
                             </div>
                             <div class="mini-stat">
                                 <span class="mini-label">Temp</span>
-                                <input type="number" min="0" id="hpTemp" class="mini-value-input" value="0" />
+                                <span class="mini-value" id="hpTempDisplay">0</span>
                             </div>
                         </div>
                         <div class="hpq-controls">
@@ -465,6 +465,26 @@
                         <input type="text" id="hitDice" placeholder="e.g., 5d8">
                         <label for="hitDiceUsed">Used</label>
                         <input type="number" id="hitDiceUsed" value="0" min="0">
+                    </div>
+                    <div class="hp-action-row">
+                        <div class="hp-action">
+                            <label for="damageInput">Damage</label>
+                            <div class="hp-action-controls">
+                                <input type="number" id="damageInput" min="0" value="0">
+                                <button id="applyDamageBtn" class="btn-mini danger">Apply</button>
+                            </div>
+                        </div>
+                        <div class="hp-action">
+                            <label for="healInput">Heal</label>
+                            <div class="hp-action-controls">
+                                <input type="number" id="healInput" min="0" value="0">
+                                <button id="applyHealBtn" class="btn-mini success">Apply</button>
+                            </div>
+                        </div>
+                        <div class="hp-rest-actions">
+                            <button id="shortRestBtn" class="btn-mini">Short Rest</button>
+                            <button id="longRestBtn" class="btn-mini">Long Rest</button>
+                        </div>
                     </div>
                     <div class="death-saves">
                         <h4>Death Saves</h4>

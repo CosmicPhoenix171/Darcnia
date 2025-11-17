@@ -568,7 +568,8 @@ function closeLoginModal() {
 
 function setupEventListeners() {
     // Login button
-    document.getElementById('loginBtn').addEventListener('click', showLogin);
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) loginBtn.addEventListener('click', showLogin);
     
     // Modal close button
     const modalClose = document.querySelector('#loginModal .modal-close');
@@ -577,11 +578,14 @@ function setupEventListeners() {
     }
     
     // Click outside modal to close
-    document.getElementById('loginModal').addEventListener('click', (e) => {
-        if (e.target.id === 'loginModal') {
-            closeLoginModal();
-        }
-    });
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) {
+        loginModal.addEventListener('click', (e) => {
+            if (e.target.id === 'loginModal') {
+                closeLoginModal();
+            }
+        });
+    }
     
     // Ability score changes
     document.querySelectorAll('.ability-score').forEach(input => {
@@ -710,15 +714,10 @@ function calculateAllStats() {
     // Calculate initiative
     const dexMod = calculateAbilityModifier(characterData.abilities.dex);
     const initiativeStr = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
-    const initEl = document.getElementById('initiative') || document.getElementById('initiativeQuick');
-    if (initEl) {
-        if (initEl.tagName === 'INPUT') initEl.value = initiativeStr; else initEl.textContent = initiativeStr;
-    }
-    // Update summary for initiative
-    const initSummary = document.getElementById('initSummary') || document.getElementById('initiativeQuick');
-    if (initSummary && initSummary !== initEl) {
-        if (initSummary.tagName === 'INPUT') initSummary.value = initiativeStr; else initSummary.textContent = initiativeStr;
-    }
+    const initEl = document.getElementById('initiative');
+    if (initEl) initEl.textContent = initiativeStr;
+    const initSummary = document.getElementById('initSummary');
+    if (initSummary) initSummary.textContent = initiativeStr;
     
     // Calculate passive perception
     const perceptionBonus = calculateAbilityModifier(characterData.abilities.wis) + 
@@ -1032,24 +1031,18 @@ function updateSummaryHeader() {
     // Level is now calculated from XP
     const xp = parseInt(document.getElementById('experiencePoints')?.value) || 0;
     const { level } = calculateLevelFromXP(xp);
-    const cls = document.getElementById('class')?.value?.trim() || 'Class';
-    const bkg = document.getElementById('background')?.value?.trim() || 'Background';
     const ac = parseInt(document.getElementById('armorClass')?.value) || 10;
     const speedStr = document.getElementById('speed')?.value || '30 ft';
-    const speedNum = parseInt(speedStr) || 30;
     const hpMax = parseInt(document.getElementById('hpMax')?.value) || 0;
     const hpCur = parseInt(document.getElementById('hpCurrent')?.value) || 0;
     const hpTmp = parseInt(document.getElementById('hpTemp')?.value) || 0;
 
     const levelPill = document.getElementById('levelPill');
-    const classDisplay = document.getElementById('classDisplay');
-    const backgroundDisplay = document.getElementById('backgroundDisplay');
     const acSummary = document.getElementById('acSummary');
     const speedSummary = document.getElementById('speedSummary');
     const hpCurDisp = document.getElementById('hpCurrentDisplay');
     const hpMaxDisp = document.getElementById('hpMaxDisplay');
     const hpTmpDisp = document.getElementById('hpTempDisplay');
-    const initiativeQuick = document.getElementById('initiativeQuick');
 
     // nameDisplay is now an input, so just update placeholder if empty
     if (nameDisplay && !nameDisplay.value) {
@@ -1063,22 +1056,21 @@ function updateSummaryHeader() {
             levelPill.textContent = `Lvl ${level}`;
         }
     }
-    if (classDisplay) classDisplay.textContent = cls || 'Class';
-    if (backgroundDisplay) backgroundDisplay.textContent = bkg || 'Background';
     if (acSummary) acSummary.textContent = String(ac);
-    if (speedSummary) speedSummary.textContent = String(speedNum);
+    if (speedSummary) speedSummary.textContent = speedStr;
     if (hpCurDisp) hpCurDisp.textContent = String(hpCur);
     if (hpMaxDisp) hpMaxDisp.textContent = String(hpMax);
     if (hpTmpDisp) hpTmpDisp.textContent = String(hpTmp);
     // Reflect values into hero inputs if present (without overriding user edits for initiative)
     const acInput = document.getElementById('armorClass'); if (acInput && acInput !== document.activeElement) acInput.value = String(ac);
-    const speedInput = document.getElementById('speed'); if (speedInput && speedInput !== document.activeElement) speedInput.value = String(speedNum);
+    const speedInput = document.getElementById('speed'); if (speedInput && speedInput !== document.activeElement) speedInput.value = speedStr;
     const hpCurInput = document.getElementById('hpCurrent'); if (hpCurInput && hpCurInput !== document.activeElement) hpCurInput.value = String(hpCur);
     const hpMaxInput = document.getElementById('hpMax'); if (hpMaxInput && hpMaxInput !== document.activeElement) hpMaxInput.value = String(hpMax);
     const hpTempInput = document.getElementById('hpTemp'); if (hpTempInput && hpTempInput !== document.activeElement) hpTempInput.value = String(hpTmp);
-    if (initiativeQuick && initiativeQuick !== document.activeElement) {
+    const initSummaryEl = document.getElementById('initSummary');
+    if (initSummaryEl) {
         const dexMod = calculateAbilityModifier(characterData.abilities.dex || parseInt(document.getElementById('dexScore')?.value) || 10);
-        initiativeQuick.value = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
+        initSummaryEl.textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
     }
 }
 
@@ -1611,7 +1603,8 @@ function classCasterType(clsRaw) {
 }
 
 function autoFillSpellSlots() {
-    const level = parseInt(document.getElementById('level')?.value)||1;
+    const xp = parseInt(document.getElementById('experiencePoints')?.value) || 0;
+    const { level } = calculateLevelFromXP(xp);
     const cls = document.getElementById('class')?.value||'';
     const type = classCasterType(cls);
     let slots = null;

@@ -1220,8 +1220,6 @@ textarea {
 .coin-field label { margin-bottom:0.25rem; }
 .coin-summary { grid-column: span 6; color: var(--text-secondary); }
 .inventory-controls { display:flex; justify-content:space-between; align-items:center; margin:0.5rem 0; }
-.inventory-table { width:100%; border-collapse: collapse; }
-.inventory-table th, .inventory-table td { border-bottom:1px solid var(--accent-purple); padding:0.4rem; }
 .encumbrance #encumbranceStatus { font-weight:800; }
 .encumbrance .warning { color: var(--accent-red); }
 
@@ -1277,13 +1275,41 @@ textarea {
 .inv-chip .qty { font-weight: 700; min-width: 28px; text-align: right; }
 
 /* Hide legacy table if desired; keep for data and fallback */
-.inventory-table-wrapper { display: none; }
+.inventory-table-wrapper {
+    margin-top: 0.75rem;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(20, 10, 40, 0.35);
+}
+
+.inventory-table th,
+.inventory-table td {
+    border-bottom: 1px solid rgba(138, 43, 226, 0.4);
+    padding: 0.4rem;
+    text-align: left;
+}
 
 @media (max-width: 900px) {
     .inventory-board { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 560px) {
     .inventory-board { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+    .coins-grid { grid-template-columns: repeat(3, 1fr); }
+    .coin-summary { grid-column: span 3; }
+}
+
+@media (max-width: 520px) {
+    .coins-grid { grid-template-columns: repeat(2, 1fr); }
+    .coin-summary { grid-column: span 2; }
+    .hpq-controls { grid-template-columns: 1fr; }
+    .hpq-group, .hpq-rest { width: 100%; }
+    .hpq-group input { width: 100%; }
 }
 
 /* Conditions */
@@ -1445,6 +1471,38 @@ textarea {
 
 .spell-slot-level span {
     font-weight: 700;
+}
+
+/* HP action row */
+.hp-action-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    align-items: end;
+}
+
+.hp-action {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.hp-action-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.hp-action-controls input {
+    flex: 1;
+}
+
+.hp-rest-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
 /* ===== Notes Section ===== */
