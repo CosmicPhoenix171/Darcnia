@@ -3308,63 +3308,111 @@ function showBank() {
     const creditBreakdown = copperToGSC(creditCopper);
     const creditDisplay = formatPrice(creditBreakdown.gold, creditBreakdown.silver, creditBreakdown.copper);
     
-    let html = '<h2>💰 Bank Account</h2>';
-    html += '<div class="bank-info">';
-    html += `<div class="bank-balance">
-        <strong>Current Balance:</strong>
-        <div class="bank-balance-amount">${balance}</div>
-    </div>`;
-    html += `<div class="bank-balance">
-        <strong>Carried Coins${carriedCoins ? '' : ' (sync required)'}:</strong>
-        <div class="bank-balance-amount">${carriedSummary || 'Open and save your character sheet to enable transfers.'}</div>
-        <div class="bank-note">${carriedWorth ? `≈ ${formatPrice(carriedWorth.gold, carriedWorth.silver, carriedWorth.copper)}` : 'We need your latest character sheet data to track coins.'}</div>
-    </div>`;
-    html += '</div>';
-    
-    html += '<div class="bank-credit">';
-    html += '<h3>Platinum Sky Credit</h3>';
-    html += `<div class="bank-balance">
-        <strong>Outstanding Balance:</strong>
-        <div class="bank-balance-amount">${creditDisplay}</div>
-        <div class="bank-note">0% arcane fee for the first lunar cycle, then 30% on unpaid balances.</div>
-    </div>`;
-    html += '<div class="bank-form">';
-    html += '<div class="currency-input">';
-    html += '<label>Gold: <input type="number" id="creditPayGold" min="0" value="0" /></label>';
-    html += '<label>Silver: <input type="number" id="creditPaySilver" min="0" value="0" /></label>';
-    html += '<label>Copper: <input type="number" id="creditPayCopper" min="0" value="0" /></label>';
-    html += '</div>';
-    html += `<button onclick="payCreditBalance()" class="btn-secondary" ${creditCopper === 0 ? 'disabled' : ''}>Pay from Bank Balance</button>`;
-    html += '</div>';
-    html += '</div>';
+    let html = `
+        <div class="bank-modal">
+            <header class="bank-header">
+                <div class="bank-heading">
+                    <p class="bank-label">Platinum Sky Treasury</p>
+                    <h2>💰 Bank Account</h2>
+                    <p class="bank-subtitle">Manage deposits, withdrawals, and Platinum Sky credit without leaving the market.</p>
+                </div>
+                <div class="bank-header-actions">
+                    <span class="bank-pill">${carriedCoins ? 'Character sheet synced' : 'Sync sheet to transfer coins'}</span>
+                    <span class="bank-pill ${creditCopper > 0 ? 'bank-pill--warning' : 'bank-pill--success'}">${creditCopper > 0 ? 'Credit balance due' : 'No outstanding credit'}</span>
+                </div>
+            </header>
 
-    html += '<div class="bank-deposit">';
-    html += '<h3>Deposit Funds</h3>';
-    html += `<p class="bank-note">${carriedSummary ? `Available to deposit: ${carriedSummary}` : 'Deposits pull from the coins saved on your character sheet.'}</p>`;
-    html += '<div class="bank-form">';
-    html += '<div class="currency-input">';
-    html += '<label>Gold: <input type="number" id="depositGold" min="0" value="0" /></label>';
-    html += '<label>Silver: <input type="number" id="depositSilver" min="0" value="0" /></label>';
-    html += '<label>Copper: <input type="number" id="depositCopper" min="0" value="0" /></label>';
-    html += '</div>';
-    html += '<button onclick="depositFunds()" class="btn-primary">Deposit</button>';
-    html += '</div>';
-    html += '</div>';
+            <section class="bank-overview">
+                <article class="bank-card bank-card--glow">
+                    <p class="bank-card-label">Current Balance</p>
+                    <p class="bank-card-value">${balance}</p>
+                    <p class="bank-card-sub">${state.bank.gold} gp • ${state.bank.silver} sp • ${state.bank.copper} cp</p>
+                </article>
+                <article class="bank-card">
+                    <p class="bank-card-label">Carried Coins${carriedCoins ? '' : ' (sync required)'}</p>
+                    <p class="bank-card-value">${carriedSummary || 'Open and save your character sheet to enable transfers.'}</p>
+                    <p class="bank-card-sub">${carriedWorth ? `≈ ${formatPrice(carriedWorth.gold, carriedWorth.silver, carriedWorth.copper)}` : 'We need your latest character sheet data to track coins.'}</p>
+                </article>
+                <article class="bank-card bank-card--credit">
+                    <p class="bank-card-label">Platinum Sky Credit</p>
+                    <p class="bank-card-value">${creditDisplay}</p>
+                    <p class="bank-card-sub">0% arcane fee for the first lunar cycle, then 30% on unpaid balances.</p>
+                </article>
+            </section>
+
+            <section class="bank-grid">
+                <div class="bank-column">
+                    <article class="bank-panel">
+                        <div class="bank-panel-header">
+                            <h3>Deposit Funds</h3>
+                            <p class="bank-note">${carriedSummary ? `Available to deposit: ${carriedSummary}` : 'Deposits pull from the coins saved on your character sheet.'}</p>
+                        </div>
+                        <div class="bank-form-inputs">
+                            <label>Gold
+                                <input type="number" id="depositGold" min="0" value="0" />
+                            </label>
+                            <label>Silver
+                                <input type="number" id="depositSilver" min="0" value="0" />
+                            </label>
+                            <label>Copper
+                                <input type="number" id="depositCopper" min="0" value="0" />
+                            </label>
+                        </div>
+                        <div class="bank-panel-actions">
+                            <button onclick="depositFunds()" class="btn-primary">Deposit</button>
+                        </div>
+                    </article>
+
+                    <article class="bank-panel">
+                        <div class="bank-panel-header">
+                            <h3>Withdraw Funds</h3>
+                            <p class="bank-note">Withdrawals move coins back into your character sheet automatically.</p>
+                        </div>
+                        <div class="bank-form-inputs">
+                            <label>Gold
+                                <input type="number" id="withdrawGold" min="0" value="0" />
+                            </label>
+                            <label>Silver
+                                <input type="number" id="withdrawSilver" min="0" value="0" />
+                            </label>
+                            <label>Copper
+                                <input type="number" id="withdrawCopper" min="0" value="0" />
+                            </label>
+                        </div>
+                        <div class="bank-panel-actions">
+                            <button onclick="withdrawFunds()" class="btn-secondary">Withdraw</button>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="bank-column">
+                    <article class="bank-panel bank-panel--credit">
+                        <div class="bank-panel-header">
+                            <h3>Platinum Sky Credit Payment</h3>
+                            <p class="bank-note">Use your bank balance to pay down outstanding credit.</p>
+                        </div>
+                        <div class="bank-form-inputs">
+                            <label>Gold
+                                <input type="number" id="creditPayGold" min="0" value="0" />
+                            </label>
+                            <label>Silver
+                                <input type="number" id="creditPaySilver" min="0" value="0" />
+                            </label>
+                            <label>Copper
+                                <input type="number" id="creditPayCopper" min="0" value="0" />
+                            </label>
+                        </div>
+                        <div class="bank-panel-actions">
+                            <button onclick="payCreditBalance()" class="btn-secondary" ${creditCopper === 0 ? 'disabled' : ''}>Pay from Bank Balance</button>
+                        </div>
+                        <p class="bank-note">Outstanding: ${creditDisplay}</p>
+                    </article>
+                </div>
+            </section>
+        </div>
+    `;
     
-    html += '<div class="bank-withdraw">';
-    html += '<h3>Withdraw Funds</h3>';
-    html += '<p class="bank-note">Withdrawals move coins back into your character sheet automatically.</p>';
-    html += '<div class="bank-form">';
-    html += '<div class="currency-input">';
-    html += '<label>Gold: <input type="number" id="withdrawGold" min="0" value="0" /></label>';
-    html += '<label>Silver: <input type="number" id="withdrawSilver" min="0" value="0" /></label>';
-    html += '<label>Copper: <input type="number" id="withdrawCopper" min="0" value="0" /></label>';
-    html += '</div>';
-    html += '<button onclick="withdrawFunds()" class="btn-secondary">Withdraw</button>';
-    html += '</div>';
-    html += '</div>';
-    
-    openModal(html);
+    openModal(html, 'bank');
 }
 
 function depositFunds() {
@@ -3979,8 +4027,11 @@ function setModalVariant(variant = 'default') {
     const modal = document.getElementById('searchModal');
     const shell = modal ? modal.querySelector('.modal-content') : null;
     const isMarket = variant === 'market';
+    const isBank = variant === 'bank';
     if (modal) modal.classList.toggle('market-modal-open', isMarket);
+    if (modal) modal.classList.toggle('bank-modal-open', isBank);
     if (shell) shell.classList.toggle('market-modal-shell', isMarket);
+    if (shell) shell.classList.toggle('bank-modal-shell', isBank);
 }
 
 function openModal(html, variant = 'default') {
