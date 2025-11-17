@@ -482,33 +482,24 @@
 .hpq-group input { width: 70px; text-align: right; }
 .hpq-rest { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
-/* ===== Saves Snapshot embedded in hero card ===== */
+/* ===== Death saves block under HP card ===== */
 .hero-saves {
-    display: grid;
-    grid-template-columns: minmax(180px, 1fr) minmax(220px, 1fr);
-    gap: 1rem;
-    align-items: stretch;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-.hero-saves h3 {
+.hero-saves h4 {
     font-family: 'Cinzel', serif;
     font-size: 1rem;
     margin: 0 0 0.5rem;
     color: var(--accent-gold);
     text-align: center;
 }
-.hero-saves .death-saves {
-    margin: 0;
-}
-.hero-saves .skill-list {
-    gap: 0.4rem;
-}
-.saving-throws-mini {
+.hero-saves .death-save-row {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+    justify-content: center;
 }
 
 /* ===== OLD STYLES - Keep for compatibility ===== */
