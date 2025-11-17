@@ -785,6 +785,7 @@
     text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
 }
 
+.bank-credit,
 .bank-deposit, .bank-withdraw {
     margin: 2rem 0;
     padding: 1.5rem;
@@ -793,10 +794,15 @@
     border-radius: 12px;
 }
 
+.bank-credit h3,
 .bank-deposit h3, .bank-withdraw h3 {
     font-family: 'Cinzel', serif;
     color: var(--text-primary);
     margin-bottom: 1rem;
+}
+.bank-credit button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .bank-form {

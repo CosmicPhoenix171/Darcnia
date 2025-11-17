@@ -127,7 +127,7 @@ const state = {
         history: []     // keep last 10 results
     },
     cart: [], // Shopping cart: [{key, name, price, shop, quantity}]
-    bank: { gold: 0, silver: 0, copper: 0 } // Player's bank balance
+    bank: { gold: 0, silver: 0, copper: 0, creditCopper: 0 } // Player's bank balance + Platinum Sky credit
 };
 
 // ===== Shared Character Sheet Helpers =====
@@ -160,6 +160,15 @@ function normalizeCoins(coins = {}) {
         ep: Math.max(0, parseInt(coins.ep) || 0),
         sp: Math.max(0, parseInt(coins.sp) || 0),
         cp: Math.max(0, parseInt(coins.cp) || 0)
+    };
+}
+
+function normalizeBankState(bank = {}) {
+    return {
+        gold: Math.max(0, parseInt(bank.gold) || 0),
+        silver: Math.max(0, parseInt(bank.silver) || 0),
+        copper: Math.max(0, parseInt(bank.copper) || 0),
+        creditCopper: Math.max(0, parseInt(bank.creditCopper) || 0)
     };
 }
 
@@ -1295,10 +1304,12 @@ function initializeApp() {
     // Load bank balance from localStorage first, then from character as fallback
     const savedBank = localStorage.getItem('bankBalance');
     if (savedBank) {
-        state.bank = JSON.parse(savedBank);
+        state.bank = normalizeBankState(JSON.parse(savedBank));
     } else if (state.currentCharacter && state.currentCharacter.bank) {
-        state.bank = { ...state.currentCharacter.bank };
+        state.bank = normalizeBankState(state.currentCharacter.bank);
         saveBankToLocalStorage();
+    } else {
+        state.bank = normalizeBankState(state.bank);
     }
     
     // Restore login button state if character is logged in
@@ -1328,6 +1339,7 @@ function initializeApp() {
 }
 
 function saveBankToLocalStorage() {
+    state.bank = normalizeBankState(state.bank);
     localStorage.setItem('bankBalance', JSON.stringify(state.bank));
     
     // Also save to Firebase if logged in
@@ -1408,7 +1420,7 @@ function setupFirebaseRealtimeSync(characterName) {
                     const newBank = JSON.stringify(data.bank);
                     
                     if (currentBank !== newBank) {
-                        state.bank = { ...data.bank };
+                        state.bank = normalizeBankState(data.bank);
                         localStorage.setItem('bankBalance', JSON.stringify(state.bank));
                         updateBankDisplay();
                         console.log('🔄 Bank balance synced from Firebase');
@@ -2987,28 +2999,38 @@ function checkout() {
     }
     
     // Convert player's bank balance to copper for comparison
-    const playerCopper = (state.bank.gold * 100) + (state.bank.silver * 10) + state.bank.copper;
-    const costCopper = (totalGold * 100) + (totalSilver * 10) + totalCopper;
+    const playerCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
+    const costCopper = (totalGold * COPPER_VALUES.gp) + (totalSilver * COPPER_VALUES.sp) + (totalCopper * COPPER_VALUES.cp);
+    const canDebit = costCopper <= playerCopper;
+    let paymentMode = 'debit';
     
-    if (costCopper > playerCopper) {
-        // Alerts render as plain text; avoid HTML in strings
-        alert(`Insufficient funds!\n\nTotal Cost: ${formatPrice(totalGold, totalSilver, totalCopper, false)}\nYour Balance: ${formatPrice(state.bank.gold, state.bank.silver, state.bank.copper, false)}`);
-        return;
+    if (canDebit) {
+        const useCredit = confirm('Pay with Platinum Sky credit instead of your bank balance?\nOK = Charge to credit (0% first lunar cycle).\nCancel = Pay with bank funds.');
+        paymentMode = useCredit ? 'credit' : 'debit';
+    } else {
+        const approveCredit = confirm('Your bank balance is too low for this purchase. Charge the total to your Platinum Sky credit line?');
+        if (!approveCredit) {
+            alert('Purchase cancelled. Add funds or enable credit to continue.');
+            return;
+        }
+        paymentMode = 'credit';
     }
     
-    // Deduct from balance
-    let remainingCopper = playerCopper - costCopper;
-    
-    state.bank.copper = remainingCopper % 10;
-    remainingCopper = Math.floor(remainingCopper / 10);
-    state.bank.silver = remainingCopper % 10;
-    state.bank.gold = Math.floor(remainingCopper / 10);
+    if (paymentMode === 'debit') {
+        const remaining = copperToGSC(playerCopper - costCopper);
+        state.bank.gold = remaining.gold;
+        state.bank.silver = remaining.silver;
+        state.bank.copper = remaining.copper;
+    } else {
+        state.bank.creditCopper = (state.bank.creditCopper || 0) + costCopper;
+    }
     
     // Save to localStorage and character database
     saveBankToLocalStorage();
     if (state.currentCharacter && state.currentCharacter.bank) {
         state.currentCharacter.bank = { ...state.bank };
     }
+    updateBankDisplay();
     
     const itemCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
     // Plain text for notification
@@ -3023,16 +3045,23 @@ function checkout() {
         notificationMsg += ` (${Math.abs(negotiationDiscount * 100).toFixed(0)}% penalty applied)`;
     }
     
+    const paymentDescriptor = (() => {
+        if (paymentMode === 'credit') {
+            const outstandingCoins = copperToGSC(state.bank.creditCopper || 0);
+            const outstandingText = formatPrice(outstandingCoins.gold, outstandingCoins.silver, outstandingCoins.copper, false);
+            return `Charged to Platinum Sky credit (Balance: ${outstandingText})`;
+        }
+        return 'Paid from bank balance';
+    })();
     // Clear cart and negotiation
     state.cart = [];
     state.negotiationDiscount = 0;
     updateCartDisplay();
-    updateBankDisplay();
     
     // Close modal
     closeModal();
     
-    showCartNotification(notificationMsg);
+    showCartNotification(`${notificationMsg} • ${paymentDescriptor}`);
 }
 
 function showCartNotification(message) {
@@ -3174,7 +3203,14 @@ function updateBankDisplay() {
     if (bankBtn) {
         // Use plain text here since we're setting textContent
         const balance = formatPrice(state.bank.gold, state.bank.silver, state.bank.copper, false);
-        bankBtn.textContent = `💰 ${balance}`;
+        const creditCopper = state.bank.creditCopper || 0;
+        if (creditCopper > 0) {
+            const creditBreakdown = copperToGSC(creditCopper);
+            const creditDisplay = formatPrice(creditBreakdown.gold, creditBreakdown.silver, creditBreakdown.copper, false);
+            bankBtn.textContent = `💰 ${balance} | Debt ${creditDisplay}`;
+        } else {
+            bankBtn.textContent = `💰 ${balance}`;
+        }
     }
 }
 
@@ -3184,6 +3220,9 @@ function showBank() {
     const carriedCoins = carriedSnapshot?.coins;
     const carriedSummary = carriedCoins ? formatCarriedCoinsSummary(carriedCoins) : null;
     const carriedWorth = carriedCoins ? copperToGSC(coinsToCopper(carriedCoins)) : null;
+    const creditCopper = state.bank.creditCopper || 0;
+    const creditBreakdown = copperToGSC(creditCopper);
+    const creditDisplay = formatPrice(creditBreakdown.gold, creditBreakdown.silver, creditBreakdown.copper);
     
     let html = '<h2>💰 Bank Account</h2>';
     html += '<div class="bank-info">';
@@ -3198,6 +3237,23 @@ function showBank() {
     </div>`;
     html += '</div>';
     
+    html += '<div class="bank-credit">';
+    html += '<h3>Platinum Sky Credit</h3>';
+    html += `<div class="bank-balance">
+        <strong>Outstanding Balance:</strong>
+        <div class="bank-balance-amount">${creditDisplay}</div>
+        <div class="bank-note">0% arcane fee for the first lunar cycle, then 30% on unpaid balances.</div>
+    </div>`;
+    html += '<div class="bank-form">';
+    html += '<div class="currency-input">';
+    html += '<label>Gold: <input type="number" id="creditPayGold" min="0" value="0" /></label>';
+    html += '<label>Silver: <input type="number" id="creditPaySilver" min="0" value="0" /></label>';
+    html += '<label>Copper: <input type="number" id="creditPayCopper" min="0" value="0" /></label>';
+    html += '</div>';
+    html += `<button onclick="payCreditBalance()" class="btn-secondary" ${creditCopper === 0 ? 'disabled' : ''}>Pay from Bank Balance</button>`;
+    html += '</div>';
+    html += '</div>';
+
     html += '<div class="bank-deposit">';
     html += '<h3>Deposit Funds</h3>';
     html += `<p class="bank-note">${carriedSummary ? `Available to deposit: ${carriedSummary}` : 'Deposits pull from the coins saved on your character sheet.'}</p>`;
@@ -3326,6 +3382,48 @@ function withdrawFunds() {
     showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper, false)} (carried now: ${summary})`);
 }
 
+function payCreditBalance() {
+    const gold = parseInt(document.getElementById('creditPayGold')?.value) || 0;
+    const silver = parseInt(document.getElementById('creditPaySilver')?.value) || 0;
+    const copper = parseInt(document.getElementById('creditPayCopper')?.value) || 0;
+
+    const paymentCopper = (gold * COPPER_VALUES.gp) + (silver * COPPER_VALUES.sp) + (copper * COPPER_VALUES.cp);
+    if (paymentCopper <= 0) {
+        alert('Enter a positive amount to pay toward your credit balance.');
+        return;
+    }
+
+    const outstanding = state.bank.creditCopper || 0;
+    if (outstanding <= 0) {
+        alert('Your Platinum Sky credit balance is already at zero.');
+        return;
+    }
+
+    const bankCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
+    if (paymentCopper > bankCopper) {
+        alert('Insufficient bank funds to cover that payment amount.');
+        return;
+    }
+
+    const actualPayment = Math.min(paymentCopper, outstanding);
+    const remainingBankCopper = bankCopper - actualPayment;
+    const newBank = copperToGSC(remainingBankCopper);
+    state.bank.gold = newBank.gold;
+    state.bank.silver = newBank.silver;
+    state.bank.copper = newBank.copper;
+    state.bank.creditCopper = outstanding - actualPayment;
+
+    saveBankToLocalStorage();
+    if (state.currentCharacter && state.currentCharacter.bank) {
+        state.currentCharacter.bank = { ...state.bank };
+    }
+
+    updateBankDisplay();
+    showBank();
+    const paidBreakdown = copperToGSC(actualPayment);
+    showCartNotification(`✅ Paid ${formatPrice(paidBreakdown.gold, paidBreakdown.silver, paidBreakdown.copper, false)} toward your credit balance.`);
+}
+
 // ===== Login System =====
 function showLogin() {
     console.log('showLogin called');
@@ -3355,7 +3453,7 @@ function showLogin() {
             if (savedBank) {
                 state.bank = JSON.parse(savedBank);
             } else {
-                state.bank = { gold: 0, silver: 0, copper: 0 };
+                state.bank = { gold: 0, silver: 0, copper: 0, creditCopper: 0 };
             }
             updateBankDisplay();
             showCartNotification('👋 Logged out');
@@ -3407,11 +3505,11 @@ async function attemptLogin() {
     
     if (firebaseData && firebaseData.bank) {
         // Use Firebase data (most recent save)
-        state.bank = { ...firebaseData.bank };
+        state.bank = normalizeBankState(firebaseData.bank);
         console.log('📥 Loaded bank from Firebase');
     } else if (character.bank) {
         // Use character default
-        state.bank = { ...character.bank };
+        state.bank = normalizeBankState(character.bank);
         console.log('📦 Using default bank balance');
     }
     
