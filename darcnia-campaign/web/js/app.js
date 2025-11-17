@@ -3139,6 +3139,9 @@ function toggleCartCredit(checked) {
         ? `Platinum Sky credit will be used at checkout with ${(CREDIT_DISCOUNT_RATE * 100).toFixed(0)}% discount.`
         : 'Checkout will draw from your bank balance.';
     showCartNotification(message);
+    if (state.cart.length > 0) {
+        showCart();
+    }
 }
 
 function startNegotiation() {
