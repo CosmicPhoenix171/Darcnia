@@ -156,6 +156,16 @@
                                 <button id="longRestQuick" class="btn-mini">Long Rest</button>
                             </div>
                         </div>
+                        <div class="hpq-dice">
+                            <div class="hpq-die-field">
+                                <label for="hitDice">Hit Dice</label>
+                                <input type="text" id="hitDice" placeholder="e.g., 5d8">
+                            </div>
+                            <div class="hpq-die-field">
+                                <label for="hitDiceUsed">Used</label>
+                                <input type="number" id="hitDiceUsed" value="0" min="0">
+                            </div>
+                        </div>
                     </div>
                     </div>
                 </div>
@@ -428,32 +438,6 @@
             <div class="center-column">
                 <!-- Hit Points -->
                 <section class="hp-section">
-                    <div class="hit-dice-section">
-                        <label for="hitDice">Hit Dice</label>
-                        <input type="text" id="hitDice" placeholder="e.g., 5d8">
-                        <label for="hitDiceUsed">Used</label>
-                        <input type="number" id="hitDiceUsed" value="0" min="0">
-                    </div>
-                    <div class="hp-action-row">
-                        <div class="hp-action">
-                            <label for="damageInput">Damage</label>
-                            <div class="hp-action-controls">
-                                <input type="number" id="damageInput" min="0" value="0">
-                                <button id="applyDamageBtn" class="btn-mini danger">Apply</button>
-                            </div>
-                        </div>
-                        <div class="hp-action">
-                            <label for="healInput">Heal</label>
-                            <div class="hp-action-controls">
-                                <input type="number" id="healInput" min="0" value="0">
-                                <button id="applyHealBtn" class="btn-mini success">Apply</button>
-                            </div>
-                        </div>
-                        <div class="hp-rest-actions">
-                            <button id="shortRestBtn" class="btn-mini">Short Rest</button>
-                            <button id="longRestBtn" class="btn-mini">Long Rest</button>
-                        </div>
-                    </div>
                     <div class="death-saves">
                         <h4>Death Saves</h4>
                         <div class="death-save-row">

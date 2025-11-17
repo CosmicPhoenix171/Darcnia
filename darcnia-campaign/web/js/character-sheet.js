@@ -683,31 +683,13 @@ function setupEventListeners() {
         });
     });
 
-    // HP controls
-    const dmgBtn = document.getElementById('applyDamageBtn');
-    const healBtn = document.getElementById('applyHealBtn');
-    const shortBtn = document.getElementById('shortRestBtn');
-    const longBtn = document.getElementById('longRestBtn');
-    if (dmgBtn) dmgBtn.addEventListener('click', applyDamage);
-    if (healBtn) healBtn.addEventListener('click', applyHeal);
-    if (shortBtn) shortBtn.addEventListener('click', doShortRest);
-    if (longBtn) longBtn.addEventListener('click', doLongRest);
-
-    // Quick HP controls (hero card) — mirror the main handlers
+    // Hero card HP controls (primary inputs now)
     const dmgQuickBtn = document.getElementById('applyDamageQuick');
     const healQuickBtn = document.getElementById('applyHealQuick');
     const shortQuickBtn = document.getElementById('shortRestQuick');
     const longQuickBtn = document.getElementById('longRestQuick');
-    if (dmgQuickBtn) dmgQuickBtn.addEventListener('click', () => {
-        const v = parseInt(document.getElementById('damageQuick').value) || 0;
-        const main = document.getElementById('damageInput'); if (main) main.value = v;
-        applyDamage();
-    });
-    if (healQuickBtn) healQuickBtn.addEventListener('click', () => {
-        const v = parseInt(document.getElementById('healQuick').value) || 0;
-        const main = document.getElementById('healInput'); if (main) main.value = v;
-        applyHeal();
-    });
+    if (dmgQuickBtn) dmgQuickBtn.addEventListener('click', applyDamage);
+    if (healQuickBtn) healQuickBtn.addEventListener('click', applyHeal);
     if (shortQuickBtn) shortQuickBtn.addEventListener('click', doShortRest);
     if (longQuickBtn) longQuickBtn.addEventListener('click', doLongRest);
 
@@ -1021,7 +1003,7 @@ function populateCharacterData(data) {
 function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
 
 function applyDamage() {
-    const dmg = parseInt(document.getElementById('damageQuick')?.value || document.getElementById('damageInput')?.value || '0') || 0;
+    const dmg = parseInt(document.getElementById('damageQuick')?.value || '0') || 0;
     if (dmg <= 0) return;
     // Use temp HP first
     let temp = parseInt(document.getElementById('hpTemp').value) || 0;
@@ -1041,7 +1023,7 @@ function applyDamage() {
 }
 
 function applyHeal() {
-    const heal = parseInt(document.getElementById('healQuick')?.value || document.getElementById('healInput')?.value || '0') || 0;
+    const heal = parseInt(document.getElementById('healQuick')?.value || '0') || 0;
     if (heal <= 0) return;
     const maxHp = parseInt(document.getElementById('hpMax').value) || 0;
     let current = parseInt(document.getElementById('hpCurrent').value) || 0;
