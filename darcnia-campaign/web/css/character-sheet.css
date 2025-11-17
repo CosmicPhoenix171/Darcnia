@@ -1438,7 +1438,6 @@ textarea {
     transform: rotate(-90deg);
 }
 .inv-drop {
-    min-height: 120px;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
@@ -1446,14 +1445,17 @@ textarea {
     border-radius: 8px;
     background: rgba(30, 15, 60, 0.35);
     outline: 1px dashed rgba(138,43,226,0.35);
-    transition: max-height 0.25s ease, opacity 0.2s ease;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+    max-height: 800px;
+    overflow: hidden;
+}
+.inv-drop:not(.collapsed) {
+    min-height: 120px;
 }
 .inv-drop.collapsed {
     max-height: 0;
     padding: 0;
-    margin: 0;
     opacity: 0;
-    overflow: hidden;
 }
 .inv-drop.drag-over {
     outline: 2px dashed var(--accent-gold);
