@@ -3342,44 +3342,27 @@ function showBank() {
 
             <section class="bank-grid">
                 <div class="bank-column">
-                    <article class="bank-panel">
+                    <article class="bank-panel bank-panel--transfer">
                         <div class="bank-panel-header">
-                            <h3>Deposit Funds</h3>
-                            <p class="bank-note">${carriedSummary ? `Available to deposit: ${carriedSummary}` : 'Deposits pull from the coins saved on your character sheet.'}</p>
+                            <h3>Transfer Coins</h3>
+                            <div class="bank-transfer-notes">
+                                <p class="bank-note">${carriedSummary ? `Available to deposit: ${carriedSummary}` : 'Deposits pull from the coins saved on your character sheet.'}</p>
+                                <p class="bank-note">Withdrawals move coins back into your character sheet automatically.</p>
+                            </div>
                         </div>
                         <div class="bank-form-inputs">
                             <label>Gold
-                                <input type="number" id="depositGold" min="0" value="0" />
+                                <input type="number" id="transferGold" min="0" value="0" />
                             </label>
                             <label>Silver
-                                <input type="number" id="depositSilver" min="0" value="0" />
+                                <input type="number" id="transferSilver" min="0" value="0" />
                             </label>
                             <label>Copper
-                                <input type="number" id="depositCopper" min="0" value="0" />
+                                <input type="number" id="transferCopper" min="0" value="0" />
                             </label>
                         </div>
-                        <div class="bank-panel-actions">
+                        <div class="bank-panel-actions bank-panel-actions--split">
                             <button onclick="depositFunds()" class="btn-primary">Deposit</button>
-                        </div>
-                    </article>
-
-                    <article class="bank-panel">
-                        <div class="bank-panel-header">
-                            <h3>Withdraw Funds</h3>
-                            <p class="bank-note">Withdrawals move coins back into your character sheet automatically.</p>
-                        </div>
-                        <div class="bank-form-inputs">
-                            <label>Gold
-                                <input type="number" id="withdrawGold" min="0" value="0" />
-                            </label>
-                            <label>Silver
-                                <input type="number" id="withdrawSilver" min="0" value="0" />
-                            </label>
-                            <label>Copper
-                                <input type="number" id="withdrawCopper" min="0" value="0" />
-                            </label>
-                        </div>
-                        <div class="bank-panel-actions">
                             <button onclick="withdrawFunds()" class="btn-secondary">Withdraw</button>
                         </div>
                     </article>
@@ -3415,10 +3398,27 @@ function showBank() {
     openModal(html, 'bank');
 }
 
+function getTransferFieldValue(id) {
+    return parseInt(document.getElementById(id)?.value) || 0;
+}
+
+function readTransferFields() {
+    return {
+        gold: getTransferFieldValue('transferGold'),
+        silver: getTransferFieldValue('transferSilver'),
+        copper: getTransferFieldValue('transferCopper')
+    };
+}
+
+function resetTransferFields() {
+    ['transferGold', 'transferSilver', 'transferCopper'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = 0;
+    });
+}
+
 function depositFunds() {
-    const gold = parseInt(document.getElementById('depositGold').value) || 0;
-    const silver = parseInt(document.getElementById('depositSilver').value) || 0;
-    const copper = parseInt(document.getElementById('depositCopper').value) || 0;
+    const { gold, silver, copper } = readTransferFields();
     
     if (gold === 0 && silver === 0 && copper === 0) {
         alert('Please enter an amount to deposit.');
@@ -3463,13 +3463,12 @@ function depositFunds() {
     showBank();
     // Notification uses textContent; pass plain string
     const remainingSummary = formatCarriedCoinsSummary(updatedCoins);
+    resetTransferFields();
     showCartNotification(`✅ Deposited ${formatPrice(gold, silver, copper, false)} (carried left: ${remainingSummary})`);
 }
 
 function withdrawFunds() {
-    const gold = parseInt(document.getElementById('withdrawGold').value) || 0;
-    const silver = parseInt(document.getElementById('withdrawSilver').value) || 0;
-    const copper = parseInt(document.getElementById('withdrawCopper').value) || 0;
+    const { gold, silver, copper } = readTransferFields();
     
     if (gold === 0 && silver === 0 && copper === 0) {
         alert('Please enter an amount to withdraw.');
@@ -3511,6 +3510,7 @@ function withdrawFunds() {
     setCarriedCoins(carriedSnapshot, updatedCoins);
     const summary = formatCarriedCoinsSummary(updatedCoins);
     // Notification uses textContent; pass plain string
+    resetTransferFields();
     showCartNotification(`✅ Withdrew ${formatPrice(gold, silver, copper, false)} (carried now: ${summary})`);
 }
 

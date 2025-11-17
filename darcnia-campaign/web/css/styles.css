@@ -1802,6 +1802,25 @@ a:active {
     margin-top: 0.5rem;
 }
 
+.bank-panel-actions--split {
+    justify-content: space-between;
+}
+
+.bank-panel-actions--split button {
+    flex: 1;
+}
+
+.bank-transfer-notes {
+    display: grid;
+    gap: 0.35rem;
+}
+
+@media (min-width: 768px) {
+    .bank-transfer-notes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 720px) {
     .bank-header {
         flex-direction: column;
