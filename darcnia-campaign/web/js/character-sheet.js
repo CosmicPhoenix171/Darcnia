@@ -133,10 +133,16 @@ function updateLevelFromXP() {
     updateSummaryHeader();
 }
 
+function sanitizeCharacterName(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+}
+
 // Use shared config modules
 import { firebaseConfig } from './config/firebase-config.js';
 import { STORAGE_KEYS } from './config/app-config.js';
 import { simpleHash, characterDatabase } from './data/character-db.js';
+
+const BANK_STORAGE_KEY = STORAGE_KEYS.bank || 'bankBalance';
 
 // Initialize Firebase
 let database = null;
@@ -153,7 +159,9 @@ try {
 // Current logged-in character
 let currentCharacterName = null;
 let firebaseListener = null;
+let firebaseBankListener = null;
 let isUpdatingFromFirebase = false;
+let isUpdatingBankFromFirebase = false;
 
 // ===== Character Database & Login System =====
 
@@ -321,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initConditions();
     initPortrait();
     initAutoSlots();
+    updateBankBalanceDisplay();
 });
 
 // ===== Tabs: Inventory / Notes / Spells =====
@@ -394,6 +403,7 @@ function checkLoggedInCharacter() {
         
         // Load from Firebase
         loadCharacterFromFirebase(currentCharacterName);
+        loadBankFromFirebase(currentCharacterName);
         setupFirebaseRealtimeSync(currentCharacterName);
     } else {
         console.log('📋 No character logged in, using local storage only');
@@ -405,7 +415,7 @@ function checkLoggedInCharacter() {
 async function loadCharacterFromFirebase(characterName) {
     if (!database || !characterName) return;
     
-    const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const sanitizedName = sanitizeCharacterName(characterName);
     try {
         const snapshot = await database.ref(`characters/${sanitizedName}/characterSheet`).once('value');
         const data = snapshot.val();
@@ -423,16 +433,34 @@ async function loadCharacterFromFirebase(characterName) {
     }
 }
 
+async function loadBankFromFirebase(characterName) {
+    if (!database || !characterName) return;
+    const sanitizedName = sanitizeCharacterName(characterName);
+    try {
+        const snapshot = await database.ref(`characters/${sanitizedName}/bank`).once('value');
+        const bank = snapshot.val();
+        if (bank) {
+            applySharedBankBalance(bank, { silent: true });
+        }
+    } catch (error) {
+        console.error('Error loading bank from Firebase:', error);
+    }
+}
+
 function setupFirebaseRealtimeSync(characterName) {
     if (!database || !characterName) return;
     
-    const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const sanitizedName = sanitizeCharacterName(characterName);
     const characterRef = database.ref(`characters/${sanitizedName}/characterSheet`);
     
     // Remove any existing listener
     if (firebaseListener) {
         firebaseListener.off();
         firebaseListener = null;
+    }
+    if (firebaseBankListener) {
+        firebaseBankListener.off();
+        firebaseBankListener = null;
     }
     
     // Set up real-time listener
@@ -455,6 +483,18 @@ function setupFirebaseRealtimeSync(characterName) {
     });
     
     console.log(`🔔 Real-time sync enabled for ${characterName}`);
+
+    const bankRef = database.ref(`characters/${sanitizedName}/bank`);
+    firebaseBankListener = bankRef;
+    bankRef.on('value', (snapshot) => {
+        if (isUpdatingBankFromFirebase) return;
+        const bank = snapshot.val();
+        if (bank) {
+            isUpdatingBankFromFirebase = true;
+            applySharedBankBalance(bank, { silent: true });
+            setTimeout(() => { isUpdatingBankFromFirebase = false; }, 100);
+        }
+    });
 }
 
 async function saveCharacterToFirebase() {
@@ -487,6 +527,10 @@ function showLogin() {
             if (firebaseListener) {
                 firebaseListener.off();
                 firebaseListener = null;
+            }
+            if (firebaseBankListener) {
+                firebaseBankListener.off();
+                firebaseBankListener = null;
             }
             
             // Clear saved character from localStorage
@@ -550,6 +594,7 @@ async function attemptLogin() {
     
     // Load character sheet from Firebase
     await loadCharacterFromFirebase(character.name);
+    await loadBankFromFirebase(character.name);
     
     // Setup real-time sync for this character
     setupFirebaseRealtimeSync(character.name);
@@ -1382,6 +1427,10 @@ function initInventoryTable() {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', ()=>{ updateCoinsSummary(); updateEncumbrance(); autoSaveCharacterData(); });
     });
+    const loadBankBtn = document.getElementById('loadBankToCoinsBtn');
+    if (loadBankBtn) loadBankBtn.addEventListener('click', loadBankIntoCoins);
+    const saveBankBtn = document.getElementById('saveCoinsToBankBtn');
+    if (saveBankBtn) saveBankBtn.addEventListener('click', saveCoinsIntoBank);
 }
 
 function addInventoryRow(item=null) {
@@ -1452,6 +1501,121 @@ function updateCoinsSummary() {
     const wEl = document.getElementById('coinsWeight'); if (wEl) wEl.textContent = `${weight.toFixed(1)} lb`;
     const valEl = document.getElementById('coinsWealth'); if (valEl) valEl.textContent = `${wealthGp.toFixed(2)} gp`;
     updateTotalsWeight();
+}
+
+function normalizeBankBalance(bank = {}) {
+    return {
+        gold: Math.max(0, parseInt(bank.gold) || 0),
+        silver: Math.max(0, parseInt(bank.silver) || 0),
+        copper: Math.max(0, parseInt(bank.copper) || 0)
+    };
+}
+
+function bankBalanceToString(bank) {
+    const parts = [];
+    if (bank.gold) parts.push(`${bank.gold.toLocaleString()} gp`);
+    if (bank.silver) parts.push(`${bank.silver} sp`);
+    if (bank.copper || parts.length === 0) parts.push(`${bank.copper} cp`);
+    return parts.join(', ');
+}
+
+function getSharedBankBalance() {
+    try {
+        const raw = localStorage.getItem(BANK_STORAGE_KEY);
+        if (raw) {
+            return normalizeBankBalance(JSON.parse(raw));
+        }
+    } catch (error) {
+        console.warn('Unable to read bank balance from storage:', error);
+    }
+    return { gold: 0, silver: 0, copper: 0 };
+}
+
+function setSharedBankBalanceLocal(bank) {
+    const normalized = normalizeBankBalance(bank);
+    try {
+        localStorage.setItem(BANK_STORAGE_KEY, JSON.stringify(normalized));
+    } catch (error) {
+        console.warn('Unable to store bank balance:', error);
+    }
+    updateBankBalanceDisplay(normalized);
+    return normalized;
+}
+
+function updateBankBalanceDisplay(bank = getSharedBankBalance()) {
+    const el = document.getElementById('bankBalanceDisplay');
+    if (el) {
+        el.textContent = bankBalanceToString(bank);
+    }
+}
+
+function bankBalanceToSheetCoins(bank) {
+    const normalized = normalizeBankBalance(bank);
+    return {
+        pp: 0,
+        gp: normalized.gold,
+        ep: 0,
+        sp: normalized.silver,
+        cp: normalized.copper
+    };
+}
+
+function sheetCoinsToBankBalance(coins) {
+    const copper = (parseInt(coins.pp) || 0) * 1000 +
+                   (parseInt(coins.gp) || 0) * 100 +
+                   (parseInt(coins.ep) || 0) * 50 +
+                   (parseInt(coins.sp) || 0) * 10 +
+                   (parseInt(coins.cp) || 0);
+    return copperToBank(copper);
+}
+
+function copperToBank(totalCopper) {
+    totalCopper = Math.max(0, totalCopper || 0);
+    const gold = Math.floor(totalCopper / 100);
+    const remaining = totalCopper - gold * 100;
+    const silver = Math.floor(remaining / 10);
+    const copper = remaining - silver * 10;
+    return { gold, silver, copper };
+}
+
+async function persistBankBalance(bank, { silent = false } = {}) {
+    const normalized = setSharedBankBalanceLocal(bank);
+    if (!silent) {
+        showToast('Bank balance saved', 'success');
+    }
+    if (database && currentCharacterName && currentCharacterName !== 'Guest') {
+        try {
+            const sanitized = sanitizeCharacterName(currentCharacterName);
+            await database.ref(`characters/${sanitized}/bank`).set(normalized);
+        } catch (error) {
+            console.error('Error saving bank to Firebase:', error);
+        }
+    }
+    return normalized;
+}
+
+function applySharedBankBalance(bank, { silent = false } = {}) {
+    const normalized = setSharedBankBalanceLocal(bank);
+    if (!silent) {
+        showToast('Bank balance updated', 'info');
+    }
+    return normalized;
+}
+
+function loadBankIntoCoins() {
+    const bank = getSharedBankBalance();
+    const converted = bankBalanceToSheetCoins(bank);
+    setCoinsToDOM({ ...converted });
+    updateCoinsSummary();
+    updateEncumbrance();
+    autoSaveCharacterData();
+    showToast('Loaded bank balance into carried coins', 'info');
+}
+
+function saveCoinsIntoBank() {
+    const coins = getCoinsFromDOM();
+    const bank = sheetCoinsToBankBalance(coins);
+    persistBankBalance(bank, { silent: false });
 }
 
 function getInventoryFromDOM() {

@@ -1218,7 +1218,19 @@ textarea {
 /* Inventory */
 .coins-grid { display:grid; grid-template-columns: repeat(6, 1fr); gap:0.5rem; margin-bottom:0.5rem; align-items:end; }
 .coin-field label { margin-bottom:0.25rem; }
-.coin-summary { grid-column: span 6; color: var(--text-secondary); }
+.coin-summary { grid-column: 1 / -1; color: var(--text-secondary); }
+.coin-summary.bank-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.bank-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
 .inventory-controls { display:flex; justify-content:space-between; align-items:center; margin:0.5rem 0; }
 .encumbrance #encumbranceStatus { font-weight:800; }
 .encumbrance .warning { color: var(--accent-red); }
@@ -1301,12 +1313,12 @@ textarea {
 
 @media (max-width: 900px) {
     .coins-grid { grid-template-columns: repeat(3, 1fr); }
-    .coin-summary { grid-column: span 3; }
+    .coin-summary { grid-column: 1 / -1; }
 }
 
 @media (max-width: 520px) {
     .coins-grid { grid-template-columns: repeat(2, 1fr); }
-    .coin-summary { grid-column: span 2; }
+    .coin-summary { grid-column: 1 / -1; }
     .hpq-controls { grid-template-columns: 1fr; }
     .hpq-group, .hpq-rest { width: 100%; }
     .hpq-group input { width: 100%; }
