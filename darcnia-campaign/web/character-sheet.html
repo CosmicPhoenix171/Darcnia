@@ -48,8 +48,8 @@
     <main class="character-sheet compact">
         <!-- Quick Summary Header (Roll20-like) -->
         <section class="sheet-summary">
-            <div class="summary-column summary-left">
-                <div class="summary-card">
+            <div class="summary-card hero-card">
+                <div class="hero-header">
                     <div class="portrait" id="portrait" aria-label="Character portrait" title="Click to set portrait"></div>
                     <input type="file" id="portraitFile" accept="image/*" hidden>
                     <div class="summary-id">
@@ -101,30 +101,56 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Proficiency Badge -->
-                        <div class="prof-badge">
-                            <span class="prof-label">Proficiency</span>
-                            <strong class="prof-value" id="profBonusDisplay">+2</strong>
-                        </div>
                     </div>
                 </div>
+                <div class="hero-bottom-row">
+                    <div class="prof-badge">
+                        <span class="prof-label">Proficiency</span>
+                        <strong class="prof-value" id="profBonusDisplay">+2</strong>
+                    </div>
+                    <div class="hero-prof-control">
+                        <label for="proficiencyBonus">Proficiency Bonus</label>
+                        <input type="number" id="proficiencyBonus" value="2" min="2" max="6">
+                    </div>
+                    <button id="levelUpBtn" type="button" class="hero-btn">Level Up</button>
+                    <button type="button" class="hero-btn ghost">Manage Actions</button>
+                    <label class="hero-toggle">
+                        <input type="checkbox" id="inspiration">
+                        Inspiration
+                    </label>
+                </div>
             </div>
-            <div class="summary-column summary-right">
-                <section class="summary-card quick-card">
-                    <h3 class="summary-card-title">Combat Snapshot</h3>
-                    <div class="quick-stats" aria-label="Quick combat stats">
+            <section class="summary-card hp-card">
+                <h3 class="summary-card-title">Hit Points</h3>
+                <div class="hp-quick" aria-label="Quick HP snapshot">
+                    <div class="hpq-grid">
                         <div class="mini-stat">
-                            <label class="mini-label" for="armorClass">AC</label>
-                            <input type="number" id="armorClass" class="mini-value mini-value-input" value="10" min="1">
+                            <label class="mini-label" for="hpCurrent">Current</label>
+                            <input type="number" id="hpCurrent" class="mini-value mini-value-input" value="0" min="0">
                         </div>
                         <div class="mini-stat">
-                            <label class="mini-label" for="speed">Speed</label>
-                            <input type="text" id="speed" class="mini-value mini-value-input" value="30 ft" placeholder="30 ft">
+                            <label class="mini-label" for="hpMax">Max</label>
+                            <input type="number" id="hpMax" class="mini-value mini-value-input" value="0" min="0">
                         </div>
                         <div class="mini-stat">
-                            <span class="mini-label">Init</span>
-                            <span class="mini-value" id="initSummary">+0</span>
+                            <label class="mini-label" for="hpTemp">Temp</label>
+                            <input type="number" id="hpTemp" class="mini-value mini-value-input" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="hpq-controls">
+                        <div class="hpq-group">
+                            <label for="damageQuick" class="hpq-label">Damage</label>
+                            <input id="damageQuick" type="number" min="0" value="0">
+                            <button id="applyDamageQuick" class="btn-mini danger">Apply</button>
+                        </div>
+                        <div class="hpq-group">
+                            <label for="healQuick" class="hpq-label">Heal</label>
+                            <input id="healQuick" type="number" min="0" value="0">
+                            <button id="applyHealQuick" class="btn-mini success">Apply</button>
+                        </div>
+                        <div class="hpq-rest">
+                            <button id="shortRestQuick" class="btn-mini">Short Rest</button>
+                            <button id="longRestQuick" class="btn-mini">Long Rest</button>
                         </div>
                     </div>
                     <div class="hpq-dice">
@@ -137,60 +163,25 @@
                             <input type="number" id="hitDiceUsed" value="0" min="0">
                         </div>
                     </div>
-                </section>
-                <section class="summary-card quick-card">
-                    <h3 class="summary-card-title">Hit Points &amp; Saves</h3>
-                    <div class="hp-quick" aria-label="Quick HP snapshot">
-                        <div class="hpq-grid">
-                            <div class="mini-stat">
-                                <label class="mini-label" for="hpCurrent">Current</label>
-                                <input type="number" id="hpCurrent" class="mini-value mini-value-input" value="0" min="0">
+                    <div class="hero-saves">
+                        <div class="death-saves" aria-label="Death saving throws">
+                            <h4>Death Saves</h4>
+                            <div class="death-save-row">
+                                <span>Successes:</span>
+                                <input type="checkbox" id="deathSave1">
+                                <input type="checkbox" id="deathSave2">
+                                <input type="checkbox" id="deathSave3">
                             </div>
-                            <div class="mini-stat">
-                                <label class="mini-label" for="hpMax">Max</label>
-                                <input type="number" id="hpMax" class="mini-value mini-value-input" value="0" min="0">
-                            </div>
-                            <div class="mini-stat">
-                                <label class="mini-label" for="hpTemp">Temp</label>
-                                <input type="number" id="hpTemp" class="mini-value mini-value-input" value="0" min="0">
-                            </div>
-                        </div>
-                        <div class="hpq-controls">
-                            <div class="hpq-group">
-                                <label for="damageQuick" class="hpq-label">Damage</label>
-                                <input id="damageQuick" type="number" min="0" value="0">
-                                <button id="applyDamageQuick" class="btn-mini danger">Apply</button>
-                            </div>
-                            <div class="hpq-group">
-                                <label for="healQuick" class="hpq-label">Heal</label>
-                                <input id="healQuick" type="number" min="0" value="0">
-                                <button id="applyHealQuick" class="btn-mini success">Apply</button>
-                            </div>
-                            <div class="hpq-rest">
-                                <button id="shortRestQuick" class="btn-mini">Short Rest</button>
-                                <button id="longRestQuick" class="btn-mini">Long Rest</button>
-                            </div>
-                        </div>
-                        <div class="hero-saves">
-                            <div class="death-saves" aria-label="Death saving throws">
-                                <h4>Death Saves</h4>
-                                <div class="death-save-row">
-                                    <span>Successes:</span>
-                                    <input type="checkbox" id="deathSave1">
-                                    <input type="checkbox" id="deathSave2">
-                                    <input type="checkbox" id="deathSave3">
-                                </div>
-                                <div class="death-save-row">
-                                    <span>Failures:</span>
-                                    <input type="checkbox" id="deathFail1">
-                                    <input type="checkbox" id="deathFail2">
-                                    <input type="checkbox" id="deathFail3">
-                                </div>
+                            <div class="death-save-row">
+                                <span>Failures:</span>
+                                <input type="checkbox" id="deathFail1">
+                                <input type="checkbox" id="deathFail2">
+                                <input type="checkbox" id="deathFail3">
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
+                </div>
+            </section>
         </section>
 
         <!-- Ability band mirrors Roll20 strip -->
@@ -289,36 +280,36 @@
         </div>
 
         <!-- Main Stats Grid -->
-        <div class="main-grid">
-            <!-- Left Column: Skills & Defenses -->
-            <aside class="left-column">
-
-                <!-- Proficiency Bonus & Inspiration -->
-                <section class="bonus-section">
-                    <div class="bonus-item">
-                        <label for="proficiencyBonus">Proficiency Bonus</label>
-                        <input type="number" id="proficiencyBonus" value="2" min="2" max="6">
-                    </div>
-                    <div class="bonus-item">
-                        <label>
-                            <input type="checkbox" id="inspiration">
-                            Inspiration
+        <div class="sheet-layout">
+            <aside class="character-left">
+                <section class="summary-card defense-card">
+                    <h3>Defenses</h3>
+                    <div class="defense-grid">
+                        <label class="defense-item">
+                            <span>Armor Class</span>
+                            <input type="number" id="armorClass" class="mini-value-input" value="10" min="1">
+                        </label>
+                        <label class="defense-item">
+                            <span>Initiative</span>
+                            <span class="defense-value" id="initSummary">+0</span>
+                        </label>
+                        <label class="defense-item">
+                            <span>Speed</span>
+                            <input type="text" id="speed" class="mini-value-input" value="30 ft" placeholder="30 ft">
+                        </label>
+                        <label class="defense-item">
+                            <span>Passive Perception</span>
+                            <span class="defense-value" id="passivePerception">10</span>
                         </label>
                     </div>
                 </section>
 
-                <!-- Passive Perception (always visible on left) -->
-                <section class="passive-section">
-                    <div class="passive-item">
-                        <label>Passive Perception</label>
-                        <div class="passive-value" id="passivePerception">10</div>
+                <section class="skills-section summary-card">
+                    <div class="skills-header">
+                        <h3>Skills</h3>
+                        <span>Mark proficiencies to auto-calc bonuses.</span>
                     </div>
-                </section>
 
-                <!-- Skills (always visible left column) -->
-                <section class="skills-section">
-                    <h3>Skills</h3>
-                    
                     <!-- Strength Skills -->
                     <div class="skill-group">
                         <div class="skill-group-header">Strength</div>
@@ -434,11 +425,9 @@
                         </div>
                     </div>
                 </section>
-
             </aside>
 
-            <!-- Center Column: Combat Stats & Resources -->
-            <div class="center-column">
+            <div class="character-center">
                 <!-- Attacks & Spellcasting -->
                 <section class="attacks-section" data-panel="combat">
                     <h3>Attacks & Spellcasting</h3>
@@ -557,105 +546,82 @@
                         <div class="spell-stat">
                             <label for="spellcastingAbility">Spellcasting Ability</label>
                             <input type="text" id="spellcastingAbility" placeholder="INT/WIS/CHA">
-
-                    <!-- Features & Traits tab content -->
-                    <section class="features-section" data-panel="features">
-                        <h3>Class Features &amp; Feats</h3>
-                        <textarea id="classFeatures" rows="10" placeholder="List your class features, racial traits, and feats here...&#10;&#10;Example:&#10;• Second Wind (1/short rest)&#10;• Action Surge (1/short rest)&#10;• Fighting Style: Dueling"></textarea>
-                    </section>
-
-                    <!-- About tab content -->
-                    <section class="personality-section" data-panel="about">
-                        <h3>Personality</h3>
-                        <div class="personality-grid">
-                            <div class="form-group">
-                                <label for="personalityTraits">Personality Traits</label>
-                                <textarea id="personalityTraits" rows="2" placeholder="Describe your character's personality..."></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="ideals">Ideals</label>
-                                <textarea id="ideals" rows="2" placeholder="What drives your character?"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="bonds">Bonds</label>
-                                <textarea id="bonds" rows="2" placeholder="What connections matter most?"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="flaws">Flaws</label>
-                                <textarea id="flaws" rows="2" placeholder="What weaknesses does your character have?"></textarea>
-                            </div>
-                        </div>
-                    </section>
                         </div>
                         <div class="spell-stat">
-                <!-- Right Column: Defenses & Utilities -->
-                <aside class="right-column">
-                    <!-- Proficiencies & Languages -->
-                    <section class="proficiencies-section">
-                                <input type="number" id="spellSlotsMax4" value="0" min="0">
-                            </div>
-                            <div class="spell-slot-level">
-                                <label>5th</label>
-                                <input type="number" id="spellSlots5" value="0" min="0">
-                                <span>/</span>
-                                <input type="number" id="spellSlotsMax5" value="0" min="0">
-                            </div>
-                            <div class="spell-slot-level">
-                                <label>6th</label>
-                                <input type="number" id="spellSlots6" value="0" min="0">
-                                <span>/</span>
-                    <section class="conditions-section summary-card">
-                        <h3>Conditions</h3>
-                        <div class="conditions-grid">
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
-                            <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
+                            <label for="spellSaveDC">Spell Save DC</label>
+                            <input type="number" id="spellSaveDC" value="10" min="1">
                         </div>
-                        <div class="exhaustion-row">
-                            <label for="exhaustion">Exhaustion</label>
-                            <input id="exhaustion" type="number" min="0" max="6" value="0">
+                        <div class="spell-stat">
+                            <label for="spellAttackBonus">Spell Attack Bonus</label>
+                            <input type="number" id="spellAttackBonus" value="0" min="-5" max="20">
                         </div>
-                        <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
-                    </section>
-                                <input type="number" id="spellSlotsMax6" value="0" min="0">
-                            </div>
-                            <div class="spell-slot-level">
-                                <label>7th</label>
-                                <input type="number" id="spellSlots7" value="0" min="0">
-                                <span>/</span>
-                                <input type="number" id="spellSlotsMax7" value="0" min="0">
-                            </div>
-                            <div class="spell-slot-level">
-                                <label>8th</label>
-                                <input type="number" id="spellSlots8" value="0" min="0">
-                                <span>/</span>
-                                <input type="number" id="spellSlotsMax8" value="0" min="0">
-                            </div>
-                            <div class="spell-slot-level">
-                                <label>9th</label>
-                                <input type="number" id="spellSlots9" value="0" min="0">
-                                <span>/</span>
-                                <input type="number" id="spellSlotsMax9" value="0" min="0">
-                            </div>
+                    </div>
+                    <div class="spell-slots-board">
+                        <div class="spell-slot-level">
+                            <label>1st</label>
+                            <input type="number" id="spellSlots1" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax1" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>2nd</label>
+                            <input type="number" id="spellSlots2" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax2" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>3rd</label>
+                            <input type="number" id="spellSlots3" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax3" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>4th</label>
+                            <input type="number" id="spellSlots4" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax4" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>5th</label>
+                            <input type="number" id="spellSlots5" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax5" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>6th</label>
+                            <input type="number" id="spellSlots6" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax6" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>7th</label>
+                            <input type="number" id="spellSlots7" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax7" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>8th</label>
+                            <input type="number" id="spellSlots8" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax8" value="0" min="0">
+                        </div>
+                        <div class="spell-slot-level">
+                            <label>9th</label>
+                            <input type="number" id="spellSlots9" value="0" min="0">
+                            <span>/</span>
+                            <input type="number" id="spellSlotsMax9" value="0" min="0">
                         </div>
                     </div>
                     <textarea id="spellList" rows="12" placeholder="List your spells by level:&#10;&#10;Cantrips:&#10;• Fire Bolt&#10;• Mage Hand&#10;&#10;1st Level:&#10;• Magic Missile&#10;• Shield"></textarea>
                 </section>
-            </div>
 
-            <!-- Right Column: Features & Background -->
-            <aside class="right-column">
-                <!-- Personality & Background -->
+                <!-- Features & Traits tab content -->
+                <section class="features-section" data-panel="features">
+                    <h3>Class Features &amp; Feats</h3>
+                    <textarea id="classFeatures" rows="10" placeholder="List your class features, racial traits, and feats here...&#10;&#10;Example:&#10;• Second Wind (1/short rest)&#10;• Action Surge (1/short rest)&#10;• Fighting Style: Dueling"></textarea>
+                </section>
+
+                <!-- About tab content -->
                 <section class="personality-section" data-panel="about">
                     <h3>Personality</h3>
                     <div class="personality-grid">
@@ -678,34 +644,52 @@
                     </div>
                 </section>
 
-                <!-- Class Features & Feats -->
-                <section class="features-section" data-panel="features">
-                    <h3>Class Features & Feats</h3>
-                    <textarea id="classFeatures" rows="10" placeholder="List your class features, racial traits, and feats here...&#10;&#10;Example:&#10;• Second Wind (1/short rest)&#10;• Action Surge (1/short rest)&#10;• Fighting Style: Dueling"></textarea>
-                </section>
-
-                <!-- Proficiencies & Languages -->
                 <section class="proficiencies-section" data-panel="about">
-                    <h3>Proficiencies & Languages</h3>
+                    <h3>Proficiencies &amp; Languages</h3>
                     <textarea id="proficiencies" rows="5" placeholder="Armor: Light, Medium, Shields&#10;Weapons: Simple, Martial&#10;Tools: Thieves' Tools&#10;Languages: Common, Elvish"></textarea>
                 </section>
+            </div>
 
-                <!-- Defenses / Conditions / Senses (right sidebar widgets) -->
-                <section class="defenses-section">
-                    <h3>Defenses</h3>
+            <aside class="character-right">
+                <section class="conditions-section summary-card">
+                    <h3>Conditions</h3>
+                    <div class="conditions-grid">
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="poisoned"> Poisoned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="blinded"> Blinded</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="deafened"> Deafened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="frightened"> Frightened</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="grappled"> Grappled</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="incapacitated"> Incapacitated</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="invisible"> Invisible</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="paralyzed"> Paralyzed</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="petrified"> Petrified</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="prone"> Prone</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="restrained"> Restrained</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="stunned"> Stunned</label>
+                        <label class="cond"><input type="checkbox" class="cond-toggle" data-cond="unconscious"> Unconscious</label>
+                    </div>
+                    <div class="exhaustion-row">
+                        <label for="exhaustion">Exhaustion</label>
+                        <input id="exhaustion" type="number" min="0" max="6" value="0">
+                    </div>
+                    <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
+                </section>
+
+                <section class="defenses-section summary-card">
+                    <h3>Resistances</h3>
                     <div class="mini-list">
                         <label for="resistances">Resistances / Immunities</label>
                         <textarea id="resistances" rows="3" placeholder="None"></textarea>
                     </div>
                 </section>
-                <section class="senses-section">
+
+                <section class="senses-section summary-card">
                     <h3>Senses</h3>
                     <div class="mini-list">
                         <label for="senses">Passive Senses</label>
                         <textarea id="senses" rows="2" placeholder="Investigation 10, Insight 10, Perception 10"></textarea>
                     </div>
                 </section>
-
             </aside>
         </div>
 
