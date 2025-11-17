@@ -120,6 +120,89 @@
                     </label>
                 </div>
             </div>
+            <section class="ability-band summary-card">
+                <h2>Ability Scores</h2>
+                <div class="abilities-grid">
+                    <div class="ability-block" data-ability="str">
+                        <div class="ability-header">STR</div>
+                        <div class="ability-modifier" id="strMod">+0</div>
+                        <input type="number" class="ability-score" id="strScore" value="10" min="1" max="30">
+                        <div class="ability-label">Strength</div>
+                        <div class="ability-save">
+                            <label>
+                                <input type="checkbox" id="strSaveProf" class="save-prof">
+                                Save
+                            </label>
+                            <span class="ability-save-value" id="strSave">+0</span>
+                        </div>
+                    </div>
+                    <div class="ability-block" data-ability="dex">
+                        <div class="ability-header">DEX</div>
+                        <div class="ability-modifier" id="dexMod">+0</div>
+                        <input type="number" class="ability-score" id="dexScore" value="10" min="1" max="30">
+                        <div class="ability-label">Dexterity</div>
+                        <div class="ability-save">
+                            <label>
+                                <input type="checkbox" id="dexSaveProf" class="save-prof">
+                                Save
+                            </label>
+                            <span class="ability-save-value" id="dexSave">+0</span>
+                        </div>
+                    </div>
+                    <div class="ability-block" data-ability="con">
+                        <div class="ability-header">CON</div>
+                        <div class="ability-modifier" id="conMod">+0</div>
+                        <input type="number" class="ability-score" id="conScore" value="10" min="1" max="30">
+                        <div class="ability-label">Constitution</div>
+                        <div class="ability-save">
+                            <label>
+                                <input type="checkbox" id="conSaveProf" class="save-prof">
+                                Save
+                            </label>
+                            <span class="ability-save-value" id="conSave">+0</span>
+                        </div>
+                    </div>
+                    <div class="ability-block" data-ability="int">
+                        <div class="ability-header">INT</div>
+                        <div class="ability-modifier" id="intMod">+0</div>
+                        <input type="number" class="ability-score" id="intScore" value="10" min="1" max="30">
+                        <div class="ability-label">Intelligence</div>
+                        <div class="ability-save">
+                            <label>
+                                <input type="checkbox" id="intSaveProf" class="save-prof">
+                                Save
+                            </label>
+                            <span class="ability-save-value" id="intSave">+0</span>
+                        </div>
+                    </div>
+                    <div class="ability-block" data-ability="wis">
+                        <div class="ability-header">WIS</div>
+                        <div class="ability-modifier" id="wisMod">+0</div>
+                        <input type="number" class="ability-score" id="wisScore" value="10" min="1" max="30">
+                        <div class="ability-label">Wisdom</div>
+                        <div class="ability-save">
+                            <label>
+                                <input type="checkbox" id="wisSaveProf" class="save-prof">
+                                Save
+                            </label>
+                            <span class="ability-save-value" id="wisSave">+0</span>
+                        </div>
+                    </div>
+                    <div class="ability-block" data-ability="cha">
+                        <div class="ability-header">CHA</div>
+                        <div class="ability-modifier" id="chaMod">+0</div>
+                        <input type="number" class="ability-score" id="chaScore" value="10" min="1" max="30">
+                        <div class="ability-label">Charisma</div>
+                        <div class="ability-save">
+                            <label>
+                                <input type="checkbox" id="chaSaveProf" class="save-prof">
+                                Save
+                            </label>
+                            <span class="ability-save-value" id="chaSave">+0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <section class="summary-card hp-card">
                 <div class="hp-card-head">
                     <h3 class="summary-card-title">Hit Points</h3>
@@ -219,90 +302,6 @@
             </section>
         </section>
 
-        <!-- Ability band mirrors Roll20 strip -->
-        <section class="ability-band summary-card">
-            <h2>Ability Scores</h2>
-            <div class="abilities-grid">
-                <div class="ability-block" data-ability="str">
-                    <div class="ability-header">STR</div>
-                    <div class="ability-modifier" id="strMod">+0</div>
-                    <input type="number" class="ability-score" id="strScore" value="10" min="1" max="30">
-                    <div class="ability-label">Strength</div>
-                    <div class="ability-save">
-                        <label>
-                            <input type="checkbox" id="strSaveProf" class="save-prof">
-                            Save
-                        </label>
-                        <span class="ability-save-value" id="strSave">+0</span>
-                    </div>
-                </div>
-                <div class="ability-block" data-ability="dex">
-                    <div class="ability-header">DEX</div>
-                    <div class="ability-modifier" id="dexMod">+0</div>
-                    <input type="number" class="ability-score" id="dexScore" value="10" min="1" max="30">
-                    <div class="ability-label">Dexterity</div>
-                    <div class="ability-save">
-                        <label>
-                            <input type="checkbox" id="dexSaveProf" class="save-prof">
-                            Save
-                        </label>
-                        <span class="ability-save-value" id="dexSave">+0</span>
-                    </div>
-                </div>
-                <div class="ability-block" data-ability="con">
-                    <div class="ability-header">CON</div>
-                    <div class="ability-modifier" id="conMod">+0</div>
-                    <input type="number" class="ability-score" id="conScore" value="10" min="1" max="30">
-                    <div class="ability-label">Constitution</div>
-                    <div class="ability-save">
-                        <label>
-                            <input type="checkbox" id="conSaveProf" class="save-prof">
-                            Save
-                        </label>
-                        <span class="ability-save-value" id="conSave">+0</span>
-                    </div>
-                </div>
-                <div class="ability-block" data-ability="int">
-                    <div class="ability-header">INT</div>
-                    <div class="ability-modifier" id="intMod">+0</div>
-                    <input type="number" class="ability-score" id="intScore" value="10" min="1" max="30">
-                    <div class="ability-label">Intelligence</div>
-                    <div class="ability-save">
-                        <label>
-                            <input type="checkbox" id="intSaveProf" class="save-prof">
-                            Save
-                        </label>
-                        <span class="ability-save-value" id="intSave">+0</span>
-                    </div>
-                </div>
-                <div class="ability-block" data-ability="wis">
-                    <div class="ability-header">WIS</div>
-                    <div class="ability-modifier" id="wisMod">+0</div>
-                    <input type="number" class="ability-score" id="wisScore" value="10" min="1" max="30">
-                    <div class="ability-label">Wisdom</div>
-                    <div class="ability-save">
-                        <label>
-                            <input type="checkbox" id="wisSaveProf" class="save-prof">
-                            Save
-                        </label>
-                        <span class="ability-save-value" id="wisSave">+0</span>
-                    </div>
-                </div>
-                <div class="ability-block" data-ability="cha">
-                    <div class="ability-header">CHA</div>
-                    <div class="ability-modifier" id="chaMod">+0</div>
-                    <input type="number" class="ability-score" id="chaScore" value="10" min="1" max="30">
-                    <div class="ability-label">Charisma</div>
-                    <div class="ability-save">
-                        <label>
-                            <input type="checkbox" id="chaSaveProf" class="save-prof">
-                            Save
-                        </label>
-                        <span class="ability-save-value" id="chaSave">+0</span>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- View Tabs: Combat / Spells / Inventory / Features / Notes / About -->
         <div class="sheet-tabs" role="tablist" aria-label="Character sheet views">
