@@ -17,9 +17,9 @@
 
 /* ===== Summary Header (Roll20-like) ===== */
 .sheet-summary {
-    /* Desktop column layout: hero ~55%, ability ~25%, conditions ~20% */
+    /* Hero + quick cards */
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.55fr) minmax(0, 0.5fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
     align-items: stretch;
@@ -30,7 +30,7 @@
     align-self: stretch;
 }
 
-.summary-left, .summary-center, .summary-right {
+.summary-left, .summary-right {
     /* Grid items: transparent so row height doesn't show as stretched */
     background: transparent;
     padding: 0; border: 0;
@@ -44,6 +44,15 @@
     padding: 0.7rem;
 }
 
+.summary-card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--accent-gold);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+}
+
 .summary-left { align-self: stretch; justify-self: stretch; width: 100%; }
 .summary-left .summary-card { 
     display: flex; 
@@ -54,39 +63,54 @@
     height: 100%;
     margin: 0;
 }
-.summary-right { align-self: start; }
-.ability-card {
-    margin-bottom: 0;
-    width: 100%;
+.summary-right { 
+    align-self: stretch; 
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+.summary-right .summary-card {
     flex: 1;
-    height: 100%;
 }
-.ability-card h2 {
-    margin-bottom: 0.5rem;
-}
-.ability-card .abilities-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.9rem;
-}
-.summary-column.conditions-section {
-    height: 100%;
+
+.quick-card {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
 }
-.summary-column.conditions-section .conditions-grid {
-    flex: 1;
+
+.ability-band {
+    margin-bottom: 1.5rem;
+}
+
+.ability-band h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.8rem;
+    color: var(--accent-gold);
+}
+
+.ability-band .abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.9rem;
 }
 
 @media (max-width: 1280px) {
     .sheet-summary {
         grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
     }
-    .ability-card .abilities-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .ability-band .abilities-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .summary-right {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .summary-right .summary-card {
+        flex: 1 1 280px;
     }
 }
 
@@ -97,13 +121,16 @@
     .summary-left .summary-card {
         max-width: 100%;
     }
-    .ability-card .abilities-grid {
+    .summary-right {
+        flex-direction: column;
+    }
+    .ability-band .abilities-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 600px) {
-    .ability-card .abilities-grid {
+    .ability-band .abilities-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -570,19 +597,6 @@
 }
 .rest-buttons { display: flex; gap: 0.5rem; }
 
-.summary-right { display: block; }
-.summary-right .summary-card{ display:grid; grid-template-columns: 1fr; gap: .6rem; }
-.summary-stat { 
-    background: linear-gradient(180deg, rgba(40,20,80,0.55), rgba(25,12,50,0.55)); 
-    border: 2px solid rgba(138, 43, 226, 0.6); 
-    border-radius: 10px; 
-    padding: 0.55rem; 
-    text-align: center; 
-    box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 1px 8px rgba(255,255,255,.05);
-}
-.summary-stat .label { font-size: 0.7rem; color: var(--text-secondary); }
-.summary-stat .value { font-size: 1.4rem; font-weight: 800; color: var(--accent-gold); }
-
 /* Compact mode overrides to make the sheet fit more tightly while staying cozy */
 .character-sheet.compact section,
 .character-sheet.compact .ability-scores,
@@ -1025,6 +1039,22 @@ textarea {
 }
 
 /* ===== Saving Throws & Skills ===== */
+.saves-section {
+    background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
+    padding: 1.25rem;
+    border: 2px solid var(--accent-purple);
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+}
+
+.saves-section h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent-gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
 .skills-section {
     background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
     padding: 1.5rem;
