@@ -197,18 +197,35 @@ function coinsToCopper(coins = {}) {
         + normalized.cp;
 }
 
-function copperToCoins(totalCopper = 0) {
+function copperToCoins(totalCopper = 0, referenceCoins = null) {
     let remaining = Math.max(0, totalCopper);
     const breakdown = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
-    breakdown.pp = Math.floor(remaining / COPPER_VALUES.pp);
-    remaining %= COPPER_VALUES.pp;
-    breakdown.gp = Math.floor(remaining / COPPER_VALUES.gp);
-    remaining %= COPPER_VALUES.gp;
-    breakdown.ep = Math.floor(remaining / COPPER_VALUES.ep);
-    remaining %= COPPER_VALUES.ep;
-    breakdown.sp = Math.floor(remaining / COPPER_VALUES.sp);
-    remaining %= COPPER_VALUES.sp;
-    breakdown.cp = remaining;
+    const order = ['pp', 'gp', 'ep', 'sp', 'cp'];
+    const reference = referenceCoins ? normalizeCoins(referenceCoins) : null;
+
+    if (reference) {
+        for (const key of order) {
+            const denomValue = COPPER_VALUES[key];
+            const possible = Math.floor(remaining / denomValue);
+            if (possible <= 0) continue;
+            const preserved = Math.min(reference[key] || 0, possible);
+            if (preserved > 0) {
+                breakdown[key] = preserved;
+                remaining -= preserved * denomValue;
+            }
+        }
+    }
+
+    for (const key of order) {
+        if (remaining <= 0) break;
+        const denomValue = COPPER_VALUES[key];
+        const amount = Math.floor(remaining / denomValue);
+        if (amount > 0) {
+            breakdown[key] += amount;
+            remaining -= amount * denomValue;
+        }
+    }
+
     return breakdown;
 }
 
@@ -3372,7 +3389,7 @@ function depositFunds() {
         alert(`Insufficient carried coins. Available: ${formatCarriedCoinsSummary(carriedSnapshot.coins)}.`);
         return;
     }
-    const updatedCoins = copperToCoins(carriedCopper - depositCopper);
+    const updatedCoins = copperToCoins(carriedCopper - depositCopper, carriedSnapshot.coins);
     setCarriedCoins(carriedSnapshot, updatedCoins);
     
     state.bank.gold += gold;
@@ -3422,7 +3439,7 @@ function withdrawFunds() {
         alert('Open and save your character sheet before withdrawing coins from the bank.');
         return;
     }
-    const updatedCoins = copperToCoins(coinsToCopper(carriedSnapshot.coins) + withdrawCopper);
+    const updatedCoins = copperToCoins(coinsToCopper(carriedSnapshot.coins) + withdrawCopper, carriedSnapshot.coins);
 
     // Deduct from balance
     let remainingCopper = bankCopper - withdrawCopper;
