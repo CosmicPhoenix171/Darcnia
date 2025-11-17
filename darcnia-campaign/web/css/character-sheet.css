@@ -24,6 +24,12 @@
     align-items: stretch;
 }
 
+.summary-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .summary-card {
     background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
     border: 2px solid var(--accent-purple);
@@ -48,7 +54,6 @@
 
 .sheet-summary .ability-band {
     margin: 0;
-    grid-column: 1 / 2;
 }
 
 .hero-header {
