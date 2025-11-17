@@ -536,7 +536,7 @@
 }
 .hpq-controls {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 0.5rem;
     align-items: end;
     margin-top: 0.5rem;
@@ -544,7 +544,7 @@
 .hpq-group { display: grid; grid-template-columns: auto 1fr auto; gap: 0.4rem; align-items: center; }
 .hpq-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
 .hpq-group input { width: 70px; text-align: right; }
-.hpq-rest { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.hpq-rest { display: flex; gap: 0.5rem; justify-content: flex-start; flex-wrap: wrap; }
 
 /* ===== Death saves block under HP card ===== */
 .hero-saves {
