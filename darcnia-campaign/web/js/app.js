@@ -3413,11 +3413,7 @@ function payCreditBalance() {
     const silver = parseInt(document.getElementById('creditPaySilver')?.value) || 0;
     const copper = parseInt(document.getElementById('creditPayCopper')?.value) || 0;
 
-    const paymentCopper = (gold * COPPER_VALUES.gp) + (silver * COPPER_VALUES.sp) + (copper * COPPER_VALUES.cp);
-    if (paymentCopper <= 0) {
-        alert('Enter a positive amount to pay toward your credit balance.');
-        return;
-    }
+    let paymentCopper = (gold * COPPER_VALUES.gp) + (silver * COPPER_VALUES.sp) + (copper * COPPER_VALUES.cp);
 
     const outstanding = state.bank.creditCopper || 0;
     if (outstanding <= 0) {
@@ -3426,6 +3422,10 @@ function payCreditBalance() {
     }
 
     const bankCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
+    if (paymentCopper <= 0) {
+        // Default to the maximum we can afford if no amount was entered
+        paymentCopper = Math.min(outstanding, bankCopper);
+    }
     if (paymentCopper > bankCopper) {
         alert('Insufficient bank funds to cover that payment amount.');
         return;
