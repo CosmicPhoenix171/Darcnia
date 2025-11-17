@@ -613,7 +613,6 @@
     font-size: 0.9rem;
 }
 
-.hp-panel { display: flex; flex-direction: column; gap: 0.5rem; }
 .hp-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
 .hp-box { 
     background: linear-gradient(180deg, rgba(40,20,80,0.55), rgba(25,12,50,0.55)); 
