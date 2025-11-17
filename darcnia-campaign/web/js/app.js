@@ -3039,13 +3039,6 @@ function checkout() {
         state.bank.creditCopper = (state.bank.creditCopper || 0) + costCopper;
     }
     
-    // Save to localStorage and character database
-    saveBankToLocalStorage();
-    if (state.currentCharacter && state.currentCharacter.bank) {
-        state.currentCharacter.bank = { ...state.bank };
-    }
-    updateBankDisplay();
-    
     const itemCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
     // Plain text for notification
     const totalPaid = formatPrice(totalGold, totalSilver, totalCopper, false);
@@ -3067,10 +3060,17 @@ function checkout() {
         }
         return 'Paid from bank balance';
     })();
-    // Clear cart and negotiation
+    // Clear cart and negotiation before persisting
     state.cart = [];
     state.negotiationDiscount = 0;
     updateCartDisplay();
+    
+    // Persist updated balances + cleared cart
+    saveBankToLocalStorage();
+    if (state.currentCharacter && state.currentCharacter.bank) {
+        state.currentCharacter.bank = { ...state.bank };
+    }
+    updateBankDisplay();
     
     // Close modal
     closeModal();
