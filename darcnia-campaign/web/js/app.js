@@ -134,6 +134,7 @@ const state = {
 // ===== Shared Character Sheet Helpers =====
 const CHARACTER_SHEET_STORAGE_KEY = STORAGE_KEYS?.characterSheetData || 'dnd2024CharacterSheet';
 const COPPER_VALUES = { pp: 1000, gp: 100, ep: 50, sp: 10, cp: 1 };
+const CREDIT_DISCOUNT_RATE = 0.05; // 5% discount when charging Platinum Sky credit
 
 function readCharacterSheetData() {
     try {
@@ -2899,6 +2900,27 @@ function showCart() {
         finalSilver = remaining % 10;
         finalGold = Math.floor(remaining / 10);
     }
+
+    const wantsCredit = !!state.cartUseCredit;
+    if (wantsCredit) {
+        const totalInCopper = (finalGold * 100) + (finalSilver * 10) + finalCopper;
+        const adjustedCopper = applyDiscountCopper(totalInCopper, CREDIT_DISCOUNT_RATE);
+        const discountAmount = totalInCopper - adjustedCopper;
+        if (discountAmount > 0) {
+            const discountGold = Math.floor(discountAmount / 100);
+            const discountSilverTotal = Math.floor((discountAmount % 100) / 10);
+            const discountCopperFinal = discountAmount % 10;
+            const discountDisplay = formatPrice(discountGold, discountSilverTotal, discountCopperFinal);
+            html += `<div class="cart-total" style="color: var(--success-green);">
+                <strong>Platinum Sky Discount (-${(CREDIT_DISCOUNT_RATE * 100).toFixed(0)}%):</strong>
+                <span>- ${discountDisplay}</span>
+            </div>`;
+        }
+        finalCopper = adjustedCopper % 10;
+        let remaining = Math.floor(adjustedCopper / 10);
+        finalSilver = remaining % 10;
+        finalGold = Math.floor(remaining / 10);
+    }
     
     // Show final total
     const finalTotal = formatPrice(finalGold, finalSilver, finalCopper);
@@ -2916,11 +2938,11 @@ function showCart() {
                 <input type="checkbox" id="cartUseCredit" ${state.cartUseCredit ? 'checked' : ''} onchange="toggleCartCredit(this.checked)">
                 <div>
                     <span class="credit-label">Charge this order to Platinum Sky credit</span>
-                    <small>Outstanding balance: ${creditBalanceDisplay}</small>
+                    <small>${state.cartUseCredit ? `Includes ${(CREDIT_DISCOUNT_RATE * 100).toFixed(0)}% credit discount • Outstanding balance: ${creditBalanceDisplay}` : `Outstanding balance: ${creditBalanceDisplay}`}</small>
                 </div>
             </label>
             <div class="cart-payment-note">
-                Bank balance: ${bankBalanceDisplay}
+                Bank balance: ${bankBalanceDisplay}${state.cartUseCredit ? ' • Discount applied at checkout' : ''}
             </div>
         </div>
     `;
@@ -3019,11 +3041,21 @@ function checkout() {
     }
     
     // Convert player's bank balance to copper for comparison
-    const playerCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
-    const costCopper = (totalGold * COPPER_VALUES.gp) + (totalSilver * COPPER_VALUES.sp) + (totalCopper * COPPER_VALUES.cp);
     const creditCheckbox = document.getElementById('cartUseCredit');
     const wantsCredit = creditCheckbox ? creditCheckbox.checked : !!state.cartUseCredit;
     state.cartUseCredit = wantsCredit; // keep state in sync with UI
+
+    if (wantsCredit) {
+        const totalInCopper = (totalGold * COPPER_VALUES.gp) + (totalSilver * COPPER_VALUES.sp) + (totalCopper * COPPER_VALUES.cp);
+        const adjustedCopper = applyDiscountCopper(totalInCopper, CREDIT_DISCOUNT_RATE);
+        totalCopper = adjustedCopper % 10;
+        let remaining = Math.floor(adjustedCopper / 10);
+        totalSilver = remaining % 10;
+        totalGold = Math.floor(remaining / 10);
+    }
+
+    const playerCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
+    const costCopper = (totalGold * COPPER_VALUES.gp) + (totalSilver * COPPER_VALUES.sp) + (totalCopper * COPPER_VALUES.cp);
     const canDebit = costCopper <= playerCopper;
     let paymentMode = 'debit';
     
@@ -3054,6 +3086,9 @@ function checkout() {
         notificationMsg += ` (${(negotiationDiscount * 100).toFixed(0)}% discount applied!)`;
     } else if (negotiationDiscount < 0) {
         notificationMsg += ` (${Math.abs(negotiationDiscount * 100).toFixed(0)}% penalty applied)`;
+    }
+    if (wantsCredit) {
+        notificationMsg += ` + ${(CREDIT_DISCOUNT_RATE * 100).toFixed(0)}% credit discount`;
     }
     
     const paymentDescriptor = (() => {
@@ -3101,7 +3136,7 @@ function showCartNotification(message) {
 function toggleCartCredit(checked) {
     state.cartUseCredit = !!checked;
     const message = checked
-        ? 'Platinum Sky credit will be used at checkout.'
+        ? `Platinum Sky credit will be used at checkout with ${(CREDIT_DISCOUNT_RATE * 100).toFixed(0)}% discount.`
         : 'Checkout will draw from your bank balance.';
     showCartNotification(message);
 }
