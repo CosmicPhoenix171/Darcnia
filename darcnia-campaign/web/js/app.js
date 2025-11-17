@@ -3021,11 +3021,15 @@ function checkout() {
     // Convert player's bank balance to copper for comparison
     const playerCopper = (state.bank.gold * COPPER_VALUES.gp) + (state.bank.silver * COPPER_VALUES.sp) + (state.bank.copper * COPPER_VALUES.cp);
     const costCopper = (totalGold * COPPER_VALUES.gp) + (totalSilver * COPPER_VALUES.sp) + (totalCopper * COPPER_VALUES.cp);
+    const creditCheckbox = document.getElementById('cartUseCredit');
+    const wantsCredit = creditCheckbox ? creditCheckbox.checked : !!state.cartUseCredit;
+    state.cartUseCredit = wantsCredit; // keep state in sync with UI
     const canDebit = costCopper <= playerCopper;
-    const wantsCredit = !!state.cartUseCredit;
-    let paymentMode = wantsCredit ? 'credit' : 'debit';
+    let paymentMode = 'debit';
     
-    if (!wantsCredit && !canDebit) {
+    if (wantsCredit) {
+        paymentMode = 'credit';
+    } else if (!canDebit) {
         alert('Bank balance is too low. Enable the Platinum Sky credit checkbox in your cart to complete this purchase.');
         return;
     }
