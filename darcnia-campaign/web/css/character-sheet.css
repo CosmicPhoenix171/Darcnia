@@ -17,26 +17,13 @@
 
 /* ===== Summary Header (Roll20-like) ===== */
 .sheet-summary {
-    /* Hero + quick cards */
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.75fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
     align-items: stretch;
 }
 
-.sheet-summary .summary-column {
-    width: 100%;
-    align-self: stretch;
-}
-
-.summary-left, .summary-right {
-    /* Grid items: transparent so row height doesn't show as stretched */
-    background: transparent;
-    padding: 0; border: 0;
-}
-
-/* Visible content card that sizes to its content */
 .summary-card {
     background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
     border: 2px solid var(--accent-purple);
@@ -53,30 +40,63 @@
     text-transform: uppercase;
 }
 
-.summary-left { align-self: stretch; justify-self: stretch; width: 100%; }
-.summary-left .summary-card { 
-    display: flex; 
-    gap: 0.75rem; 
-    align-items: center; 
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    margin: 0;
+.hero-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
 }
-.summary-right { 
-    align-self: stretch; 
+
+.hero-header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.hero-bottom-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.hero-prof-control {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+
+.hero-btn {
+    padding: 0.45rem 0.9rem;
+    border: 2px solid var(--accent-purple);
+    border-radius: 8px;
+    background: rgba(40, 20, 80, 0.4);
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hero-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.hero-btn.ghost {
+    background: transparent;
+}
+
+.hero-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.hp-card {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-}
-.summary-right .summary-card {
-    flex: 1;
-}
-
-.quick-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
 }
 
 .ability-band {
