@@ -330,6 +330,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initPortrait();
     initAutoSlots();
     updateBankBalanceDisplay();
+
+    window.addEventListener('storage', (event) => {
+        if (event.key === BANK_STORAGE_KEY) {
+            updateBankBalanceDisplay();
+        }
+    });
 });
 
 // ===== Tabs: Inventory / Notes / Spells =====
@@ -1427,10 +1433,6 @@ function initInventoryTable() {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', ()=>{ updateCoinsSummary(); updateEncumbrance(); autoSaveCharacterData(); });
     });
-    const loadBankBtn = document.getElementById('loadBankToCoinsBtn');
-    if (loadBankBtn) loadBankBtn.addEventListener('click', loadBankIntoCoins);
-    const saveBankBtn = document.getElementById('saveCoinsToBankBtn');
-    if (saveBankBtn) saveBankBtn.addEventListener('click', saveCoinsIntoBank);
 }
 
 function addInventoryRow(item=null) {
@@ -1549,73 +1551,12 @@ function updateBankBalanceDisplay(bank = getSharedBankBalance()) {
     }
 }
 
-function bankBalanceToSheetCoins(bank) {
-    const normalized = normalizeBankBalance(bank);
-    return {
-        pp: 0,
-        gp: normalized.gold,
-        ep: 0,
-        sp: normalized.silver,
-        cp: normalized.copper
-    };
-}
-
-function sheetCoinsToBankBalance(coins) {
-    const copper = (parseInt(coins.pp) || 0) * 1000 +
-                   (parseInt(coins.gp) || 0) * 100 +
-                   (parseInt(coins.ep) || 0) * 50 +
-                   (parseInt(coins.sp) || 0) * 10 +
-                   (parseInt(coins.cp) || 0);
-    return copperToBank(copper);
-}
-
-function copperToBank(totalCopper) {
-    totalCopper = Math.max(0, totalCopper || 0);
-    const gold = Math.floor(totalCopper / 100);
-    const remaining = totalCopper - gold * 100;
-    const silver = Math.floor(remaining / 10);
-    const copper = remaining - silver * 10;
-    return { gold, silver, copper };
-}
-
-async function persistBankBalance(bank, { silent = false } = {}) {
-    const normalized = setSharedBankBalanceLocal(bank);
-    if (!silent) {
-        showToast('Bank balance saved', 'success');
-    }
-    if (database && currentCharacterName && currentCharacterName !== 'Guest') {
-        try {
-            const sanitized = sanitizeCharacterName(currentCharacterName);
-            await database.ref(`characters/${sanitized}/bank`).set(normalized);
-        } catch (error) {
-            console.error('Error saving bank to Firebase:', error);
-        }
-    }
-    return normalized;
-}
-
 function applySharedBankBalance(bank, { silent = false } = {}) {
     const normalized = setSharedBankBalanceLocal(bank);
     if (!silent) {
         showToast('Bank balance updated', 'info');
     }
     return normalized;
-}
-
-function loadBankIntoCoins() {
-    const bank = getSharedBankBalance();
-    const converted = bankBalanceToSheetCoins(bank);
-    setCoinsToDOM({ ...converted });
-    updateCoinsSummary();
-    updateEncumbrance();
-    autoSaveCharacterData();
-    showToast('Loaded bank balance into carried coins', 'info');
-}
-
-function saveCoinsIntoBank() {
-    const coins = getCoinsFromDOM();
-    const bank = sheetCoinsToBankBalance(coins);
-    persistBankBalance(bank, { silent: false });
 }
 
 function getInventoryFromDOM() {

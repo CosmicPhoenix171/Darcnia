@@ -540,15 +540,10 @@
                         <div class="coin-field"><label for="ep">EP</label><input type="number" id="ep" value="0" min="0"></div>
                         <div class="coin-field"><label for="sp">SP</label><input type="number" id="sp" value="0" min="0"></div>
                         <div class="coin-field"><label for="cp">CP</label><input type="number" id="cp" value="0" min="0"></div>
-                        <div class="coin-summary">Coins Weight: <strong id="coinsWeight">0 lb</strong> • Wealth: <strong id="coinsWealth">0 gp</strong></div>
-                        <div class="coin-summary bank-line">
-                            <div>
-                                Bank Balance: <strong id="bankBalanceDisplay">0 gp</strong>
-                            </div>
-                            <div class="bank-actions">
-                                <button type="button" class="btn-mini" id="loadBankToCoinsBtn" title="Load bank balance into carried coins">⬅ Load Bank</button>
-                                <button type="button" class="btn-mini" id="saveCoinsToBankBtn" title="Save carried coins to shared bank">Save to Bank ➜</button>
-                            </div>
+                        <div class="coin-summary coin-weight">Coins Weight: <strong id="coinsWeight">0 lb</strong></div>
+                        <div class="coin-summary coin-balances">
+                            <span>Carried Wealth: <strong id="coinsWealth">0 gp</strong></span>
+                            <span>Bank Balance: <strong id="bankBalanceDisplay">0 gp</strong></span>
                         </div>
                     </div>
                     <div class="inventory-controls">
