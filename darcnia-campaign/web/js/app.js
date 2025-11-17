@@ -4495,6 +4495,8 @@ const AppAPI = {
     attemptNegotiation,
     depositFunds,
     withdrawFunds,
+    payCreditBalance,
+    toggleCartCredit,
     dmForceRerollWMI,
     dmForceRerollCategories,
     dmShowEventControls,
