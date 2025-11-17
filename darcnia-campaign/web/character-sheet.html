@@ -111,12 +111,12 @@
                     <!-- Quick Stats Row: AC • Speed • Initiative -->
                     <div class="quick-stats" aria-label="Quick combat stats">
                         <div class="mini-stat">
-                            <span class="mini-label">AC</span>
-                            <span class="mini-value" id="acSummary">10</span>
+                            <label class="mini-label" for="armorClass">AC</label>
+                            <input type="number" id="armorClass" class="mini-value mini-value-input" value="10" min="1">
                         </div>
                         <div class="mini-stat">
-                            <span class="mini-label">Speed</span>
-                            <span class="mini-value" id="speedSummary">30</span>
+                            <label class="mini-label" for="speed">Speed</label>
+                            <input type="text" id="speed" class="mini-value mini-value-input" value="30 ft" placeholder="30 ft">
                         </div>
                         <div class="mini-stat">
                             <span class="mini-label">Init</span>
@@ -128,16 +128,16 @@
                     <div class="hp-quick" aria-label="Quick HP snapshot">
                         <div class="hpq-grid">
                             <div class="mini-stat">
-                                <span class="mini-label">Current</span>
-                                <span class="mini-value" id="hpCurrentDisplay">0</span>
+                                <label class="mini-label" for="hpCurrent">Current</label>
+                                <input type="number" id="hpCurrent" class="mini-value mini-value-input" value="0" min="0">
                             </div>
                             <div class="mini-stat">
-                                <span class="mini-label">Max</span>
-                                <span class="mini-value" id="hpMaxDisplay">0</span>
+                                <label class="mini-label" for="hpMax">Max</label>
+                                <input type="number" id="hpMax" class="mini-value mini-value-input" value="0" min="0">
                             </div>
                             <div class="mini-stat">
-                                <span class="mini-label">Temp</span>
-                                <span class="mini-value" id="hpTempDisplay">0</span>
+                                <label class="mini-label" for="hpTemp">Temp</label>
+                                <input type="number" id="hpTemp" class="mini-value mini-value-input" value="0" min="0">
                             </div>
                         </div>
                         <div class="hpq-controls">
@@ -426,38 +426,8 @@
 
             <!-- Center Column: Combat Stats & Resources -->
             <div class="center-column">
-                <!-- Combat Stats -->
-                <section class="combat-stats">
-                    <div class="stat-box">
-                        <label for="armorClass">Armor Class</label>
-                        <input type="number" id="armorClass" class="large-stat" value="10" min="1">
-                    </div>
-                    <div class="stat-box">
-                        <label for="initiative">Initiative</label>
-                        <div class="large-stat calculated" id="initiative">+0</div>
-                    </div>
-                    <div class="stat-box">
-                        <label for="speed">Speed</label>
-                        <input type="text" id="speed" class="large-stat" value="30 ft" placeholder="30 ft">
-                    </div>
-                </section>
-
                 <!-- Hit Points -->
                 <section class="hp-section">
-                    <div class="hp-grid">
-                        <div class="hp-main">
-                            <label>Hit Point Maximum</label>
-                            <input type="number" id="hpMax" value="0" min="0">
-                        </div>
-                        <div class="hp-current">
-                            <label>Current HP</label>
-                            <input type="number" id="hpCurrent" value="0" min="0">
-                        </div>
-                        <div class="hp-temp">
-                            <label>Temporary HP</label>
-                            <input type="number" id="hpTemp" value="0" min="0">
-                        </div>
-                    </div>
                     <div class="hit-dice-section">
                         <label for="hitDice">Hit Dice</label>
                         <input type="text" id="hitDice" placeholder="e.g., 5d8">

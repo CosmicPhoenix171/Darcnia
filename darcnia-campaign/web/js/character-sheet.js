@@ -1105,11 +1105,6 @@ function updateSummaryHeader() {
     const hpTmp = parseInt(document.getElementById('hpTemp')?.value) || 0;
 
     const levelPill = document.getElementById('levelPill');
-    const acSummary = document.getElementById('acSummary');
-    const speedSummary = document.getElementById('speedSummary');
-    const hpCurDisp = document.getElementById('hpCurrentDisplay');
-    const hpMaxDisp = document.getElementById('hpMaxDisplay');
-    const hpTmpDisp = document.getElementById('hpTempDisplay');
 
     // nameDisplay is now an input, so just update placeholder if empty
     if (nameDisplay && !nameDisplay.value) {
@@ -1123,11 +1118,6 @@ function updateSummaryHeader() {
             levelPill.textContent = `Lvl ${level}`;
         }
     }
-    if (acSummary) acSummary.textContent = String(ac);
-    if (speedSummary) speedSummary.textContent = speedStr;
-    if (hpCurDisp) hpCurDisp.textContent = String(hpCur);
-    if (hpMaxDisp) hpMaxDisp.textContent = String(hpMax);
-    if (hpTmpDisp) hpTmpDisp.textContent = String(hpTmp);
     // Reflect values into hero inputs if present (without overriding user edits for initiative)
     const acInput = document.getElementById('armorClass'); if (acInput && acInput !== document.activeElement) acInput.value = String(ac);
     const speedInput = document.getElementById('speed'); if (speedInput && speedInput !== document.activeElement) speedInput.value = speedStr;
