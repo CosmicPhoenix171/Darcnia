@@ -1417,8 +1417,25 @@ textarea {
     font-weight: 800;
     color: var(--accent-gold);
     text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--accent-gold);
+    padding: 0.25rem 0;
+    cursor: pointer;
+}
+.inv-col-header::after {
+    content: '▾';
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+.inv-col-header[aria-expanded="false"]::after {
+    transform: rotate(-90deg);
 }
 .inv-drop {
     min-height: 120px;
@@ -1429,6 +1446,14 @@ textarea {
     border-radius: 8px;
     background: rgba(30, 15, 60, 0.35);
     outline: 1px dashed rgba(138,43,226,0.35);
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+.inv-drop.collapsed {
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: hidden;
 }
 .inv-drop.drag-over {
     outline: 2px dashed var(--accent-gold);

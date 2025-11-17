@@ -331,6 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPortrait();
     initAutoSlots();
     updateBankBalanceDisplay();
+    initInventoryCollapsibles();
 
     window.addEventListener('storage', (event) => {
         if (event.key === BANK_STORAGE_KEY) {
@@ -1449,6 +1450,19 @@ function initInventoryTable() {
     ['pp','gp','ep','sp','cp'].forEach(id=>{
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', ()=>{ updateCoinsSummary(); updateEncumbrance(); autoSaveCharacterData(); });
+    });
+}
+
+function initInventoryCollapsibles() {
+    document.querySelectorAll('.inv-toggle').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('aria-controls');
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+            target.classList.toggle('collapsed', expanded);
+        });
     });
 }
 
