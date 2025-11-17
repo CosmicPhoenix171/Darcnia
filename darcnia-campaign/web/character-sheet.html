@@ -126,6 +126,7 @@
                     <div class="hp-tabs" role="tablist" aria-label="Hit points views">
                         <button class="hp-tab hp-tab-active" id="hpVitalsTab" role="tab" aria-selected="true" aria-controls="hpVitalsPanel" type="button" data-hp-tab="vitals">Vitals</button>
                         <button class="hp-tab" id="hpConditionsTab" role="tab" aria-selected="false" aria-controls="hpConditionsPanel" type="button" data-hp-tab="conditions">Conditions</button>
+                        <button class="hp-tab" id="hpResistTab" role="tab" aria-selected="false" aria-controls="hpResistPanel" type="button" data-hp-tab="resistances">Resistances</button>
                     </div>
                 </div>
                 <div class="hp-panel hp-panel-active" id="hpVitalsPanel" role="tabpanel" aria-labelledby="hpVitalsTab" data-hp-panel="vitals" aria-label="Quick HP snapshot">
@@ -208,6 +209,12 @@
                         <input id="exhaustion" type="number" min="0" max="6" value="0">
                     </div>
                     <textarea id="conditionsNotes" rows="2" placeholder="Condition notes..."></textarea>
+                </div>
+                <div class="hp-panel" id="hpResistPanel" role="tabpanel" aria-labelledby="hpResistTab" data-hp-panel="resistances" hidden>
+                    <div class="mini-list">
+                        <label for="resistances">Resistances / Immunities</label>
+                        <textarea id="resistances" rows="3" placeholder="None"></textarea>
+                    </div>
                 </div>
             </section>
         </section>
@@ -679,14 +686,6 @@
             </div>
 
             <aside class="character-right">
-                <section class="defenses-section summary-card">
-                    <h3>Resistances</h3>
-                    <div class="mini-list">
-                        <label for="resistances">Resistances / Immunities</label>
-                        <textarea id="resistances" rows="3" placeholder="None"></textarea>
-                    </div>
-                </section>
-
                 <section class="senses-section summary-card">
                     <h3>Senses</h3>
                     <div class="mini-list">

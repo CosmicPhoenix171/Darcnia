@@ -1552,7 +1552,7 @@ textarea {
 }
 
 /* Right column widgets */
-.defenses-section, .conditions-section, .senses-section {
+.senses-section {
     background: rgba(30, 15, 60, 0.5); backdrop-filter: blur(8px);
     padding: 1rem; border: 2px solid var(--accent-purple); border-radius: 8px; margin-bottom: 1rem;
 }
