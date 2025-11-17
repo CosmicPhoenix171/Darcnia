@@ -3426,6 +3426,10 @@ function payCreditBalance() {
         // Default to the maximum we can afford if no amount was entered
         paymentCopper = Math.min(outstanding, bankCopper);
     }
+    if (paymentCopper <= 0) {
+        alert('No available bank funds to apply toward your credit balance.');
+        return;
+    }
     if (paymentCopper > bankCopper) {
         alert('Insufficient bank funds to cover that payment amount.');
         return;
