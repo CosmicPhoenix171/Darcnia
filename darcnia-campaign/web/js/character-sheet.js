@@ -1,6 +1,11 @@
 // ===== D&D 2024 Character Sheet JavaScript =====
 
-// ===== XP to Level Conversion Table (D&D 5e/2024) =====
+// Use shared config modules
+import { firebaseConfig } from './config/firebase-config.js';
+import { STORAGE_KEYS } from './config/app-config.js';
+import { simpleHash, characterDatabase } from './data/character-db.js';
+
+// ===== Constants & Configuration =====
 const XP_TABLE = [
     { level: 1, xp: 0, next: 300 },
     { level: 2, xp: 300, next: 600 },
@@ -23,120 +28,6 @@ const XP_TABLE = [
     { level: 19, xp: 305000, next: 50000 },
     { level: 20, xp: 355000, next: 0 }
 ];
-
-function calculateLevelFromXP(xp) {
-    xp = parseInt(xp) || 0;
-    let level = 1;
-    let xpToNext = 300;
-    
-    for (let i = XP_TABLE.length - 1; i >= 0; i--) {
-        if (xp >= XP_TABLE[i].xp) {
-            level = XP_TABLE[i].level;
-            xpToNext = XP_TABLE[i].next;
-            break;
-        }
-    }
-    
-    return { level, xpToNext };
-}
-
-function updateLevelFromXP() {
-    const xpInput = document.getElementById('experiencePoints');
-    const xp = parseInt(xpInput.value) || 0;
-    const { level, xpToNext } = calculateLevelFromXP(xp);
-    
-    // Calculate current level's XP requirement
-    let currentLevelXP = 0;
-    let nextLevelXP = 300;
-    for (let i = 0; i < XP_TABLE.length; i++) {
-        if (XP_TABLE[i].level === level) {
-            currentLevelXP = XP_TABLE[i].xp;
-            nextLevelXP = currentLevelXP + XP_TABLE[i].next;
-            break;
-        }
-    }
-    
-    // Update level badge (just the number)
-    const levelPill = document.getElementById('levelPill');
-    if (levelPill) {
-        const levelNumber = levelPill.querySelector('.level-number');
-        if (levelNumber) {
-            levelNumber.textContent = level;
-        } else {
-            levelPill.textContent = level;
-        }
-    }
-    
-    // Update XP target display
-    const xpTarget = document.getElementById('xpTarget');
-    if (xpTarget) {
-        xpTarget.textContent = nextLevelXP.toLocaleString();
-    }
-    
-    // Update XP to next level text
-    const xpNextDisplay = document.getElementById('xpToNext');
-    if (xpNextDisplay) {
-        if (level >= 20) {
-            xpNextDisplay.textContent = 'Maximum Level Reached';
-        } else {
-            const remaining = nextLevelXP - xp;
-            xpNextDisplay.textContent = `${remaining.toLocaleString()} XP to level ${level + 1}`;
-        }
-    }
-    
-    // Update XP progress bar and text overlay
-    const progressFill = document.getElementById('xpProgressFill');
-    const progressBar = document.querySelector('.xp-progress-bar');
-    let percentage = 0;
-    if (level < 20) {
-        const xpInCurrentLevel = xp - currentLevelXP;
-        const xpNeededForLevel = nextLevelXP - currentLevelXP;
-        percentage = Math.min(100, (xpInCurrentLevel / xpNeededForLevel) * 100);
-    } else {
-        percentage = 100;
-    }
-    if (progressFill) {
-        progressFill.style.width = `${percentage}%`;
-        // Color shift: gold → amber → pink
-        let bg = 'linear-gradient(90deg,#ffd700,#ffdf5f)';
-        if (percentage > 66) bg = 'linear-gradient(90deg,#ff6ad5,#ff94e5)';
-        else if (percentage > 33) bg = 'linear-gradient(90deg,#ffae42,#ffc16e)';
-        progressFill.style.background = bg;
-    }
-    // Ensure XP text overlay exists
-    if (progressBar && !document.getElementById('xpProgressText')) {
-        const t = document.createElement('span');
-        t.id = 'xpProgressText';
-        t.className = 'xp-progress-text';
-        progressBar.appendChild(t);
-    }
-    const tEl = document.getElementById('xpProgressText');
-    if (tEl) tEl.textContent = `${Math.round(percentage)}%`;
-    
-    // Update character data
-    characterData.level = level;
-    
-    // Update proficiency bonus based on level
-    const profBonus = Math.floor((level - 1) / 4) + 2;
-    const profBonusInput = document.getElementById('proficiencyBonus');
-    if (profBonusInput) {
-        profBonusInput.value = profBonus;
-    }
-    const profBonusDisplay = document.getElementById('profBonusDisplay');
-    if (profBonusDisplay) {
-        profBonusDisplay.textContent = `+${profBonus}`;
-    }
-    characterData.proficiencyBonus = profBonus;
-    
-    // Recalculate all stats with new level
-    calculateAllStats();
-    updateSummaryHeader();
-}
-// Use shared config modules
-import { firebaseConfig } from './config/firebase-config.js';
-import { STORAGE_KEYS } from './config/app-config.js';
-import { simpleHash, characterDatabase } from './data/character-db.js';
-
 const BANK_STORAGE_KEY = STORAGE_KEYS.bank || 'bankBalance';
 
 // Initialize Firebase (fresh live-save flow)
@@ -163,6 +54,110 @@ const REALTIME_SAVE_DEBOUNCE_MS = 400;
 let realtimeSaveTimeout = null;
 let realtimeSavePending = false;
 let lastSavedSnapshot = null;
+
+// ===== Utility Helpers =====
+function sanitizeCharacterName(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+}
+
+function calculateLevelFromXP(xp) {
+    xp = parseInt(xp) || 0;
+    let level = 1;
+    let xpToNext = 300;
+
+    for (let i = XP_TABLE.length - 1; i >= 0; i--) {
+        if (xp >= XP_TABLE[i].xp) {
+            level = XP_TABLE[i].level;
+            xpToNext = XP_TABLE[i].next;
+            break;
+        }
+    }
+
+    return { level, xpToNext };
+}
+
+function updateLevelFromXP() {
+    const xpInput = document.getElementById('experiencePoints');
+    const xp = parseInt(xpInput.value) || 0;
+    const { level, xpToNext } = calculateLevelFromXP(xp);
+
+    let currentLevelXP = 0;
+    let nextLevelXP = 300;
+    for (let i = 0; i < XP_TABLE.length; i++) {
+        if (XP_TABLE[i].level === level) {
+            currentLevelXP = XP_TABLE[i].xp;
+            nextLevelXP = currentLevelXP + XP_TABLE[i].next;
+            break;
+        }
+    }
+
+    const levelPill = document.getElementById('levelPill');
+    if (levelPill) {
+        const levelNumber = levelPill.querySelector('.level-number');
+        if (levelNumber) {
+            levelNumber.textContent = level;
+        } else {
+            levelPill.textContent = level;
+        }
+    }
+
+    const xpTarget = document.getElementById('xpTarget');
+    if (xpTarget) {
+        xpTarget.textContent = nextLevelXP.toLocaleString();
+    }
+
+    const xpNextDisplay = document.getElementById('xpToNext');
+    if (xpNextDisplay) {
+        if (level >= 20) {
+            xpNextDisplay.textContent = 'Maximum Level Reached';
+        } else {
+            const remaining = nextLevelXP - xp;
+            xpNextDisplay.textContent = `${remaining.toLocaleString()} XP to level ${level + 1}`;
+        }
+    }
+
+    const progressFill = document.getElementById('xpProgressFill');
+    const progressBar = document.querySelector('.xp-progress-bar');
+    let percentage = 0;
+    if (level < 20) {
+        const xpInCurrentLevel = xp - currentLevelXP;
+        const xpNeededForLevel = nextLevelXP - currentLevelXP;
+        percentage = Math.min(100, (xpInCurrentLevel / xpNeededForLevel) * 100);
+    } else {
+        percentage = 100;
+    }
+    if (progressFill) {
+        progressFill.style.width = `${percentage}%`;
+        let bg = 'linear-gradient(90deg,#ffd700,#ffdf5f)';
+        if (percentage > 66) bg = 'linear-gradient(90deg,#ff6ad5,#ff94e5)';
+        else if (percentage > 33) bg = 'linear-gradient(90deg,#ffae42,#ffc16e)';
+        progressFill.style.background = bg;
+    }
+    if (progressBar && !document.getElementById('xpProgressText')) {
+        const t = document.createElement('span');
+        t.id = 'xpProgressText';
+        t.className = 'xp-progress-text';
+        progressBar.appendChild(t);
+    }
+    const tEl = document.getElementById('xpProgressText');
+    if (tEl) tEl.textContent = `${Math.round(percentage)}%`;
+
+    characterData.level = level;
+
+    const profBonus = Math.floor((level - 1) / 4) + 2;
+    const profBonusInput = document.getElementById('proficiencyBonus');
+    if (profBonusInput) {
+        profBonusInput.value = profBonus;
+    }
+    const profBonusDisplay = document.getElementById('profBonusDisplay');
+    if (profBonusDisplay) {
+        profBonusDisplay.textContent = `+${profBonus}`;
+    }
+    characterData.proficiencyBonus = profBonus;
+
+    calculateAllStats();
+    updateSummaryHeader();
+}
 
 function serializeCharacterDataForDiff(data) {
     return JSON.stringify(data, (key, value) => key === 'updatedAt' ? undefined : value);
@@ -1065,10 +1060,6 @@ function updateSummaryHeader() {
         const dexMod = calculateAbilityModifier(characterData.abilities.dex || parseInt(document.getElementById('dexScore')?.value) || 10);
         initSummaryEl.textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
     }
-}
-
-function sanitizeCharacterName(name) {
-    return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
 }
 
 // ===== Save/Load Functions =====
