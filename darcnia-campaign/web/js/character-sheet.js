@@ -71,10 +71,23 @@ const REALTIME_SAVE_DEBOUNCE_MS = 400;
 let realtimeSaveTimeout = null;
 let realtimeSavePending = false;
 let lastSavedSnapshot = null;
+let currentFirebaseSlug = null;
 
 // ===== Utility Helpers =====
 function sanitizeCharacterName(name) {
     return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+}
+
+function buildFirebaseKeyCandidates(name) {
+    const base = (name || '').trim();
+    if (!base) return [];
+    const lower = base.toLowerCase();
+    const canonical = sanitizeCharacterName(base);
+    const hyphenated = lower.replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    const spaced = lower.replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+    const compact = lower.replace(/[^a-z0-9]/g, '');
+    const candidates = [canonical, hyphenated, lower, spaced, compact, base];
+    return [...new Set(candidates.filter(Boolean))];
 }
 
 function calculateLevelFromXP(xp) {
@@ -197,6 +210,7 @@ async function checkLoggedInCharacter() {
     if (savedCharacterName && characterDatabase[savedCharacterName]) {
         const character = characterDatabase[savedCharacterName];
         currentCharacterName = character.name;
+        currentFirebaseSlug = sanitizeCharacterName(character.name) || null;
         console.log(`📋 Loading character sheet for: ${currentCharacterName}`);
 
         const loginBtn = document.getElementById('loginBtn');
@@ -206,6 +220,7 @@ async function checkLoggedInCharacter() {
         }
     } else {
         currentCharacterName = null;
+        currentFirebaseSlug = null;
         console.log('📋 No character logged in, using local storage only');
     }
 
@@ -225,10 +240,31 @@ async function loadCharacterFromFirebase(characterName) {
         return;
     }
 
-    const sanitizedName = sanitizeCharacterName(characterName);
+    const keyCandidates = buildFirebaseKeyCandidates(characterName);
+    if (!keyCandidates.length) {
+        const fallbackKey = sanitizeCharacterName(characterName);
+        if (fallbackKey) keyCandidates.push(fallbackKey);
+    }
+    const canonicalKey = keyCandidates[0] || sanitizeCharacterName(characterName) || null;
+    let resolvedKey = canonicalKey;
+    let remoteData = null;
     try {
-        const snapshot = await database.ref(`characters/${sanitizedName}/characterSheet`).once('value');
-        const remoteData = snapshot.val();
+        for (const key of keyCandidates) {
+            if (!key) continue;
+            const snapshot = await database.ref(`characters/${key}/characterSheet`).once('value');
+            if (snapshot.exists()) {
+                remoteData = snapshot.val();
+                resolvedKey = key;
+                if (key !== canonicalKey) {
+                    console.log(`ℹ️ Loaded ${characterName} from legacy Firebase key "${key}"`);
+                }
+                break;
+            }
+        }
+
+        currentFirebaseSlug = resolvedKey || canonicalKey || null;
+        const targetKey = currentFirebaseSlug || canonicalKey;
+
         const remoteStamp = remoteData?.updatedAt || 0;
         const localStamp = localData?.updatedAt || 0;
 
@@ -238,8 +274,10 @@ async function loadCharacterFromFirebase(characterName) {
         } else if (localData) {
             applyCharacterSheetData(localData, 'local auto-save');
             if (!remoteData || remoteStamp < localStamp) {
-                await database.ref(`characters/${sanitizedName}/characterSheet`).set(localData);
-                await database.ref(`characters/${sanitizedName}/level`).set(localData.level || 1);
+                if (targetKey) {
+                    await database.ref(`characters/${targetKey}/characterSheet`).set(localData);
+                    await database.ref(`characters/${targetKey}/level`).set(localData.level || 1);
+                }
                 console.log('⬆️ Re-synced newer local character data to Firebase');
             }
         } else if (remoteData) {
@@ -257,12 +295,22 @@ async function loadCharacterFromFirebase(characterName) {
 
 async function loadBankFromFirebase(characterName) {
     if (!database || !characterName) return;
-    const sanitizedName = sanitizeCharacterName(characterName);
+    const primaryKey = currentFirebaseSlug || sanitizeCharacterName(characterName);
+    const candidates = buildFirebaseKeyCandidates(characterName);
+    const keysToTry = [];
+    if (primaryKey) keysToTry.push(primaryKey);
+    candidates.forEach((key) => {
+        if (key && !keysToTry.includes(key)) keysToTry.push(key);
+    });
     try {
-        const snapshot = await database.ref(`characters/${sanitizedName}/bank`).once('value');
-        const bank = snapshot.val();
-        if (bank) {
-            applySharedBankBalance(bank, { silent: true });
+        for (const key of keysToTry) {
+            const snapshot = await database.ref(`characters/${key}/bank`).once('value');
+            const bank = snapshot.val();
+            if (bank) {
+                currentFirebaseSlug = currentFirebaseSlug || key;
+                applySharedBankBalance(bank, { silent: true });
+                return;
+            }
         }
     } catch (error) {
         console.error('Error loading bank from Firebase:', error);
@@ -272,8 +320,18 @@ async function loadBankFromFirebase(characterName) {
 function setupFirebaseRealtimeSync(characterName) {
     if (!database || !characterName) return;
 
-    const sanitizedName = sanitizeCharacterName(characterName);
-    const characterRef = database.ref(`characters/${sanitizedName}/characterSheet`);
+    const fallbackKeys = buildFirebaseKeyCandidates(characterName);
+    const slug = currentFirebaseSlug
+        || sanitizeCharacterName(characterName)
+        || fallbackKeys[0];
+    if (!slug) {
+        console.warn('⚠️ Unable to establish Firebase sync: missing character key');
+        return;
+    }
+    if (!currentFirebaseSlug) {
+        currentFirebaseSlug = slug;
+    }
+    const characterRef = database.ref(`characters/${slug}/characterSheet`);
 
     if (firebaseListener) {
         firebaseListener.off();
@@ -311,7 +369,7 @@ function setupFirebaseRealtimeSync(characterName) {
         }
     });
 
-    const bankRef = database.ref(`characters/${sanitizedName}/bank`);
+    const bankRef = database.ref(`characters/${slug}/bank`);
     firebaseBankListener = bankRef;
     bankRef.on('value', (snapshot) => {
         if (isUpdatingBankFromFirebase) return;
@@ -336,6 +394,7 @@ function handleExternalLoginChange(rawValue) {
         checkLoggedInCharacter().catch((err) => console.error('Error rehydrating login from storage:', err));
     } else {
         currentCharacterName = null;
+        currentFirebaseSlug = null;
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
             loginBtn.textContent = '👤 Login';
@@ -365,7 +424,11 @@ async function saveCharacterToFirebase(dataOverride = null, diffSignature = null
         return;
     }
 
-    const sanitizedName = sanitizeCharacterName(currentCharacterName);
+    const slug = currentFirebaseSlug || sanitizeCharacterName(currentCharacterName);
+    if (!slug) {
+        console.warn('⏭️ Skipping Firebase save: unable to resolve character key');
+        return;
+    }
     const data = dataOverride || gatherCharacterData();
     let signature = diffSignature;
     if (!signature) {
@@ -380,8 +443,8 @@ async function saveCharacterToFirebase(dataOverride = null, diffSignature = null
 
     try {
         console.log(`💾 Saving character sheet with level ${data.level} to Firebase for ${currentCharacterName}`);
-        await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
-        await database.ref(`characters/${sanitizedName}/level`).set(data.level || 1);
+        await database.ref(`characters/${slug}/characterSheet`).set(data);
+        await database.ref(`characters/${slug}/level`).set(data.level || 1);
         if (!diffSignature) {
             lastSavedSnapshot = signature;
         }
@@ -695,6 +758,7 @@ function showLogin() {
             // Clear saved character from localStorage
             localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
             currentCharacterName = null;
+            currentFirebaseSlug = null;
             
             loginBtn.textContent = '👤 Login';
             loginBtn.classList.remove('logged-in');
@@ -743,6 +807,7 @@ async function attemptLogin() {
     
     // Successful login
     currentCharacterName = character.name;
+    currentFirebaseSlug = sanitizeCharacterName(character.name) || null;
     
     // Save logged-in character to localStorage
     localStorage.setItem(STORAGE_KEYS.loggedInCharacter, username);
