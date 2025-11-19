@@ -895,6 +895,24 @@ function gatherCharacterData() {
     characterData.species = document.getElementById('species').value;
     characterData.alignment = document.getElementById('alignment').value;
     characterData.experiencePoints = parseInt(document.getElementById('experiencePoints').value) || 0;
+
+    // Ability Scores & Modifiers
+    ['str','dex','con','int','wis','cha'].forEach((ability) => {
+        const score = parseInt(document.getElementById(`${ability}Score`)?.value || '10');
+        characterData.abilities[ability] = isNaN(score) ? 10 : score;
+        const saveBox = document.getElementById(`${ability}SaveProf`);
+        if (saveBox) {
+            characterData.saveProficiencies[ability] = saveBox.checked;
+        }
+    });
+
+    // Skill Proficiencies
+    for (const skill of Object.keys(skillAbilities)) {
+        const checkbox = document.getElementById(`${skill}Prof`);
+        if (checkbox) {
+            characterData.skillProficiencies[skill] = checkbox.checked;
+        }
+    }
     
     // Combat Stats
     characterData.armorClass = parseInt(document.getElementById('armorClass').value) || 10;
