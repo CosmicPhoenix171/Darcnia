@@ -163,9 +163,10 @@ let firebaseBankListener = null;
 let isUpdatingFromFirebase = false;
 let isUpdatingBankFromFirebase = false;
 const REALTIME_SAVE_EVENTS = ['input', 'change'];
-const REALTIME_SAVE_DEBOUNCE_MS = 300;
+const REALTIME_SAVE_DEBOUNCE_MS = 400;
 let realtimeSaveTimeout = null;
 let realtimeSavePending = false;
+let lastSavedSnapshot = null;
 
 // ===== Character Database & Login System =====
 
@@ -583,12 +584,17 @@ async function saveCharacterToFirebase() {
     
     const sanitizedName = sanitizeCharacterName(currentCharacterName);
     const data = gatherCharacterData();
+    const serialized = JSON.stringify(data);
+    if (lastSavedSnapshot === serialized) {
+        return;
+    }
     
     try {
         console.log(`💾 Saving character sheet with level ${data.level} to Firebase for ${currentCharacterName}`);
         await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
         // Also update level in main character node for market access
         await database.ref(`characters/${sanitizedName}/level`).set(data.level || 1);
+        lastSavedSnapshot = serialized;
         console.log(`✅ Character sheet saved to Firebase for ${currentCharacterName}`);
     } catch (error) {
         console.error('Error saving to Firebase:', error);
@@ -1227,11 +1233,17 @@ function applyCharacterSheetData(data, sourceLabel = 'local data') {
     Object.assign(characterData, data);
     populateCharacterData(characterData);
     console.log(`📂 Character loaded from ${sourceLabel}`);
+    lastSavedSnapshot = JSON.stringify(characterData);
     return true;
 }
 
 function autoSaveCharacterData() {
+    if (isUpdatingFromFirebase) return;
     const data = gatherCharacterData();
+    const serialized = JSON.stringify(data);
+    if (lastSavedSnapshot === serialized) {
+        return;
+    }
     persistLocalCharacterData(data);
     
     // Also save to Firebase if logged in
@@ -1239,6 +1251,7 @@ function autoSaveCharacterData() {
         saveCharacterToFirebase();
     }
     
+    lastSavedSnapshot = serialized;
     console.log('✅ Character auto-saved');
 }
 
@@ -1247,6 +1260,7 @@ function saveCharacterData() {
     
     // Save to localStorage
     persistLocalCharacterData(data);
+    lastSavedSnapshot = JSON.stringify(data);
     
     // Save to Firebase if logged in
     if (currentCharacterName && currentCharacterName !== 'Guest') {
@@ -1275,6 +1289,8 @@ function loadCharacterData(preloadedData = null) {
     const data = preloadedData || getLocalCharacterData();
     if (data) {
         applyCharacterSheetData(data, 'local auto-save');
+    } else {
+        lastSavedSnapshot = null;
     }
 }
 
