@@ -1306,6 +1306,7 @@ function autoSaveCharacterData() {
     if (lastSavedSnapshot === diffSignature) {
         return;
     }
+    logCharacterDiff(JSON.parse(lastSavedSnapshot || '{}'), data);
     stampCharacterData(data);
     persistLocalCharacterData(data);
 
@@ -1319,6 +1320,37 @@ function autoSaveCharacterData() {
     } else {
         finalize();
     }
+}
+
+function logCharacterDiff(previous, current) {
+    if (!previous || typeof previous !== 'object') {
+        console.log('🆕 Initial save snapshot created.');
+        return;
+    }
+    const changes = {};
+    compareObjects(previous, current, changes, []);
+    if (Object.keys(changes).length === 0) {
+        console.log('ℹ️ No material diff detected, skipping log.');
+        return;
+    }
+    console.group('💾 Pending character changes');
+    Object.entries(changes).forEach(([path, { before, after }]) => {
+        console.log(`${path}:`, before, '→', after);
+    });
+    console.groupEnd();
+}
+
+function compareObjects(prev, curr, collector, trail) {
+    if (prev === curr) return;
+    if (typeof prev !== 'object' || typeof curr !== 'object' || !prev || !curr) {
+        collector[trail.join('.')] = { before: prev, after: curr };
+        return;
+    }
+    const keys = new Set([...Object.keys(prev), ...Object.keys(curr)]);
+    keys.forEach((key) => {
+        const nextTrail = [...trail, key];
+        compareObjects(prev[key], curr[key], collector, nextTrail);
+    });
 }
 
 // ===== Save/Load Functions =====
