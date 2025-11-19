@@ -297,6 +297,10 @@ async function loadBankFromFirebase(characterName) {
     if (!database || !characterName) return;
     const primaryKey = currentFirebaseSlug || sanitizeCharacterName(characterName);
     const candidates = buildFirebaseKeyCandidates(characterName);
+    if (!candidates.length) {
+        const fallbackKey = sanitizeCharacterName(characterName);
+        if (fallbackKey) candidates.push(fallbackKey);
+    }
     const keysToTry = [];
     if (primaryKey) keysToTry.push(primaryKey);
     candidates.forEach((key) => {
@@ -308,6 +312,9 @@ async function loadBankFromFirebase(characterName) {
             const bank = snapshot.val();
             if (bank) {
                 currentFirebaseSlug = currentFirebaseSlug || key;
+                if (key !== primaryKey && primaryKey) {
+                    console.log(`ℹ️ Loaded shared bank from legacy Firebase key "${key}"`);
+                }
                 applySharedBankBalance(bank, { silent: true });
                 return;
             }
