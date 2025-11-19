@@ -245,9 +245,10 @@ async function checkLoggedInCharacter() {
 }
 
 async function loadCharacterFromFirebase(characterName) {
-    const localData = getLocalCharacterData();
     if (!database || !characterName) {
-        loadCharacterData(localData);
+        const blank = getBlankCharacterTemplate();
+        applyCharacterSheetData(blank, 'blank sheet');
+        clearLastRemoteStamp();
         return;
     }
 
@@ -259,6 +260,7 @@ async function loadCharacterFromFirebase(characterName) {
     const canonicalKey = keyCandidates[0] || sanitizeCharacterName(characterName) || null;
     let resolvedKey = canonicalKey;
     let remoteData = null;
+
     try {
         for (const key of keyCandidates) {
             if (!key) continue;
@@ -274,38 +276,23 @@ async function loadCharacterFromFirebase(characterName) {
         }
 
         currentFirebaseSlug = resolvedKey || canonicalKey || null;
-        const targetKey = currentFirebaseSlug || canonicalKey;
 
-        const remoteStamp = remoteData?.updatedAt || 0;
-        const localStamp = localData?.updatedAt || 0;
-        const lastRemoteStamp = getLastRemoteStamp();
-        const remoteChangedSinceLastView = !!(remoteStamp && remoteStamp !== lastRemoteStamp);
-
-        if (remoteData && (!localData || remoteStamp >= localStamp || remoteChangedSinceLastView)) {
+        if (remoteData) {
             applyCharacterSheetData(remoteData, 'Firebase');
-            persistLocalCharacterData(remoteData);
-            if (remoteStamp) setLastRemoteStamp(remoteStamp);
-        } else if (localData) {
-            applyCharacterSheetData(localData, 'local auto-save');
-            if (!remoteData || remoteStamp < localStamp) {
-                if (targetKey) {
-                    await database.ref(`characters/${targetKey}/characterSheet`).set(localData);
-                    await database.ref(`characters/${targetKey}/level`).set(localData.level || 1);
-                    if (localStamp) setLastRemoteStamp(localStamp);
-                }
-                console.log('⬆️ Re-synced newer local character data to Firebase');
+            if (remoteData.updatedAt) {
+                setLastRemoteStamp(remoteData.updatedAt);
             }
-        } else if (remoteData) {
-            applyCharacterSheetData(remoteData, 'Firebase');
-            persistLocalCharacterData(remoteData);
-            if (remoteStamp) setLastRemoteStamp(remoteStamp);
         } else {
-            console.log(`📄 No saved character sheet found for ${characterName}, starting fresh`);
-            loadCharacterData();
+            const blank = getBlankCharacterTemplate();
+            applyCharacterSheetData(blank, 'Firebase (empty)');
+            clearLastRemoteStamp();
+            console.log(`📄 No Firebase character sheet found for ${characterName}, starting fresh`);
         }
     } catch (error) {
         console.error('Error loading from Firebase:', error);
-        loadCharacterData(localData);
+        const blank = getBlankCharacterTemplate();
+        applyCharacterSheetData(blank, 'blank sheet (error fallback)');
+        clearLastRemoteStamp();
     }
 }
 
@@ -369,28 +356,26 @@ function setupFirebaseRealtimeSync(characterName) {
     firebaseListener = characterRef;
     characterRef.on('value', (snapshot) => {
         if (isUpdatingFromFirebase) return;
+        if (!snapshot.exists()) return;
 
         const data = snapshot.val();
-        if (data) {
-            const incomingSignature = serializeCharacterDataForDiff(data);
-            if (!hasProcessedInitialSnapshot && incomingSignature === lastSavedSnapshot) {
-                hasProcessedInitialSnapshot = true;
-                return;
-            }
+        const incomingSignature = serializeCharacterDataForDiff(data);
+        if (!hasProcessedInitialSnapshot && incomingSignature === lastSavedSnapshot) {
             hasProcessedInitialSnapshot = true;
-
-            isUpdatingFromFirebase = true;
-            Object.assign(characterData, data);
-            persistLocalCharacterData(characterData);
-            populateCharacterData(characterData);
-            lastSavedSnapshot = incomingSignature;
-            if (data.updatedAt) setLastRemoteStamp(data.updatedAt);
-            console.log('🔄 Character sheet synced from Firebase');
-
-            setTimeout(() => {
-                isUpdatingFromFirebase = false;
-            }, 100);
+            return;
         }
+        hasProcessedInitialSnapshot = true;
+
+        isUpdatingFromFirebase = true;
+        Object.assign(characterData, data);
+        populateCharacterData(characterData);
+        lastSavedSnapshot = incomingSignature;
+        if (data.updatedAt) setLastRemoteStamp(data.updatedAt);
+        console.log('🔄 Character sheet synced from Firebase');
+
+        setTimeout(() => {
+            isUpdatingFromFirebase = false;
+        }, 100);
     });
 
     const bankRef = database.ref(`characters/${slug}/bank`);
@@ -611,6 +596,7 @@ let characterData = {
     // Portrait
     portraitUrl: ''
 };
+const CHARACTER_TEMPLATE = JSON.parse(JSON.stringify(characterData));
 
 // Skill to ability mapping
 const skillAbilities = {
@@ -1392,24 +1378,8 @@ function updateSummaryHeader() {
 }
 
 // ===== Save/Load Functions =====
-function getLocalCharacterData() {
-    const raw = localStorage.getItem(STORAGE_KEYS.characterSheetData);
-    if (!raw) return null;
-    try {
-        return JSON.parse(raw);
-    } catch (error) {
-        console.error('Error parsing local character data:', error);
-        return null;
-    }
-}
-
-function persistLocalCharacterData(data) {
-    if (!data) return;
-    try {
-        localStorage.setItem(STORAGE_KEYS.characterSheetData, JSON.stringify(data));
-    } catch (error) {
-        console.error('Error saving character data locally:', error);
-    }
+function getBlankCharacterTemplate() {
+    return JSON.parse(JSON.stringify(CHARACTER_TEMPLATE));
 }
 
 function applyCharacterSheetData(data, sourceLabel = 'local data') {
@@ -1435,7 +1405,6 @@ function autoSaveCharacterData() {
     }
     logCharacterDiff(JSON.parse(lastSavedSnapshot || '{}'), data);
     stampCharacterData(data);
-    persistLocalCharacterData(data);
 
     const finalize = () => {
         lastSavedSnapshot = diffSignature;
@@ -1486,9 +1455,6 @@ function saveCharacterData() {
     const data = gatherCharacterData();
     const diffSignature = serializeCharacterDataForDiff(data);
     stampCharacterData(data);
-    
-    // Save to localStorage
-    persistLocalCharacterData(data);
     lastSavedSnapshot = diffSignature;
 
     if (database && currentCharacterName) {
@@ -1512,13 +1478,8 @@ function saveCharacterData() {
 }
 
 function loadCharacterData(preloadedData = null) {
-    const data = preloadedData || getLocalCharacterData();
-    if (data) {
-        applyCharacterSheetData(data, 'local auto-save');
-    } else {
-        lastSavedSnapshot = serializeCharacterDataForDiff(characterData);
-        hasHydratedCharacter = true;
-    }
+    const data = preloadedData || getBlankCharacterTemplate();
+    applyCharacterSheetData(data, preloadedData ? 'prefill data' : 'blank sheet');
 }
 
 function loadFromFile() {
