@@ -162,6 +162,9 @@ let firebaseListener = null;
 let firebaseBankListener = null;
 let isUpdatingFromFirebase = false;
 let isUpdatingBankFromFirebase = false;
+const REALTIME_SAVE_EVENTS = ['input', 'change'];
+const REALTIME_SAVE_DEBOUNCE_MS = 300;
+let realtimeSaveTimeout = null;
 
 // ===== Character Database & Login System =====
 
@@ -702,16 +705,7 @@ function setupEventListeners() {
         checkbox.addEventListener('change', calculateAllStats);
     });
     
-    // Auto-save on any input change (debounced)
-    let saveTimeout;
-    document.querySelectorAll('input, textarea').forEach(element => {
-        element.addEventListener('input', () => {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                autoSaveCharacterData();
-            }, 1000);
-        });
-    });
+    initRealtimeAutosave();
 
     // Hero card HP controls (primary inputs now)
     const dmgQuickBtn = document.getElementById('applyDamageQuick');
@@ -735,6 +729,35 @@ function setupEventListeners() {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateSummaryHeader);
     });
+}
+
+function initRealtimeAutosave() {
+    const sheetRoot = document.querySelector('.character-sheet');
+    if (!sheetRoot) return;
+
+    const handleRealtimeInput = (event) => {
+        if (isUpdatingFromFirebase) return; // skip updates triggered by Firebase hydration
+        const target = event.target;
+        if (!target) return;
+        const isEditable = target.matches('input, textarea, select') || target.isContentEditable || Boolean(target.closest('[contenteditable="true"]'));
+        if (!isEditable) return;
+        scheduleRealtimeSave();
+    };
+
+    REALTIME_SAVE_EVENTS.forEach((evt) => {
+        sheetRoot.addEventListener(evt, handleRealtimeInput, true);
+    });
+}
+
+function scheduleRealtimeSave() {
+    if (realtimeSaveTimeout) {
+        clearTimeout(realtimeSaveTimeout);
+    }
+    realtimeSaveTimeout = setTimeout(() => {
+        realtimeSaveTimeout = null;
+        if (isUpdatingFromFirebase) return;
+        autoSaveCharacterData();
+    }, REALTIME_SAVE_DEBOUNCE_MS);
 }
 
 // ===== Theme Management =====
