@@ -561,10 +561,16 @@ function setupFirebaseRealtimeSync(characterName) {
         
         const data = snapshot.val();
         if (data) {
+            const incomingSignature = serializeCharacterDataForDiff(data);
+            if (incomingSignature === lastSavedSnapshot) {
+                return; // Nothing new to apply
+            }
+
             isUpdatingFromFirebase = true;
             Object.assign(characterData, data);
             persistLocalCharacterData(characterData);
             populateCharacterData(characterData);
+            lastSavedSnapshot = incomingSignature;
             console.log('🔄 Character sheet synced from Firebase');
             
             // Reset flag after a short delay
