@@ -133,10 +133,28 @@ function updateLevelFromXP() {
     updateSummaryHeader();
 }
 // Use shared config modules
+import { firebaseConfig } from './config/firebase-config.js';
 import { STORAGE_KEYS } from './config/app-config.js';
 import { simpleHash, characterDatabase } from './data/character-db.js';
 
 const BANK_STORAGE_KEY = STORAGE_KEYS.bank || 'bankBalance';
+
+// Initialize Firebase (fresh live-save flow)
+let database = null;
+let firebaseListener = null;
+let firebaseBankListener = null;
+let isUpdatingFromFirebase = false;
+let isUpdatingBankFromFirebase = false;
+
+try {
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        console.log('✅ Firebase initialized for Character Sheet');
+    }
+} catch (error) {
+    console.warn('⚠️ Firebase not available, using localStorage fallback');
+}
 
 // Current logged-in character
 let currentCharacterName = null;
@@ -430,30 +448,6 @@ function initializeSheet() {
     setTheme('dark');
 }
 
-function checkLoggedInCharacter() {
-    // Check if user is logged in from main campaign page
-    const savedCharacterName = localStorage.getItem(STORAGE_KEYS.loggedInCharacter);
-    
-    if (savedCharacterName && characterDatabase[savedCharacterName]) {
-        const character = characterDatabase[savedCharacterName];
-        currentCharacterName = character.name;
-        
-        console.log(`📋 Loading character sheet for: ${currentCharacterName}`);
-        
-        // Update login button
-        const loginBtn = document.getElementById('loginBtn');
-        if (loginBtn) {
-            loginBtn.textContent = `👤 ${character.name}`;
-            loginBtn.classList.add('logged-in');
-        }
-    } else {
-        currentCharacterName = null;
-        console.log('📋 No character logged in, using local storage only');
-    }
-
-    // Always fall back to local data now that Firebase syncing is removed
-    loadCharacterData();
-}
 
 // ===== Login/Logout Functions (Modal-based like main page) =====
 function showLogin() {
@@ -464,6 +458,14 @@ function showLogin() {
     if (isLoggedIn) {
         // Logout
         if (confirm('Logout and return to Guest?')) {
+            if (firebaseListener) {
+                firebaseListener.off();
+                firebaseListener = null;
+            }
+            if (firebaseBankListener) {
+                firebaseBankListener.off();
+                firebaseBankListener = null;
+            }
             // Clear saved character from localStorage
             localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
             currentCharacterName = null;
@@ -497,7 +499,7 @@ function showLogin() {
     modal.classList.remove('hidden');
 }
 
-function attemptLogin() {
+async function attemptLogin() {
     const username = document.getElementById('loginUsername').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
     
@@ -523,8 +525,9 @@ function attemptLogin() {
     loginBtn.textContent = `👤 ${character.name}`;
     loginBtn.classList.add('logged-in');
     
-    // Load character sheet from local storage (shared for all users)
-    loadCharacterData();
+    await loadCharacterFromFirebase(character.name);
+    await loadBankFromFirebase(character.name);
+    setupFirebaseRealtimeSync(character.name);
     
     // Close modal
     const modal = document.getElementById('loginModal');
@@ -608,6 +611,7 @@ function initRealtimeAutosave() {
     if (!sheetRoot) return;
 
     const handleRealtimeInput = (event) => {
+        if (isUpdatingFromFirebase) return; // Skip events triggered by Firebase hydration
         const target = event.target;
         if (!target) return;
         const isEditable = target.matches('input, textarea, select') || target.isContentEditable || Boolean(target.closest('[contenteditable="true"]'));
@@ -626,6 +630,10 @@ function scheduleRealtimeSave() {
     const flush = () => {
         if (!realtimeSavePending) {
             realtimeSaveTimeout = null;
+            return;
+        }
+        if (isUpdatingFromFirebase) {
+            realtimeSaveTimeout = setTimeout(flush, REALTIME_SAVE_DEBOUNCE_MS);
             return;
         }
         realtimeSavePending = false;
@@ -1059,6 +1067,10 @@ function updateSummaryHeader() {
     }
 }
 
+function sanitizeCharacterName(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+}
+
 // ===== Save/Load Functions =====
 function getLocalCharacterData() {
     const raw = localStorage.getItem(STORAGE_KEYS.characterSheetData);
@@ -1090,6 +1102,7 @@ function applyCharacterSheetData(data, sourceLabel = 'local data') {
 }
 
 function autoSaveCharacterData() {
+    if (isUpdatingFromFirebase) return;
     const data = gatherCharacterData();
     const diffSignature = serializeCharacterDataForDiff(data);
     if (lastSavedSnapshot === diffSignature) {
@@ -1097,8 +1110,180 @@ function autoSaveCharacterData() {
     }
     stampCharacterData(data);
     persistLocalCharacterData(data);
-    lastSavedSnapshot = diffSignature;
-    console.log('✅ Character auto-saved');
+
+    const finalize = () => {
+        lastSavedSnapshot = diffSignature;
+        console.log('✅ Character auto-saved');
+    };
+
+    if (database && currentCharacterName) {
+// ===== Persistence & Sync =====
+async function checkLoggedInCharacter() {
+    const savedCharacterName = localStorage.getItem(STORAGE_KEYS.loggedInCharacter);
+
+    if (savedCharacterName && characterDatabase[savedCharacterName]) {
+        const character = characterDatabase[savedCharacterName];
+        currentCharacterName = character.name;
+        console.log(`📋 Loading character sheet for: ${currentCharacterName}`);
+
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.textContent = `👤 ${character.name}`;
+            loginBtn.classList.add('logged-in');
+        }
+    } else {
+        currentCharacterName = null;
+        console.log('📋 No character logged in, using local storage only');
+    }
+
+    if (database && currentCharacterName) {
+        await loadCharacterFromFirebase(currentCharacterName);
+        await loadBankFromFirebase(currentCharacterName);
+        setupFirebaseRealtimeSync(currentCharacterName);
+    } else {
+        loadCharacterData();
+    }
+}
+
+async function loadCharacterFromFirebase(characterName) {
+    const localData = getLocalCharacterData();
+    if (!database || !characterName) {
+        loadCharacterData(localData);
+        return;
+    }
+
+    const sanitizedName = sanitizeCharacterName(characterName);
+    try {
+        const snapshot = await database.ref(`characters/${sanitizedName}/characterSheet`).once('value');
+        const remoteData = snapshot.val();
+        const remoteStamp = remoteData?.updatedAt || 0;
+        const localStamp = localData?.updatedAt || 0;
+
+        if (remoteData && remoteStamp >= localStamp) {
+            applyCharacterSheetData(remoteData, 'Firebase');
+            persistLocalCharacterData(remoteData);
+            console.log(`📂 Loaded character sheet for ${characterName} from Firebase`);
+        } else if (localData) {
+            applyCharacterSheetData(localData, 'local auto-save');
+            if (!remoteData || remoteStamp < localStamp) {
+                await database.ref(`characters/${sanitizedName}/characterSheet`).set(localData);
+                await database.ref(`characters/${sanitizedName}/level`).set(localData.level || 1);
+                console.log('⬆️ Re-synced newer local character data to Firebase');
+            }
+        } else if (remoteData) {
+            applyCharacterSheetData(remoteData, 'Firebase');
+            persistLocalCharacterData(remoteData);
+        } else {
+            console.log(`📄 No saved character sheet found for ${characterName}, starting fresh`);
+            loadCharacterData();
+        }
+    } catch (error) {
+        console.error('Error loading from Firebase:', error);
+        loadCharacterData(localData);
+    }
+}
+
+async function loadBankFromFirebase(characterName) {
+    if (!database || !characterName) return;
+    const sanitizedName = sanitizeCharacterName(characterName);
+    try {
+        const snapshot = await database.ref(`characters/${sanitizedName}/bank`).once('value');
+        const bank = snapshot.val();
+        if (bank) {
+            applySharedBankBalance(bank, { silent: true });
+        }
+    } catch (error) {
+        console.error('Error loading bank from Firebase:', error);
+    }
+}
+
+function setupFirebaseRealtimeSync(characterName) {
+    if (!database || !characterName) return;
+
+    const sanitizedName = sanitizeCharacterName(characterName);
+    const characterRef = database.ref(`characters/${sanitizedName}/characterSheet`);
+
+    if (firebaseListener) {
+        firebaseListener.off();
+        firebaseListener = null;
+    }
+    if (firebaseBankListener) {
+        firebaseBankListener.off();
+        firebaseBankListener = null;
+    }
+
+    firebaseListener = characterRef;
+    characterRef.on('value', (snapshot) => {
+        if (isUpdatingFromFirebase) return;
+
+        const data = snapshot.val();
+        if (data) {
+            const incomingSignature = serializeCharacterDataForDiff(data);
+            if (incomingSignature === lastSavedSnapshot) {
+                return;
+            }
+
+            isUpdatingFromFirebase = true;
+            Object.assign(characterData, data);
+            persistLocalCharacterData(characterData);
+            populateCharacterData(characterData);
+            lastSavedSnapshot = incomingSignature;
+            console.log('🔄 Character sheet synced from Firebase');
+
+            setTimeout(() => {
+                isUpdatingFromFirebase = false;
+            }, 100);
+        }
+    });
+
+    const bankRef = database.ref(`characters/${sanitizedName}/bank`);
+    firebaseBankListener = bankRef;
+    bankRef.on('value', (snapshot) => {
+        if (isUpdatingBankFromFirebase) return;
+        const bank = snapshot.val();
+        if (bank) {
+            isUpdatingBankFromFirebase = true;
+            applySharedBankBalance(bank, { silent: true });
+            setTimeout(() => { isUpdatingBankFromFirebase = false; }, 100);
+        }
+    });
+
+    console.log(`🔔 Real-time sync enabled for ${characterName}`);
+}
+
+async function saveCharacterToFirebase(dataOverride = null, diffSignature = null) {
+    if (!database || !currentCharacterName || isUpdatingFromFirebase) return;
+
+    const sanitizedName = sanitizeCharacterName(currentCharacterName);
+    const data = dataOverride || gatherCharacterData();
+    let signature = diffSignature;
+    if (!signature) {
+        signature = serializeCharacterDataForDiff(data);
+        if (lastSavedSnapshot === signature) {
+            return;
+        }
+    }
+    if (!data.updatedAt) {
+        stampCharacterData(data);
+    }
+
+    try {
+        console.log(`💾 Saving character sheet with level ${data.level} to Firebase for ${currentCharacterName}`);
+        await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
+        await database.ref(`characters/${sanitizedName}/level`).set(data.level || 1);
+        if (!diffSignature) {
+            lastSavedSnapshot = signature;
+        }
+        console.log(`✅ Character sheet saved to Firebase for ${currentCharacterName}`);
+    } catch (error) {
+        console.error('Error saving to Firebase:', error);
+    }
+}
+
+// ===== Save/Load Functions =====
+    } else {
+        finalize();
+    }
 }
 
 function saveCharacterData() {
@@ -1109,6 +1294,10 @@ function saveCharacterData() {
     // Save to localStorage
     persistLocalCharacterData(data);
     lastSavedSnapshot = diffSignature;
+
+    if (database && currentCharacterName) {
+        saveCharacterToFirebase(data, diffSignature);
+    }
     
     // Download as JSON file
     const characterName = data.characterName || 'character';
@@ -1122,7 +1311,8 @@ function saveCharacterData() {
     link.click();
     URL.revokeObjectURL(url);
     
-    showNotification('✅ Character saved and downloaded!');
+    const synced = database && currentCharacterName;
+    showNotification(synced ? '✅ Character saved to Firebase and downloaded!' : '✅ Character saved and downloaded!');
 }
 
 function loadCharacterData(preloadedData = null) {
