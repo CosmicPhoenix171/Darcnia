@@ -549,7 +549,6 @@ let characterData = {
     weapons: [], // structured attacks list
     inventory: [],
     coins: { pp: 0, gp: 0, sp: 0, cp: 0 },
-    equipment: '',
     
     // Attunement
     attunement: [
@@ -1109,7 +1108,6 @@ function gatherCharacterData() {
     characterData.weapons = getWeaponsFromDOM();
     characterData.inventory = getInventoryFromDOM();
     characterData.coins = getCoinsFromDOM();
-    characterData.equipment = document.getElementById('equipment').value;
     
     // Attunement
     characterData.attunement = [
@@ -1216,7 +1214,6 @@ function populateCharacterData(data) {
     // Combat & Equipment
     const attacksTextarea = document.getElementById('attacks');
     if (attacksTextarea) attacksTextarea.value = data.attacks || '';
-    document.getElementById('equipment').value = data.equipment || '';
     setWeaponsToDOM(data.weapons || []);
     setInventoryToDOM(data.inventory || []);
     setCoinsToDOM(data.coins || { pp:0,gp:0,sp:0,cp:0 });
