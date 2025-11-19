@@ -316,6 +316,25 @@ function setupFirebaseRealtimeSync(characterName) {
     console.log(`🔔 Real-time sync enabled for ${characterName}`);
 }
 
+function handleExternalLoginChange(rawValue) {
+    const normalized = rawValue ? rawValue.trim().toLowerCase() : '';
+    const current = currentCharacterName ? currentCharacterName.toLowerCase() : '';
+    if (normalized === current) {
+        return;
+    }
+    if (normalized) {
+        checkLoggedInCharacter().catch((err) => console.error('Error rehydrating login from storage:', err));
+    } else {
+        currentCharacterName = null;
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.textContent = '👤 Login';
+            loginBtn.classList.remove('logged-in');
+        }
+        loadCharacterData();
+    }
+}
+
 async function saveCharacterToFirebase(dataOverride = null, diffSignature = null) {
     if (!database || !currentCharacterName || isUpdatingFromFirebase) return;
 
@@ -520,6 +539,10 @@ function bootstrapCharacterSheet() {
 
 function initStorageSyncListeners() {
     window.addEventListener('storage', (event) => {
+        if (event.key === STORAGE_KEYS.loggedInCharacter) {
+            handleExternalLoginChange(event.newValue);
+            return;
+        }
         if (event.key === BANK_STORAGE_KEY) {
             updateBankBalanceDisplay();
         }
