@@ -38,6 +38,7 @@ const XP_TABLE = [
     { level: 20, xp: 355000, next: 0 }
 ];
 const BANK_STORAGE_KEY = STORAGE_KEYS.bank || 'bankBalance';
+const getFirebaseSDK = () => (typeof window !== 'undefined' ? window.firebase : undefined);
 
 // Initialize Firebase (fresh live-save flow)
 let database = null;
@@ -47,13 +48,20 @@ let isUpdatingFromFirebase = false;
 let isUpdatingBankFromFirebase = false;
 
 try {
-    if (typeof firebase !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        console.log('✅ Firebase initialized for Character Sheet');
+    const firebaseSDK = getFirebaseSDK();
+    if (firebaseSDK) {
+        if (!firebaseSDK.apps?.length) {
+            firebaseSDK.initializeApp(firebaseConfig);
+            console.log('✅ Firebase initialized for Character Sheet');
+        } else {
+            console.log('ℹ️ Firebase app already active, reusing for Character Sheet');
+        }
+        database = firebaseSDK.database();
+    } else {
+        console.warn('⚠️ Firebase SDK not detected, using localStorage fallback');
     }
 } catch (error) {
-    console.warn('⚠️ Firebase not available, using localStorage fallback');
+    console.error('❌ Failed to initialize Firebase for Character Sheet:', error);
 }
 
 // Current logged-in character
@@ -338,7 +346,24 @@ function handleExternalLoginChange(rawValue) {
 }
 
 async function saveCharacterToFirebase(dataOverride = null, diffSignature = null) {
-    if (!database || !currentCharacterName || isUpdatingFromFirebase) return;
+    if (!database) {
+        const firebaseSDK = getFirebaseSDK();
+        if (firebaseSDK?.apps?.length) {
+            database = firebaseSDK.database();
+        }
+        if (!database) {
+            console.warn('⏭️ Skipping Firebase save: database not initialized');
+            return;
+        }
+    }
+    if (!currentCharacterName) {
+        console.warn('⏭️ Skipping Firebase save: no logged-in character');
+        return;
+    }
+    if (isUpdatingFromFirebase) {
+        console.log('⏭️ Skipping Firebase save: currently syncing from Firebase');
+        return;
+    }
 
     const sanitizedName = sanitizeCharacterName(currentCharacterName);
     const data = dataOverride || gatherCharacterData();
