@@ -171,6 +171,7 @@ let realtimeSavePending = false;
 
 // Character data structure
 let characterData = {
+    updatedAt: 0,
     // Identity
     characterName: '',
     level: 1,
@@ -469,32 +470,46 @@ function checkLoggedInCharacter() {
 
 // ===== Firebase Functions =====
 async function loadCharacterFromFirebase(characterName) {
+    const localData = getLocalCharacterData();
     if (!characterName) {
-        loadCharacterData();
+        loadCharacterData(localData);
         return;
     }
 
     if (!database) {
         console.warn('⚠️ Firebase unavailable, falling back to local character data');
-        loadCharacterData();
+        loadCharacterData(localData);
         return;
     }
     
     const sanitizedName = sanitizeCharacterName(characterName);
     try {
         const snapshot = await database.ref(`characters/${sanitizedName}/characterSheet`).once('value');
-        const data = snapshot.val();
-        if (data) {
-            Object.assign(characterData, data);
-            populateCharacterData(characterData);
+        const remoteData = snapshot.val();
+        const remoteStamp = remoteData?.updatedAt || 0;
+        const localStamp = localData?.updatedAt || 0;
+
+        if (remoteData && remoteStamp >= localStamp) {
+            applyCharacterSheetData(remoteData, 'Firebase');
+            persistLocalCharacterData(remoteData);
             console.log(`📂 Loaded character sheet for ${characterName} from Firebase`);
+        } else if (localData) {
+            applyCharacterSheetData(localData, 'local auto-save');
+            if (!remoteData || remoteStamp < localStamp) {
+                await database.ref(`characters/${sanitizedName}/characterSheet`).set(localData);
+                await database.ref(`characters/${sanitizedName}/level`).set(localData.level || 1);
+                console.log('⬆️ Re-synced newer local character data to Firebase');
+            }
+        } else if (remoteData) {
+            applyCharacterSheetData(remoteData, 'Firebase');
+            persistLocalCharacterData(remoteData);
         } else {
             console.log(`📄 No saved character sheet found for ${characterName}, starting fresh`);
-            loadCharacterData(); // Load from localStorage if available
+            loadCharacterData();
         }
     } catch (error) {
         console.error('Error loading from Firebase:', error);
-        loadCharacterData(); // Fallback to localStorage
+        loadCharacterData(localData);
     }
 }
 
@@ -537,6 +552,7 @@ function setupFirebaseRealtimeSync(characterName) {
         if (data) {
             isUpdatingFromFirebase = true;
             Object.assign(characterData, data);
+            persistLocalCharacterData(characterData);
             populateCharacterData(characterData);
             console.log('🔄 Character sheet synced from Firebase');
             
@@ -565,7 +581,7 @@ function setupFirebaseRealtimeSync(characterName) {
 async function saveCharacterToFirebase() {
     if (!database || !currentCharacterName || isUpdatingFromFirebase) return;
     
-    const sanitizedName = currentCharacterName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const sanitizedName = sanitizeCharacterName(currentCharacterName);
     const data = gatherCharacterData();
     
     try {
@@ -860,6 +876,7 @@ function calculateAllStats() {
 
 // ===== Data Management =====
 function gatherCharacterData() {
+    characterData.updatedAt = Date.now();
     // Identity
     characterData.characterName = document.getElementById('nameDisplay').value;
     // Level is now calculated from XP
@@ -1185,9 +1202,37 @@ function updateSummaryHeader() {
 }
 
 // ===== Save/Load Functions =====
+function getLocalCharacterData() {
+    const raw = localStorage.getItem(STORAGE_KEYS.characterSheetData);
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw);
+    } catch (error) {
+        console.error('Error parsing local character data:', error);
+        return null;
+    }
+}
+
+function persistLocalCharacterData(data) {
+    if (!data) return;
+    try {
+        localStorage.setItem(STORAGE_KEYS.characterSheetData, JSON.stringify(data));
+    } catch (error) {
+        console.error('Error saving character data locally:', error);
+    }
+}
+
+function applyCharacterSheetData(data, sourceLabel = 'local data') {
+    if (!data) return false;
+    Object.assign(characterData, data);
+    populateCharacterData(characterData);
+    console.log(`📂 Character loaded from ${sourceLabel}`);
+    return true;
+}
+
 function autoSaveCharacterData() {
     const data = gatherCharacterData();
-    localStorage.setItem(STORAGE_KEYS.characterSheetData, JSON.stringify(data));
+    persistLocalCharacterData(data);
     
     // Also save to Firebase if logged in
     if (currentCharacterName && currentCharacterName !== 'Guest') {
@@ -1201,7 +1246,7 @@ function saveCharacterData() {
     const data = gatherCharacterData();
     
     // Save to localStorage
-    localStorage.setItem(STORAGE_KEYS.characterSheetData, JSON.stringify(data));
+    persistLocalCharacterData(data);
     
     // Save to Firebase if logged in
     if (currentCharacterName && currentCharacterName !== 'Guest') {
@@ -1226,17 +1271,10 @@ function saveCharacterData() {
     showNotification(message);
 }
 
-function loadCharacterData() {
-    const savedData = localStorage.getItem(STORAGE_KEYS.characterSheetData);
-    if (savedData) {
-        try {
-            const data = JSON.parse(savedData);
-            Object.assign(characterData, data);
-            populateCharacterData(characterData);
-            console.log('📂 Character loaded from auto-save');
-        } catch (error) {
-            console.error('Error loading character data:', error);
-        }
+function loadCharacterData(preloadedData = null) {
+    const data = preloadedData || getLocalCharacterData();
+    if (data) {
+        applyCharacterSheetData(data, 'local auto-save');
     }
 }
 
