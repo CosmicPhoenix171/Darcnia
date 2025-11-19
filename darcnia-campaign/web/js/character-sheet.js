@@ -177,7 +177,7 @@ function updateLevelFromXP() {
     }
     characterData.proficiencyBonus = profBonus;
 
-    calculateAllStats();
+    calculateAllStats(false);
     updateSummaryHeader();
 }
 
@@ -967,17 +967,20 @@ function calculateAbilityModifier(score) {
     return Math.floor((score - 10) / 2);
 }
 
-function calculateAllStats() {
+function calculateAllStats(trustLoadedData = false) {
     // Calculate ability modifiers
     const abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
     abilities.forEach(ability => {
-        const score = parseInt(document.getElementById(`${ability}Score`).value) || 10;
+        let score;
+        if (trustLoadedData && characterData.abilities[ability]) {
+            score = characterData.abilities[ability];
+        } else {
+            score = parseInt(document.getElementById(`${ability}Score`).value) || 10;
+            characterData.abilities[ability] = score;
+        }
         const modifier = calculateAbilityModifier(score);
         const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
         document.getElementById(`${ability}Mod`).textContent = modifierStr;
-        
-        // Store in character data
-        characterData.abilities[ability] = score;
     });
     
     // Calculate saving throws
@@ -1262,8 +1265,8 @@ function populateCharacterData(data) {
     setConditionFlagsToDOM(data.conditionFlags || {});
     setPortrait(data.portraitUrl || '');
     
-    // Recalculate all stats
-    calculateAllStats();
+    // Recalculate all stats, trusting loaded data for abilities
+    calculateAllStats(true);
 }
 
 // ===== HP & Rest Helpers =====
