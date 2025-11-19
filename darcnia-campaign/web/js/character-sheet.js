@@ -63,6 +63,7 @@ let realtimeSavePending = false;
 let lastSavedSnapshot = null;
 let currentFirebaseSlug = null;
 let hasHydratedCharacter = false;
+let hydrationLockUntil = 0;
 
 // ===== Utility Helpers =====
 function sanitizeCharacterName(name) {
@@ -1389,6 +1390,7 @@ function applyCharacterSheetData(data, sourceLabel = 'local data') {
     console.log(`📂 Character loaded from ${sourceLabel}`);
     lastSavedSnapshot = serializeCharacterDataForDiff(characterData);
     hasHydratedCharacter = true;
+    hydrationLockUntil = Date.now() + 800; // brief lock to suppress redundant autosave
     return true;
 }
 
@@ -1397,13 +1399,29 @@ function autoSaveCharacterData() {
         console.log('⏭️ Skipping auto-save: sheet not hydrated yet');
         return;
     }
+    if (Date.now() < hydrationLockUntil) {
+        // During hydration lock we still update snapshot if user actually changed something material
+        const tentative = gatherCharacterData();
+        const tentativeSig = serializeCharacterDataForDiff(tentative);
+        if (tentativeSig !== lastSavedSnapshot) {
+            console.log('⏭️ Hydration lock: material change detected, proceeding to save');
+        } else {
+            return;
+        }
+    }
     if (isUpdatingFromFirebase) return;
     const data = gatherCharacterData();
     const diffSignature = serializeCharacterDataForDiff(data);
     if (lastSavedSnapshot === diffSignature) {
         return;
     }
-    logCharacterDiff(JSON.parse(lastSavedSnapshot || '{}'), data);
+    const previousObj = JSON.parse(lastSavedSnapshot || '{}');
+    const changes = collectDiff(previousObj, data);
+    if (isTrivialDiff(changes)) {
+        lastSavedSnapshot = diffSignature; // accept snapshot silently
+        return;
+    }
+    logCharacterDiff(previousObj, data, changes);
     stampCharacterData(data);
 
     const finalize = () => {
@@ -1418,13 +1436,15 @@ function autoSaveCharacterData() {
     }
 }
 
-function logCharacterDiff(previous, current) {
+function logCharacterDiff(previous, current, changes) {
     if (!previous || typeof previous !== 'object') {
         console.log('🆕 Initial save snapshot created.');
         return;
     }
-    const changes = {};
-    compareObjects(previous, current, changes, []);
+    if (!changes) {
+        changes = {};
+        compareObjects(previous, current, changes, []);
+    }
     if (Object.keys(changes).length === 0) {
         console.log('ℹ️ No material diff detected, skipping log.');
         return;
@@ -1434,6 +1454,25 @@ function logCharacterDiff(previous, current) {
         console.log(`${path}:`, before, '→', after);
     });
     console.groupEnd();
+}
+
+function collectDiff(previous, current) {
+    const changes = {};
+    compareObjects(previous, current, changes, []);
+    return changes;
+}
+
+function isTrivialDiff(changes) {
+    const keys = Object.keys(changes);
+    if (keys.length === 0) return true;
+    return keys.every((k) => {
+        if (k === 'updatedAt') return true;
+        if (/^spellSlots\.0$/.test(k)) return true; // noise from sparse slots
+        const entry = changes[k];
+        // weapons undefined -> [] noise on first save
+        if (k === 'weapons' && Array.isArray(entry.after) && (entry.before === undefined || entry.before === null) && entry.after.length === 0) return true;
+        return false;
+    });
 }
 
 function compareObjects(prev, curr, collector, trail) {
