@@ -62,6 +62,7 @@ let realtimeSaveTimeout = null;
 let realtimeSavePending = false;
 let lastSavedSnapshot = null;
 let currentFirebaseSlug = null;
+let hasHydratedCharacter = false;
 
 // ===== Utility Helpers =====
 function sanitizeCharacterName(name) {
@@ -234,6 +235,7 @@ async function checkLoggedInCharacter() {
     }
 
     if (database && currentCharacterName) {
+        hasHydratedCharacter = false;
         await loadCharacterFromFirebase(currentCharacterName);
         await loadBankFromFirebase(currentCharacterName);
         setupFirebaseRealtimeSync(currentCharacterName);
@@ -844,6 +846,7 @@ async function attemptLogin() {
     loginBtn.classList.add('logged-in');
     
     clearLastRemoteStamp();
+    hasHydratedCharacter = false;
     await loadCharacterFromFirebase(character.name);
     await loadBankFromFirebase(character.name);
     setupFirebaseRealtimeSync(character.name);
@@ -947,6 +950,7 @@ function initRealtimeAutosave() {
 }
 
 function scheduleRealtimeSave() {
+    if (!hasHydratedCharacter) return;
     realtimeSavePending = true;
     if (realtimeSaveTimeout) return;
     const flush = () => {
@@ -1414,10 +1418,15 @@ function applyCharacterSheetData(data, sourceLabel = 'local data') {
     populateCharacterData(characterData);
     console.log(`📂 Character loaded from ${sourceLabel}`);
     lastSavedSnapshot = serializeCharacterDataForDiff(characterData);
+    hasHydratedCharacter = true;
     return true;
 }
 
 function autoSaveCharacterData() {
+    if (!hasHydratedCharacter) {
+        console.log('⏭️ Skipping auto-save: sheet not hydrated yet');
+        return;
+    }
     if (isUpdatingFromFirebase) return;
     const data = gatherCharacterData();
     const diffSignature = serializeCharacterDataForDiff(data);
@@ -1507,7 +1516,8 @@ function loadCharacterData(preloadedData = null) {
     if (data) {
         applyCharacterSheetData(data, 'local auto-save');
     } else {
-        lastSavedSnapshot = null;
+        lastSavedSnapshot = serializeCharacterDataForDiff(characterData);
+        hasHydratedCharacter = true;
     }
 }
 
