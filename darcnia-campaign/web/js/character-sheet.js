@@ -765,7 +765,10 @@ function setupEventListeners() {
     
     // Ability score changes
     document.querySelectorAll('.ability-score').forEach(input => {
-        input.addEventListener('input', calculateAllStats);
+        input.addEventListener('input', () => {
+            calculateAllStats();
+            autoSaveCharacterData();
+        });
     });
     
     // Proficiency bonus change
