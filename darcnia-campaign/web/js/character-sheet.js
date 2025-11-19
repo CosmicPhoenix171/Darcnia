@@ -979,7 +979,9 @@ function calculateAllStats(trustLoadedData = false) {
             const domValue = document.getElementById(`${ability}Score`).value;
             score = parseInt(domValue) || 10;
             if (!domValue || domValue === '' || score === 10) {
-                console.error(`⚠️ ${ability.toUpperCase()} defaulted to 10 (trustLoadedData=${trustLoadedData}, domValue='${domValue}')`);
+                const errorMsg = `⚠️ ${ability.toUpperCase()} defaulted to 10 (trustLoadedData=${trustLoadedData}, domValue='${domValue}')`;
+                console.error(errorMsg);
+                showNotification(`⚠️ ERROR: ${ability.toUpperCase()} score defaulted to 10! Check Firebase data.`, 'error');
             }
             characterData.abilities[ability] = score;
         }
