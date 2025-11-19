@@ -168,6 +168,16 @@ let realtimeSaveTimeout = null;
 let realtimeSavePending = false;
 let lastSavedSnapshot = null;
 
+function serializeCharacterDataForDiff(data) {
+    return JSON.stringify(data, (key, value) => key === 'updatedAt' ? undefined : value);
+}
+
+function stampCharacterData(data) {
+    const timestamp = Date.now();
+    data.updatedAt = timestamp;
+    return timestamp;
+}
+
 // ===== Character Database & Login System =====
 
 // Character data structure
@@ -579,14 +589,20 @@ function setupFirebaseRealtimeSync(characterName) {
     });
 }
 
-async function saveCharacterToFirebase() {
+async function saveCharacterToFirebase(dataOverride = null, diffSignature = null) {
     if (!database || !currentCharacterName || isUpdatingFromFirebase) return;
     
     const sanitizedName = sanitizeCharacterName(currentCharacterName);
-    const data = gatherCharacterData();
-    const serialized = JSON.stringify(data);
-    if (lastSavedSnapshot === serialized) {
-        return;
+    const data = dataOverride || gatherCharacterData();
+    let signature = diffSignature;
+    if (!signature) {
+        signature = serializeCharacterDataForDiff(data);
+        if (lastSavedSnapshot === signature) {
+            return;
+        }
+    }
+    if (!data.updatedAt) {
+        stampCharacterData(data);
     }
     
     try {
@@ -594,7 +610,9 @@ async function saveCharacterToFirebase() {
         await database.ref(`characters/${sanitizedName}/characterSheet`).set(data);
         // Also update level in main character node for market access
         await database.ref(`characters/${sanitizedName}/level`).set(data.level || 1);
-        lastSavedSnapshot = serialized;
+        if (!diffSignature) {
+            lastSavedSnapshot = signature;
+        }
         console.log(`✅ Character sheet saved to Firebase for ${currentCharacterName}`);
     } catch (error) {
         console.error('Error saving to Firebase:', error);
@@ -882,7 +900,6 @@ function calculateAllStats() {
 
 // ===== Data Management =====
 function gatherCharacterData() {
-    characterData.updatedAt = Date.now();
     // Identity
     characterData.characterName = document.getElementById('nameDisplay').value;
     // Level is now calculated from XP
@@ -1251,38 +1268,44 @@ function applyCharacterSheetData(data, sourceLabel = 'local data') {
     Object.assign(characterData, data);
     populateCharacterData(characterData);
     console.log(`📂 Character loaded from ${sourceLabel}`);
-    lastSavedSnapshot = JSON.stringify(characterData);
+    lastSavedSnapshot = serializeCharacterDataForDiff(characterData);
     return true;
 }
 
 function autoSaveCharacterData() {
     if (isUpdatingFromFirebase) return;
     const data = gatherCharacterData();
-    const serialized = JSON.stringify(data);
-    if (lastSavedSnapshot === serialized) {
+    const diffSignature = serializeCharacterDataForDiff(data);
+    if (lastSavedSnapshot === diffSignature) {
         return;
     }
+    stampCharacterData(data);
     persistLocalCharacterData(data);
-    
-    // Also save to Firebase if logged in
+
+    const finish = () => {
+        lastSavedSnapshot = diffSignature;
+        console.log('✅ Character auto-saved');
+    };
+
     if (currentCharacterName && currentCharacterName !== 'Guest') {
-        saveCharacterToFirebase();
+        saveCharacterToFirebase(data, diffSignature).finally(finish);
+    } else {
+        finish();
     }
-    
-    lastSavedSnapshot = serialized;
-    console.log('✅ Character auto-saved');
 }
 
 function saveCharacterData() {
     const data = gatherCharacterData();
+    const diffSignature = serializeCharacterDataForDiff(data);
+    stampCharacterData(data);
     
     // Save to localStorage
     persistLocalCharacterData(data);
-    lastSavedSnapshot = JSON.stringify(data);
+    lastSavedSnapshot = diffSignature;
     
     // Save to Firebase if logged in
     if (currentCharacterName && currentCharacterName !== 'Guest') {
-        saveCharacterToFirebase();
+        saveCharacterToFirebase(data, diffSignature);
     }
     
     // Download as JSON file
