@@ -227,7 +227,6 @@ async function loadCharacterFromFirebase(characterName) {
         if (remoteData && remoteStamp >= localStamp) {
             applyCharacterSheetData(remoteData, 'Firebase');
             persistLocalCharacterData(remoteData);
-            console.log(`📂 Loaded character sheet for ${characterName} from Firebase`);
         } else if (localData) {
             applyCharacterSheetData(localData, 'local auto-save');
             if (!remoteData || remoteStamp < localStamp) {
@@ -277,6 +276,7 @@ function setupFirebaseRealtimeSync(characterName) {
         firebaseBankListener = null;
     }
 
+    let hasProcessedInitialSnapshot = false;
     firebaseListener = characterRef;
     characterRef.on('value', (snapshot) => {
         if (isUpdatingFromFirebase) return;
@@ -284,9 +284,11 @@ function setupFirebaseRealtimeSync(characterName) {
         const data = snapshot.val();
         if (data) {
             const incomingSignature = serializeCharacterDataForDiff(data);
-            if (incomingSignature === lastSavedSnapshot) {
+            if (!hasProcessedInitialSnapshot && incomingSignature === lastSavedSnapshot) {
+                hasProcessedInitialSnapshot = true;
                 return;
             }
+            hasProcessedInitialSnapshot = true;
 
             isUpdatingFromFirebase = true;
             Object.assign(characterData, data);
