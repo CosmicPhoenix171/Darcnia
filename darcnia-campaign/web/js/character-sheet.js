@@ -1,14 +1,3 @@
-// ===== D&D 2024 Character Sheet JavaScript =====
-// ===== Table of Contents =====
-// 1. Imports, constants, and configuration
-// 2. Global state containers
-// 3. Utility helpers (sanitizers, math, serialization)
-// 4. Persistence & sync (Firebase + local storage)
-// 5. Save/Load helpers and exports
-// 6. Bootstrap & event wiring
-// 7. UI modules (tabs, portraits, inventory, spells, etc.)
-// 8. Calculations, data gathering, and notifications
-
 // Use shared config modules
 import { firebaseConfig } from './config/firebase-config.js';
 import { STORAGE_KEYS } from './config/app-config.js';
@@ -393,6 +382,7 @@ function setupFirebaseRealtimeSync(characterName) {
             persistLocalCharacterData(characterData);
             populateCharacterData(characterData);
             lastSavedSnapshot = incomingSignature;
+            if (data.updatedAt) setLastRemoteStamp(data.updatedAt);
             console.log('🔄 Character sheet synced from Firebase');
 
             setTimeout(() => {
