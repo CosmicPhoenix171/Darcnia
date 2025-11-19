@@ -38,6 +38,7 @@ const XP_TABLE = [
     { level: 20, xp: 355000, next: 0 }
 ];
 const BANK_STORAGE_KEY = STORAGE_KEYS.bank || 'bankBalance';
+const REMOTE_STAMP_KEY = STORAGE_KEYS.characterSheetRemoteStamp || 'dnd2024CharacterSheetRemoteStamp';
 const getFirebaseSDK = () => (typeof window !== 'undefined' ? window.firebase : undefined);
 
 // Initialize Firebase (fresh live-save flow)
@@ -203,6 +204,24 @@ function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
 }
 
+function getLastRemoteStamp() {
+    const raw = localStorage.getItem(REMOTE_STAMP_KEY);
+    return raw ? parseInt(raw, 10) || 0 : 0;
+}
+
+function setLastRemoteStamp(value) {
+    if (!value) return;
+    try {
+        localStorage.setItem(REMOTE_STAMP_KEY, String(value));
+    } catch (error) {
+        console.warn('Unable to persist remote stamp:', error);
+    }
+}
+
+function clearLastRemoteStamp() {
+    localStorage.removeItem(REMOTE_STAMP_KEY);
+}
+
 // ===== Persistence & Sync =====
 async function checkLoggedInCharacter() {
     const savedCharacterName = localStorage.getItem(STORAGE_KEYS.loggedInCharacter);
@@ -221,6 +240,7 @@ async function checkLoggedInCharacter() {
     } else {
         currentCharacterName = null;
         currentFirebaseSlug = null;
+        clearLastRemoteStamp();
         console.log('📋 No character logged in, using local storage only');
     }
 
@@ -267,22 +287,27 @@ async function loadCharacterFromFirebase(characterName) {
 
         const remoteStamp = remoteData?.updatedAt || 0;
         const localStamp = localData?.updatedAt || 0;
+        const lastRemoteStamp = getLastRemoteStamp();
+        const remoteChangedSinceLastView = !!(remoteStamp && remoteStamp !== lastRemoteStamp);
 
-        if (remoteData && remoteStamp >= localStamp) {
+        if (remoteData && (!localData || remoteStamp >= localStamp || remoteChangedSinceLastView)) {
             applyCharacterSheetData(remoteData, 'Firebase');
             persistLocalCharacterData(remoteData);
+            if (remoteStamp) setLastRemoteStamp(remoteStamp);
         } else if (localData) {
             applyCharacterSheetData(localData, 'local auto-save');
             if (!remoteData || remoteStamp < localStamp) {
                 if (targetKey) {
                     await database.ref(`characters/${targetKey}/characterSheet`).set(localData);
                     await database.ref(`characters/${targetKey}/level`).set(localData.level || 1);
+                    if (localStamp) setLastRemoteStamp(localStamp);
                 }
                 console.log('⬆️ Re-synced newer local character data to Firebase');
             }
         } else if (remoteData) {
             applyCharacterSheetData(remoteData, 'Firebase');
             persistLocalCharacterData(remoteData);
+            if (remoteStamp) setLastRemoteStamp(remoteStamp);
         } else {
             console.log(`📄 No saved character sheet found for ${characterName}, starting fresh`);
             loadCharacterData();
@@ -402,6 +427,7 @@ function handleExternalLoginChange(rawValue) {
     } else {
         currentCharacterName = null;
         currentFirebaseSlug = null;
+        clearLastRemoteStamp();
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
             loginBtn.textContent = '👤 Login';
@@ -454,6 +480,9 @@ async function saveCharacterToFirebase(dataOverride = null, diffSignature = null
         await database.ref(`characters/${slug}/level`).set(data.level || 1);
         if (!diffSignature) {
             lastSavedSnapshot = signature;
+        }
+        if (data.updatedAt) {
+            setLastRemoteStamp(data.updatedAt);
         }
         console.log(`✅ Character sheet saved to Firebase for ${currentCharacterName}`);
     } catch (error) {
@@ -766,6 +795,7 @@ function showLogin() {
             localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
             currentCharacterName = null;
             currentFirebaseSlug = null;
+            clearLastRemoteStamp();
             
             loginBtn.textContent = '👤 Login';
             loginBtn.classList.remove('logged-in');
@@ -823,6 +853,7 @@ async function attemptLogin() {
     loginBtn.textContent = `👤 ${character.name}`;
     loginBtn.classList.add('logged-in');
     
+    clearLastRemoteStamp();
     await loadCharacterFromFirebase(character.name);
     await loadBankFromFirebase(character.name);
     setupFirebaseRealtimeSync(character.name);

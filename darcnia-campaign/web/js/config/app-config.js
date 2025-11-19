@@ -16,6 +16,7 @@ export const STORAGE_KEYS = {
     bank: 'bankBalance',
     theme: 'theme',
     characterSheetData: 'dnd2024CharacterSheet',
+    characterSheetRemoteStamp: 'dnd2024CharacterSheetRemoteStamp',
     characterSheetTheme: 'characterSheetTheme',
     characterSheetActiveTab: 'characterSheetActiveTab'
 };
