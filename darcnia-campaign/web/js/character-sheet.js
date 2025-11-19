@@ -469,7 +469,16 @@ function checkLoggedInCharacter() {
 
 // ===== Firebase Functions =====
 async function loadCharacterFromFirebase(characterName) {
-    if (!database || !characterName) return;
+    if (!characterName) {
+        loadCharacterData();
+        return;
+    }
+
+    if (!database) {
+        console.warn('⚠️ Firebase unavailable, falling back to local character data');
+        loadCharacterData();
+        return;
+    }
     
     const sanitizedName = sanitizeCharacterName(characterName);
     try {
