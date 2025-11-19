@@ -165,6 +165,7 @@ let isUpdatingBankFromFirebase = false;
 const REALTIME_SAVE_EVENTS = ['input', 'change'];
 const REALTIME_SAVE_DEBOUNCE_MS = 300;
 let realtimeSaveTimeout = null;
+let realtimeSavePending = false;
 
 // ===== Character Database & Login System =====
 
@@ -750,14 +751,22 @@ function initRealtimeAutosave() {
 }
 
 function scheduleRealtimeSave() {
-    if (realtimeSaveTimeout) {
-        clearTimeout(realtimeSaveTimeout);
-    }
-    realtimeSaveTimeout = setTimeout(() => {
+    realtimeSavePending = true;
+    if (realtimeSaveTimeout) return;
+    const flush = () => {
+        if (!realtimeSavePending) {
+            realtimeSaveTimeout = null;
+            return;
+        }
+        if (isUpdatingFromFirebase) {
+            realtimeSaveTimeout = setTimeout(flush, REALTIME_SAVE_DEBOUNCE_MS);
+            return;
+        }
+        realtimeSavePending = false;
         realtimeSaveTimeout = null;
-        if (isUpdatingFromFirebase) return;
         autoSaveCharacterData();
-    }, REALTIME_SAVE_DEBOUNCE_MS);
+    };
+    realtimeSaveTimeout = setTimeout(flush, REALTIME_SAVE_DEBOUNCE_MS);
 }
 
 // ===== Theme Management =====
