@@ -974,8 +974,13 @@ function calculateAllStats(trustLoadedData = false) {
         let score;
         if (trustLoadedData && characterData.abilities[ability]) {
             score = characterData.abilities[ability];
+            console.log(`✅ Using loaded ${ability.toUpperCase()}: ${score}`);
         } else {
-            score = parseInt(document.getElementById(`${ability}Score`).value) || 10;
+            const domValue = document.getElementById(`${ability}Score`).value;
+            score = parseInt(domValue) || 10;
+            if (!domValue || domValue === '' || score === 10) {
+                console.error(`⚠️ ${ability.toUpperCase()} defaulted to 10 (trustLoadedData=${trustLoadedData}, domValue='${domValue}')`);
+            }
             characterData.abilities[ability] = score;
         }
         const modifier = calculateAbilityModifier(score);
@@ -1167,10 +1172,7 @@ function populateCharacterData(data) {
     document.getElementById('alignment').value = data.alignment || '';
     document.getElementById('experiencePoints').value = data.experiencePoints || 0;
     
-    // Update level from XP (this will trigger updateLevelFromXP)
-    updateLevelFromXP();
-    
-    // Ability Scores
+    // Ability Scores (must be set BEFORE updateLevelFromXP)
     const abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
     abilities.forEach(ability => {
         document.getElementById(`${ability}Score`).value = data.abilities[ability] || 10;
@@ -1264,6 +1266,9 @@ function populateCharacterData(data) {
     }
     setConditionFlagsToDOM(data.conditionFlags || {});
     setPortrait(data.portraitUrl || '');
+    
+    // Update level from XP after all DOM is populated
+    updateLevelFromXP();
     
     // Recalculate all stats, trusting loaded data for abilities
     calculateAllStats(true);
