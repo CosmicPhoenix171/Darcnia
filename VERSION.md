@@ -1,33 +1,12 @@
-# Darcnia Campaign - Version History
+# Darcnia Campaign – Version Notes
 
-## Current Version: 1.30 (Centralized)
+Manual version stamping has been removed. The campaign UI now surfaces the last modified time of the built files (via `document.lastModified`), so there is no single place where a version string must be updated.
 
-### � Centralized Version System!
+## Release Checklist
 
-**Single Source of Truth:** All version numbers now come from ONE file: `web/js/version.js`
+1. Finish your code changes and ensure `bundle exec jekyll serve` (or the static `web/` pages) behave as expected.
+2. Commit with a descriptive message; Git history now serves as the source of truth for release identifiers.
+3. Deploy/publish. The footer will show “Updated &lt;timestamp&gt;” which reflects the timestamp of the deployed files.
 
-- **Update ONLY**: `web/js/version.js` → Change `window.APP_VERSION = 'v1.30'`
-- **Everything else automatically updates**: pricing.js, app.js, index.html
-- **No more**: Updating multiple files with hardcoded versions
-
-### How to Update Version (One File Only!)
-
-Edit **`web/js/version.js`** and change the version number:
-
-```javascript
-window.APP_VERSION = 'v1.31'; // ← Change only this line!
-```
-
-Then commit and push. All other files will automatically use the new version! 🎉
-
-### Legacy Manual Updates (v1.21-v1.25 only)
-
-<details>
-<summary>Old manual process (no longer needed)</summary>
-
-When making changes, increment the version number and update it in these locations:
-
-1. **web/index.html** (3 places)
-2. **web/js/pricing.js** (version log)
-3. **This file (VERSION.md)**
+> If a semantic version is still desired later, introduce it through the Jekyll config (e.g., `_config.yml`) or an environment variable at build time instead of sprinkling manual updates across files.
 

@@ -45,7 +45,7 @@ const marketState = {
 
 // ===== Configuration =====
 const CONFIG = {
-    campaignPath: '../', // Path to campaign files
+    campaignPath: '../darcnia-campaign/', // Path to campaign files
     playerAccessible: {
         // Define what players can access (DM sections excluded)
         guilds: true,
@@ -4743,29 +4743,33 @@ async function dmShowPriceInfo() {
 }
 
 // ===== Utility Functions =====
+function getBuildTimestampLabel() {
+    if (typeof document === 'undefined' || !document.lastModified) {
+        return 'local dev';
+    }
+    const parsed = new Date(document.lastModified);
+    return Number.isNaN(parsed.getTime()) ? 'local dev' : parsed.toLocaleString();
+}
+
 // Wait to log until after login
 function logSuccess() {
-    const version = window.APP_VERSION; // Single source of truth from version.js
-    const buildTime = window.BUILD_TIME ? new Date(window.BUILD_TIME).toLocaleString() : 'Unknown';
-    const commit = window.GIT_COMMIT_SHORT || 'manual';
+    const buildStamp = getBuildTimestampLabel();
     
-    console.log(`🎲 Darcnia Campaign Reference loaded successfully! (${version})`);
-    console.log(`📦 Build: ${commit} at ${buildTime}`);
+    console.log(`🎲 Darcnia Campaign Reference loaded successfully! (Last updated ${buildStamp})`);
     console.log('📚 Search index built with', state.searchIndex.length, 'items');
     console.log('⚔️ Playing as:', state.currentCharacter?.name);
     console.log('🔑 Access level:', state.accessLevel);
     
     // Update version display in UI
-    updateVersionDisplay();
+    updateVersionDisplay(buildStamp);
 }
 
-function updateVersionDisplay() {
+function updateVersionDisplay(buildStamp = null) {
     const versionDisplay = document.querySelector('.version-display');
     if (versionDisplay) {
-        const version = window.APP_VERSION; // Single source of truth from version.js
-        const commit = window.GIT_COMMIT_SHORT || '';
-        versionDisplay.textContent = version;
-        versionDisplay.title = `Build: ${commit}\nTime: ${window.BUILD_TIME || 'Unknown'}`;
+        const label = buildStamp || getBuildTimestampLabel();
+        versionDisplay.textContent = `Updated ${label}`;
+        versionDisplay.title = `Last file change: ${label}`;
     }
 }
 
