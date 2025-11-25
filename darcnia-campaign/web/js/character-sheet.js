@@ -808,6 +808,14 @@ function showLogin() {
     const modal = document.getElementById('loginModal');
     document.getElementById('loginModalContent').innerHTML = html;
     modal.classList.remove('hidden');
+
+    // Wire DM picker after modal content exists
+    const usernameInput = document.getElementById('loginUsername');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', maybeShowDmCharacterPicker);
+        // Run once in case DM name is prefilled later
+        maybeShowDmCharacterPicker();
+    }
 }
 
 async function attemptLogin() {
@@ -917,12 +925,6 @@ function setupEventListeners() {
                 closeLoginModal();
             }
         });
-    }
-    
-    // DM character picker toggle based on username input
-    const usernameInput = document.getElementById('loginUsername');
-    if (usernameInput) {
-        usernameInput.addEventListener('input', maybeShowDmCharacterPicker);
     }
     
     // Ability score changes
