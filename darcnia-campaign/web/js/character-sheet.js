@@ -757,33 +757,69 @@ function showLogin() {
     console.log('showLogin called');
     const loginBtn = document.getElementById('loginBtn');
     const isLoggedIn = loginBtn && loginBtn.classList.contains('logged-in');
+    const loggedKey = localStorage.getItem(STORAGE_KEYS.loggedInCharacter);
+    const loggedEntry = loggedKey ? characterDatabase[loggedKey] : null;
+    const isDm = loggedEntry && loggedEntry.accessLevel === 'dm';
     
     if (isLoggedIn) {
-        // Logout
-        if (confirm('Logout and return to Guest?')) {
-            if (firebaseListener) {
-                firebaseListener.off();
-                firebaseListener = null;
+        // If DM is logged in, offer switch or logout instead of immediate logout
+        if (isDm) {
+            const choice = prompt('DM options: type "switch" to change character, or "logout" to sign out.', 'switch');
+            if (!choice) return;
+            const normalized = choice.trim().toLowerCase();
+            if (normalized === 'logout') {
+                if (firebaseListener) {
+                    firebaseListener.off();
+                    firebaseListener = null;
+                }
+                if (firebaseBankListener) {
+                    firebaseBankListener.off();
+                    firebaseBankListener = null;
+                }
+                localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
+                currentCharacterName = null;
+                currentFirebaseSlug = null;
+                clearLastRemoteStamp();
+                loginBtn.textContent = '👤 Login';
+                loginBtn.classList.remove('logged-in');
+                loadCharacterData();
+                showNotification('👋 Logged out');
+                return;
             }
-            if (firebaseBankListener) {
-                firebaseBankListener.off();
-                firebaseBankListener = null;
+            if (normalized === 'switch') {
+                // Re-open login modal for DM to pick a different character
+                // Fall through to modal rendering below
+            } else {
+                showNotification('❗ Type "switch" to change character or "logout" to sign out.', 'error');
+                return;
             }
-            // Clear saved character from localStorage
-            localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
-            currentCharacterName = null;
-            currentFirebaseSlug = null;
-            clearLastRemoteStamp();
-            
-            loginBtn.textContent = '👤 Login';
-            loginBtn.classList.remove('logged-in');
-            
-            // Clear character sheet
-            loadCharacterData();
-            
-            showNotification('👋 Logged out');
+        } else {
+            // Non-DM: behave as before (simple logout)
+            if (confirm('Logout and return to Guest?')) {
+                if (firebaseListener) {
+                    firebaseListener.off();
+                    firebaseListener = null;
+                }
+                if (firebaseBankListener) {
+                    firebaseBankListener.off();
+                    firebaseBankListener = null;
+                }
+                // Clear saved character from localStorage
+                localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
+                currentCharacterName = null;
+                currentFirebaseSlug = null;
+                clearLastRemoteStamp();
+                
+                loginBtn.textContent = '👤 Login';
+                loginBtn.classList.remove('logged-in');
+                
+                // Clear character sheet
+                loadCharacterData();
+                
+                showNotification('👋 Logged out');
+            }
+            return;
         }
-        return;
     }
     
     // Login modal
