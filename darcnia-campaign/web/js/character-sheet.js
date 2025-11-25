@@ -833,15 +833,31 @@ async function attemptLogin() {
     
     clearLastRemoteStamp();
     hasHydratedCharacter = false;
-    await loadCharacterFromFirebase(character.name);
-    await loadBankFromFirebase(character.name);
-    setupFirebaseRealtimeSync(character.name);
+    
+    if (character.accessLevel === 'dm') {
+        // DM: choose which sheet to view (player or NPC)
+        const targetName = prompt('Enter character/NPC name to view (exact):', 'Nyra Vex');
+        if (!targetName) {
+            showNotification('❗ No target selected. Still logged in as DM.', 'error');
+        } else {
+            currentCharacterName = targetName;
+            currentFirebaseSlug = sanitizeCharacterName(targetName) || null;
+            await loadCharacterFromFirebase(targetName);
+            await loadBankFromFirebase(targetName);
+            setupFirebaseRealtimeSync(targetName);
+            showNotification(`📖 Viewing sheet for ${targetName} (DM mode).`);
+        }
+    } else {
+        // Normal player login
+        await loadCharacterFromFirebase(character.name);
+        await loadBankFromFirebase(character.name);
+        setupFirebaseRealtimeSync(character.name);
+        showNotification(`✅ Welcome, ${character.name}!`);
+    }
     
     // Close modal
     const modal = document.getElementById('loginModal');
     modal.classList.add('hidden');
-    
-    showNotification(`✅ Welcome, ${character.name}!`);
 }
 
 function closeLoginModal() {
