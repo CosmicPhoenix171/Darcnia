@@ -7,6 +7,10 @@ markdown: kramdown
 collections: {}
 include:
   - darcnia-campaign
+  - app/js/app-config.js
+  - app/js/character-db.js
+  - app/js/firebase-config.js
+  - app/js/pricing.js
 exclude:
   - node_modules
   - package-lock.json
