@@ -793,6 +793,12 @@ function showLogin() {
     html += '<input type="text" id="loginUsername" placeholder="Enter character name" />';
     html += '<label>Password:</label>';
     html += '<input type="password" id="loginPassword" placeholder="Enter password" />';
+    html += '<div id="dmCharacterPicker" class="dm-character-picker" style="display:none; margin-top: 0.75rem;">';
+    html += '<label for="dmCharacterSelect">View character as DM:</label>';
+    html += '<select id="dmCharacterSelect">';
+    html += '<option value="">-- Select character --</option>';
+    html += '</select>';
+    html += '</div>';
     html += '<div class="login-actions">';
     html += '<button onclick="attemptLogin()" class="btn-primary">Login</button>';
     html += '<button onclick="closeLoginModal()" class="btn-secondary">Cancel</button>';
@@ -807,6 +813,8 @@ function showLogin() {
 async function attemptLogin() {
     const username = document.getElementById('loginUsername').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
+    const dmSelect = document.getElementById('dmCharacterSelect');
+    const dmTargetName = dmSelect ? dmSelect.value : '';
     
     const character = characterDatabase[username];
     
@@ -835,17 +843,16 @@ async function attemptLogin() {
     hasHydratedCharacter = false;
     
     if (character.accessLevel === 'dm') {
-        // DM: choose which sheet to view (player or NPC)
-        const targetName = prompt('Enter character/NPC name to view (exact):', 'Nyra Vex');
-        if (!targetName) {
-            showNotification('❗ No target selected. Still logged in as DM.', 'error');
+        // DM: view selected sheet from dropdown (player or NPC)
+        if (!dmTargetName) {
+            showNotification('❗ Logged in as DM, but no character selected from the list.', 'error');
         } else {
-            currentCharacterName = targetName;
-            currentFirebaseSlug = sanitizeCharacterName(targetName) || null;
-            await loadCharacterFromFirebase(targetName);
-            await loadBankFromFirebase(targetName);
-            setupFirebaseRealtimeSync(targetName);
-            showNotification(`📖 Viewing sheet for ${targetName} (DM mode).`);
+            currentCharacterName = dmTargetName;
+            currentFirebaseSlug = sanitizeCharacterName(dmTargetName) || null;
+            await loadCharacterFromFirebase(dmTargetName);
+            await loadBankFromFirebase(dmTargetName);
+            setupFirebaseRealtimeSync(dmTargetName);
+            showNotification(`📖 Viewing sheet for ${dmTargetName} (DM mode).`);
         }
     } else {
         // Normal player login
@@ -858,6 +865,32 @@ async function attemptLogin() {
     // Close modal
     const modal = document.getElementById('loginModal');
     modal.classList.add('hidden');
+}
+
+// Helper: populate DM character dropdown when DM username is entered
+function maybeShowDmCharacterPicker() {
+    const usernameInput = document.getElementById('loginUsername');
+    const picker = document.getElementById('dmCharacterPicker');
+    const select = document.getElementById('dmCharacterSelect');
+    if (!usernameInput || !picker || !select) return;
+
+    const value = usernameInput.value.trim().toLowerCase();
+    const isDm = value === 'dm' || value === 'dungeon master';
+    picker.style.display = isDm ? 'block' : 'none';
+
+    if (!isDm) return;
+
+    // Build options from characterDatabase keys (excluding dm accounts)
+    select.innerHTML = '<option value="">-- Select character --</option>';
+    Object.keys(characterDatabase).forEach(key => {
+        const entry = characterDatabase[key];
+        if (!entry || entry.accessLevel === 'dm') return;
+        const displayName = entry.name || key;
+        const option = document.createElement('option');
+        option.value = displayName;
+        option.textContent = displayName;
+        select.appendChild(option);
+    });
 }
 
 function closeLoginModal() {
@@ -884,6 +917,12 @@ function setupEventListeners() {
                 closeLoginModal();
             }
         });
+    }
+    
+    // DM character picker toggle based on username input
+    const usernameInput = document.getElementById('loginUsername');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', maybeShowDmCharacterPicker);
     }
     
     // Ability score changes
