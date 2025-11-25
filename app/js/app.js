@@ -45,7 +45,7 @@ const marketState = {
 
 // ===== Configuration =====
 const CONFIG = {
-    campaignPath: '../darcnia-campaign/', // Path to campaign files
+    campaignPath: '../../darcnia-campaign/', // Path to campaign files
     playerAccessible: {
         // Define what players can access (DM sections excluded)
         guilds: true,
