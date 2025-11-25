@@ -903,10 +903,23 @@ function maybeShowDmCharacterPicker() {
 }
 
 // DM switcher modal: no password, just pick character or logout
+function resolveDmStoredKey(rawValue) {
+    if (!rawValue) return '';
+    if (characterDatabase[rawValue] && characterDatabase[rawValue].accessLevel !== 'dm') {
+        return rawValue;
+    }
+    return Object.keys(characterDatabase).find(key => {
+        const entry = characterDatabase[key];
+        if (!entry || entry.accessLevel === 'dm') return false;
+        return (entry.name || key) === rawValue;
+    }) || '';
+}
+
 function openDmSwitcher() {
     const modal = document.getElementById('loginModal');
     if (!modal) return;
 
+    const savedDmSlug = resolveDmStoredKey(localStorage.getItem(STORAGE_KEYS.dmViewedCharacter) || '');
     let html = '<h2>🎭 DM Character Switcher</h2>';
     html += '<div class="login-form">';
     html += '<p>Select a character to view/edit, or logout.</p>';
@@ -918,7 +931,8 @@ function openDmSwitcher() {
         const entry = characterDatabase[key];
         if (!entry || entry.accessLevel === 'dm') return;
         const displayName = entry.name || key;
-        html += `<option value="${displayName}">${displayName}</option>`;
+        const selectedAttr = savedDmSlug === key ? ' selected' : '';
+        html += `<option value="${key}"${selectedAttr}>${displayName}</option>`;
     });
 
     html += '</select>';
@@ -937,13 +951,15 @@ function openDmSwitcher() {
 
     if (switchBtn && select) {
         switchBtn.addEventListener('click', async () => {
-            const name = select.value;
-            if (!name) {
+            const selectedKey = select.value;
+            if (!selectedKey) {
                 showNotification('❗ Select a character to view.', 'error');
                 return;
             }
+            const entry = characterDatabase[selectedKey];
+            const name = entry?.name || selectedKey;
             // Persist viewed character for DM across pages
-            localStorage.setItem(STORAGE_KEYS.dmViewedCharacter, name);
+            localStorage.setItem(STORAGE_KEYS.dmViewedCharacter, selectedKey);
             currentCharacterName = name;
             currentFirebaseSlug = sanitizeCharacterName(name) || null;
             clearLastRemoteStamp();
@@ -952,6 +968,10 @@ function openDmSwitcher() {
             await loadBankFromFirebase(name);
             setupFirebaseRealtimeSync(name);
             showNotification(`📖 Viewing sheet for ${name} (DM mode).`);
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.textContent = `👤 DM ➜ ${name}`;
+            }
             modal.classList.add('hidden');
         });
     }

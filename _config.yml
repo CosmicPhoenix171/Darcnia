@@ -1,0 +1,24 @@
+title: Darcnia Campaign
+description: D&D 2024 reference hub for the floating continent of Darcnia
+baseurl: "/Darcnia"
+url: "https://cosmicphoenix171.github.io"
+permalink: pretty
+markdown: kramdown
+collections: {}
+include:
+  - darcnia-campaign
+  - firebase
+exclude:
+  - node_modules
+  - package-lock.json
+  - README.md
+  - LICENSE
+  - .vscode
+  - Gemfile.lock
+  - scripts
+plugins: []
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

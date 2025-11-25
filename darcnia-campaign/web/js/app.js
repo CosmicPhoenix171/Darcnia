@@ -118,6 +118,8 @@ const state = {
     searchIndex: [],
     currentCharacter: null,
     accessLevel: 'guest',
+    dmAccount: null,
+    dmViewedCharacter: null,
     shopFilters: {},
     shopCategoryCollapsed: {},
     marketDensity: 'comfortable',
@@ -1206,23 +1208,29 @@ const contentData = {
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
     // Check for saved logged-in character
-    const savedCharacterName = localStorage.getItem('loggedInCharacter');
+    const savedCharacterName = localStorage.getItem(STORAGE_KEYS.loggedInCharacter);
+    state.dmViewedCharacter = localStorage.getItem(STORAGE_KEYS.dmViewedCharacter) || null;
     
     if (savedCharacterName && characterDatabase[savedCharacterName]) {
         // Restore logged-in character
         state.currentCharacter = characterDatabase[savedCharacterName];
         state.accessLevel = state.currentCharacter.accessLevel || 'player';
+        state.dmAccount = state.currentCharacter.accessLevel === 'dm' ? state.currentCharacter : null;
     } else {
         // Default to guest user
         state.currentCharacter = { 
             name: 'Guest', 
             accessLevel: 'player', 
             clearedDungeonLevel: 0,
-            bank: { gold: 0, silver: 0, copper: 0 }
+            bank: { gold: 0, silver: 0, copper: 0, creditCopper: 0 }
         };
+        state.dmAccount = null;
     }
     
     initializeApp();
+
+    // Restore DM view if applicable
+    restoreDmViewIfNeeded();
     
     // ===== Enhanced UI Features =====
     
@@ -1317,14 +1325,14 @@ function createRipple(event, element) {
 
 function initializeApp() {
     // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'dark';
     setTheme(savedTheme);
     
     // Update theme toggle icon
     updateThemeIcon();
     
     // Load bank balance from localStorage first, then from character as fallback
-    const savedBank = localStorage.getItem('bankBalance');
+    const savedBank = localStorage.getItem(STORAGE_KEYS.bank);
     if (savedBank) {
         state.bank = normalizeBankState(JSON.parse(savedBank));
     } else if (state.currentCharacter && state.currentCharacter.bank) {
@@ -1362,7 +1370,7 @@ function initializeApp() {
 
 function saveBankToLocalStorage() {
     state.bank = normalizeBankState(state.bank);
-    localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+    localStorage.setItem(STORAGE_KEYS.bank, JSON.stringify(state.bank));
     
     // Also save to Firebase if logged in
     if (state.currentCharacter && state.currentCharacter.name !== 'Guest') {
@@ -1443,7 +1451,7 @@ function setupFirebaseRealtimeSync(characterName) {
                     
                     if (currentBank !== newBank) {
                         state.bank = normalizeBankState(data.bank);
-                        localStorage.setItem('bankBalance', JSON.stringify(state.bank));
+                        localStorage.setItem(STORAGE_KEYS.bank, JSON.stringify(state.bank));
                         updateBankDisplay();
                         console.log('🔄 Bank balance synced from Firebase');
                         hasChanges = true;
@@ -3564,38 +3572,39 @@ function payCreditBalance() {
 }
 
 // ===== Login System =====
+function getPlayableCharacterEntries() {
+    return Object.keys(characterDatabase)
+        .filter((key) => {
+            const entry = characterDatabase[key];
+            return entry && entry.accessLevel !== 'dm';
+        })
+        .map((key) => ({ key, name: characterDatabase[key].name || key }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function resolveDmStoredKey(rawValue) {
+    if (!rawValue) return '';
+    if (characterDatabase[rawValue] && characterDatabase[rawValue].accessLevel !== 'dm') {
+        return rawValue;
+    }
+    const match = getPlayableCharacterEntries().find(entry => entry.name === rawValue);
+    return match ? match.key : '';
+}
+
 function showLogin() {
     console.log('showLogin called');
     const loginBtn = document.getElementById('loginBtn');
     const isLoggedIn = loginBtn && loginBtn.classList.contains('logged-in');
+    const isDmLoggedIn = isLoggedIn && state.accessLevel === 'dm';
+    
+    if (isDmLoggedIn) {
+        openDmMarketSwitcher();
+        return;
+    }
     
     if (isLoggedIn) {
-        // Logout
         if (confirm('Logout and return to Guest?')) {
-            // Stop real-time sync
-            stopFirebaseRealtimeSync();
-            
-            // Clear saved character from localStorage
-            localStorage.removeItem('loggedInCharacter');
-            
-            state.currentCharacter = { 
-                name: 'Guest', 
-                accessLevel: 'player', 
-                level: 1, // Guest starts at level 1
-                bank: { gold: 0, silver: 0, copper: 0 }
-            };
-            loginBtn.textContent = '👤 Login';
-            loginBtn.classList.remove('logged-in');
-            
-            // Reset bank to saved or default
-            const savedBank = localStorage.getItem('bankBalance');
-            if (savedBank) {
-                state.bank = JSON.parse(savedBank);
-            } else {
-                state.bank = { gold: 0, silver: 0, copper: 0, creditCopper: 0 };
-            }
-            updateBankDisplay();
-            showCartNotification('👋 Logged out');
+            logoutToGuest();
         }
         return;
     }
@@ -3632,45 +3641,221 @@ async function attemptLogin() {
         return;
     }
     
-    // Successful login
-    state.currentCharacter = character;
+    const loginBtn = document.getElementById('loginBtn');
+    
+    // Save logged-in account to localStorage
+    localStorage.setItem(STORAGE_KEYS.loggedInCharacter, username);
     state.accessLevel = character.accessLevel || 'player';
     
-    // Save logged-in character to localStorage
-    localStorage.setItem('loggedInCharacter', username);
+    if (character.accessLevel === 'dm') {
+        state.currentCharacter = character;
+        state.dmAccount = character;
+        state.dmViewedCharacter = localStorage.getItem(STORAGE_KEYS.dmViewedCharacter) || null;
+        state.bank = { gold: 0, silver: 0, copper: 0, creditCopper: 0 };
+        state.cart = [];
+        localStorage.removeItem(STORAGE_KEYS.bank);
+        updateBankDisplay();
+        updateCartDisplay();
+        if (loginBtn) {
+            loginBtn.textContent = `👤 ${character.name} (DM)`;
+            loginBtn.classList.add('logged-in');
+        }
+        closeModal();
+        openDmMarketSwitcher();
+        showCartNotification('🎭 DM mode enabled. Select a character to manage.');
+        return;
+    }
     
-    // Try to load from Firebase first, fall back to character default
+    // Successful player login
+    state.currentCharacter = character;
+    state.dmAccount = null;
+    
     const firebaseData = await loadCharacterDataFromFirebase(character.name);
     
     if (firebaseData && firebaseData.bank) {
-        // Use Firebase data (most recent save)
         state.bank = normalizeBankState(firebaseData.bank);
         console.log('📥 Loaded bank from Firebase');
     } else if (character.bank) {
-        // Use character default
         state.bank = normalizeBankState(character.bank);
         console.log('📦 Using default bank balance');
     }
     
     saveBankToLocalStorage();
     
-    const loginBtn = document.getElementById('loginBtn');
-    loginBtn.textContent = `👤 ${character.name}`;
-    loginBtn.classList.add('logged-in');
+    if (loginBtn) {
+        loginBtn.textContent = `👤 ${character.name}`;
+        loginBtn.classList.add('logged-in');
+    }
     
     updateBankDisplay();
-    
-    // Setup real-time sync for this character
     setupFirebaseRealtimeSync(character.name);
-    
-    // Close modal
     closeModal();
-    
     showCartNotification(`✅ Welcome, ${character.name}!`);
 }
 
 function closeLoginModal() {
     closeModal();
+}
+
+function logoutToGuest() {
+    stopFirebaseRealtimeSync();
+    state.accessLevel = 'player';
+    state.dmAccount = null;
+    state.dmViewedCharacter = null;
+    state.currentCharacter = {
+        name: 'Guest',
+        accessLevel: 'player',
+        clearedDungeonLevel: 0,
+        bank: { gold: 0, silver: 0, copper: 0, creditCopper: 0 }
+    };
+    state.bank = { gold: 0, silver: 0, copper: 0, creditCopper: 0 };
+    state.cart = [];
+    localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
+    localStorage.removeItem(STORAGE_KEYS.dmViewedCharacter);
+    localStorage.removeItem(STORAGE_KEYS.bank);
+    updateBankDisplay();
+    updateCartDisplay();
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.textContent = '👤 Login';
+        loginBtn.classList.remove('logged-in');
+    }
+    closeModal();
+    showCartNotification('👥 Logged out. Browsing as Guest.');
+}
+
+function openDmMarketSwitcher() {
+    if (state.accessLevel !== 'dm') {
+        showCartNotification('DM mode required for character switching.');
+        return;
+    }
+
+    const playableCharacters = getPlayableCharacterEntries();
+    if (playableCharacters.length === 0) {
+        showCartNotification('No playable characters available to view.');
+        return;
+    }
+
+    const savedKey = resolveDmStoredKey(state.dmViewedCharacter || localStorage.getItem(STORAGE_KEYS.dmViewedCharacter));
+
+    let html = '<h2>🎭 DM Character Switcher</h2>';
+    html += '<div class="login-form">';
+    html += '<p>Select a character to manage their bank, cart, and access. Logout to return to Guest.</p>';
+    html += '<label for="dmSwitchSelect">Active character:</label>';
+    html += '<select id="dmSwitchSelect">';
+    html += '<option value="">-- Select character --</option>';
+    playableCharacters.forEach(({ key, name }) => {
+        const selectedAttr = key === savedKey ? ' selected' : '';
+        html += `<option value="${key}"${selectedAttr}>${name}</option>`;
+    });
+    html += '</select>';
+    html += '<div class="login-actions">';
+    html += '<button id="dmSwitchBtn" class="btn-primary">Switch View</button>';
+    html += '<button id="dmLogoutBtn" class="btn-secondary">Logout</button>';
+    html += '</div>';
+    html += '</div>';
+
+    openModal(html, 'market');
+
+    const selectEl = document.getElementById('dmSwitchSelect');
+    const switchBtn = document.getElementById('dmSwitchBtn');
+    const logoutBtn = document.getElementById('dmLogoutBtn');
+
+    if (switchBtn && selectEl) {
+        switchBtn.addEventListener('click', async () => {
+            const selectedKey = selectEl.value;
+            if (!selectedKey) {
+                showCartNotification('Select a character to view.');
+                return;
+            }
+            const switched = await applyDmMarketViewInternal(selectedKey);
+            if (switched) {
+                closeModal();
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            logoutToGuest();
+        });
+    }
+}
+
+async function applyDmMarketViewInternal(selectedKey, options = {}) {
+    const { silent = false } = options;
+    const entry = characterDatabase[selectedKey];
+    if (!entry || entry.accessLevel === 'dm') {
+        if (!silent) {
+            showCartNotification('Invalid character selected.');
+        }
+        return false;
+    }
+
+    const characterName = entry.name || selectedKey;
+    state.accessLevel = 'dm';
+    state.dmViewedCharacter = selectedKey;
+    localStorage.setItem(STORAGE_KEYS.dmViewedCharacter, selectedKey);
+
+    // Ensure DM privileges remain active while viewing a player's data
+    state.currentCharacter = {
+        ...entry,
+        name: characterName,
+        accessLevel: 'dm',
+        proxyKey: selectedKey
+    };
+
+    stopFirebaseRealtimeSync();
+
+    const firebaseData = await loadCharacterDataFromFirebase(characterName);
+    if (firebaseData && firebaseData.bank) {
+        state.bank = normalizeBankState(firebaseData.bank);
+    } else if (entry.bank) {
+        state.bank = normalizeBankState(entry.bank);
+    } else {
+        state.bank = { gold: 0, silver: 0, copper: 0, creditCopper: 0 };
+    }
+
+    state.currentCharacter.bank = { ...state.bank };
+    localStorage.setItem(STORAGE_KEYS.bank, JSON.stringify(state.bank));
+
+    if (firebaseData && Array.isArray(firebaseData.cart)) {
+        state.cart = [...firebaseData.cart];
+    } else {
+        state.cart = [];
+    }
+
+    updateCartDisplay();
+    updateBankDisplay();
+
+    setupFirebaseRealtimeSync(characterName);
+
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.textContent = `👤 DM ➜ ${characterName}`;
+        loginBtn.classList.add('logged-in');
+    }
+
+    if (!silent) {
+        showCartNotification(`📖 Viewing market as ${characterName}.`);
+    }
+    return true;
+}
+
+async function restoreDmViewIfNeeded() {
+    if (state.accessLevel !== 'dm') return;
+
+    const storedKey = resolveDmStoredKey(state.dmViewedCharacter || localStorage.getItem(STORAGE_KEYS.dmViewedCharacter));
+    if (!storedKey) {
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn && state.currentCharacter) {
+            loginBtn.textContent = `👤 ${state.currentCharacter.name || 'Dungeon Master'} (DM)`;
+            loginBtn.classList.add('logged-in');
+        }
+        return;
+    }
+
+    await applyDmMarketViewInternal(storedKey, { silent: true });
 }
 
 // ===== Dice Roller =====
