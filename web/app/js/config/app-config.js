@@ -1,5 +1,5 @@
 export const APP_CONFIG = {
-    campaignPath: '../',
+    campaignPath: '../darcnia-campaign/',
     playerAccessible: {
         guilds: true,
         npcs: ['eldonthorne', 'tessawindfern'],

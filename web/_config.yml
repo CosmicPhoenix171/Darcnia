@@ -7,7 +7,6 @@ markdown: kramdown
 collections: {}
 include:
   - darcnia-campaign
-  - firebase
 exclude:
   - node_modules
   - package-lock.json

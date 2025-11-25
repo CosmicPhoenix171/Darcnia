@@ -1,81 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darcnia Campaign - Player Reference</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Inter:wght@400;500;600;700&family=MedievalSharp&family=Great+Vibes&family=Uncial+Antiqua&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏛️</text></svg>">
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
-    
-</head>
-<body>
-    <!-- Main Application (hidden until login) -->
-    <div class="container" id="mainApp">
-        <!-- Header -->
-        <header>
-            <div class="header-top">
-                <div>
-                    <h1>Darcnia: The Floating Continent</h1>
-                    <p class="subtitle">Solspire - The City of Guilds</p>
-                </div>
-                <div class="header-buttons">
-                    <button id="bankButton" class="bank-button-header" onclick="showBank()">💰 0 cp</button>
-                    <button id="cartButton" class="cart-button-header" onclick="showCart()">🛒 Cart (0)</button>
-                </div>
-            </div>
-            
-            <!-- Search Bar -->
-            <div class="search-container">
-                <button id="loginBtn" class="login-button" onclick="showLogin()">👤 Login</button>
-                <input type="text" id="searchInput" placeholder="Search market items or quests..." />
-                <button id="searchBtn">🔍 Search</button>
-            </div>
+---
+layout: default
+title: Darcnia Campaign Portal
+redirect_url: /app/index.html
+body_class: landing
+description: Quick portal into the Darcnia floating-continent tools and references.
+---
 
-            <!-- Theme Toggle removed per user request -->
-        </header>
-
-    <!-- Character Info Banner (unused without login) -->
-    <div id="characterInfo" class="character-info-banner" style="display:none"></div>
-
-        <!-- Navigation Tabs -->
-        <nav class="tabs">
-            <button class="tab-btn active" data-tab="market">Market</button>
-            <button class="tab-btn" data-tab="quests">Quests</button>
-            <a href="character-sheet.html" class="tab-btn character-sheet-link" title="D&D 2024 Character Sheet">📋 Character Sheet</a>
-            <button class="tab-btn" data-tab="dice">🎲 Dice Roller</button>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main id="contentArea">
-            <!-- Content will be loaded here dynamically -->
-            <div class="loading">Loading content...</div>
-        </main>
-
-        
-
-        <!-- Search Results Modal -->
-        <div id="searchModal" class="modal hidden">
-            <div class="modal-content">
-                <button class="modal-close">&times;</button>
-                <div id="searchResults"></div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer>
-            <p>Darcnia Campaign | D&D 5e | For Player Reference Only</p>
-            <div class="version-display">Loading...</div>
-        </footer>
+<section class="landing-redirect" aria-live="polite">
+    <div class="redirect-card">
+        <h1>🏛️ Darcnia Campaign</h1>
+        <p>Welcome back to the floating continent. We keep all market tools, references, and the 2024 character sheet under a single roof now powered by Jekyll.</p>
+        <div class="spinner" role="presentation"></div>
+        <p>Redirecting to the campaign hub…</p>
+        <p>
+            If nothing happens automatically, 
+            <a href="{{ page.redirect_url | relative_url }}">open the hub manually</a>.
+        </p>
     </div>
+</section>
 
-    <script type="module" src="js/app.js"></script>
-</body>
-</html>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            window.location.href = "{{ page.redirect_url | relative_url }}";
+        }, 100);
+    });
+</script>
