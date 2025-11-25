@@ -14,6 +14,25 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            const contentArea = document.getElementById('contentArea');
+            if (contentArea) {
+                contentArea.innerHTML = `
+                    <div class="error-container" style="padding: 2rem; text-align: center; color: #ff6b6b;">
+                        <h2>⚠️ Application Error</h2>
+                        <p>Something went wrong while loading the application.</p>
+                        <pre style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 4px; text-align: left; overflow: auto;">
+${message}
+at ${source}:${lineno}:${colno}
+                        </pre>
+                        <p>Please report this to the developer.</p>
+                    </div>
+                `;
+            }
+            console.error('Global error caught:', message, error);
+        };
+    </script>
     
 </head>
 <body>
