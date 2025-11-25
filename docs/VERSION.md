@@ -4,7 +4,7 @@ Manual version stamping has been removed. The campaign UI now surfaces the last 
 
 ## Release Checklist
 
-1. Finish your code changes and ensure `bundle exec jekyll serve` (run from the `web/` directory) behaves as expected, or at least spot-check the static `web/app/` pages directly.
+1. Finish your code changes and ensure `bundle exec jekyll serve` (run from the `docs/` directory) behaves as expected, or at least spot-check the static `docs/app/` pages directly.
 2. Commit with a descriptive message; Git history now serves as the source of truth for release identifiers.
 3. Deploy/publish. The footer will show “Updated &lt;timestamp&gt;” which reflects the timestamp of the deployed files.
 
