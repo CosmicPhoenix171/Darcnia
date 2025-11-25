@@ -1,7 +1,7 @@
 // Use shared config modules
-import { firebaseConfig } from './config/firebase-config.js';
-import { STORAGE_KEYS } from './config/app-config.js';
-import { simpleHash, characterDatabase } from './data/character-db.js';
+import { firebaseConfig } from './firebase-config.js';
+import { STORAGE_KEYS } from './app-config.js';
+import { simpleHash, characterDatabase } from './character-db.js';
 
 // ===== Constants & Configuration =====
 const XP_TABLE = [

@@ -8,7 +8,7 @@ import {
     getISOWeek,
     getDateString
 } from './pricing.js';
-import { STORAGE_KEYS } from './config/app-config.js';
+import { STORAGE_KEYS } from './app-config.js';
 
 // ===== Firebase Configuration =====
 const firebaseConfig = {
