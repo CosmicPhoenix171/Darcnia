@@ -5,6 +5,8 @@ url: "https://cosmicphoenix171.github.io"
 permalink: pretty
 markdown: kramdown
 collections: {}
+includes_dir: app/html
+layouts_dir: app/html
 include:
   - darcnia-campaign
   - app/js/app-config.js
