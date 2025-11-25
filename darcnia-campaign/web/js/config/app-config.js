@@ -13,6 +13,7 @@ export const APP_CONFIG = {
 
 export const STORAGE_KEYS = {
     loggedInCharacter: 'loggedInCharacter',
+    dmViewedCharacter: 'dmViewedCharacter',
     bank: 'bankBalance',
     theme: 'theme',
     characterSheetData: 'dnd2024CharacterSheet',

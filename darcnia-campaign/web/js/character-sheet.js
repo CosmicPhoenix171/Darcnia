@@ -762,37 +762,10 @@ function showLogin() {
     const isDm = loggedEntry && loggedEntry.accessLevel === 'dm';
     
     if (isLoggedIn) {
-        // If DM is logged in, offer switch or logout instead of immediate logout
+        // If DM is logged in, open DM switcher instead of logging out
         if (isDm) {
-            const choice = prompt('DM options: type "switch" to change character, or "logout" to sign out.', 'switch');
-            if (!choice) return;
-            const normalized = choice.trim().toLowerCase();
-            if (normalized === 'logout') {
-                if (firebaseListener) {
-                    firebaseListener.off();
-                    firebaseListener = null;
-                }
-                if (firebaseBankListener) {
-                    firebaseBankListener.off();
-                    firebaseBankListener = null;
-                }
-                localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
-                currentCharacterName = null;
-                currentFirebaseSlug = null;
-                clearLastRemoteStamp();
-                loginBtn.textContent = '👤 Login';
-                loginBtn.classList.remove('logged-in');
-                loadCharacterData();
-                showNotification('👋 Logged out');
-                return;
-            }
-            if (normalized === 'switch') {
-                // Re-open login modal for DM to pick a different character
-                // Fall through to modal rendering below
-            } else {
-                showNotification('❗ Type "switch" to change character or "logout" to sign out.', 'error');
-                return;
-            }
+            openDmSwitcher();
+            return;
         } else {
             // Non-DM: behave as before (simple logout)
             if (confirm('Logout and return to Guest?')) {
@@ -872,11 +845,11 @@ async function attemptLogin() {
         return;
     }
     
-    // Successful login
+    // Successful login: track account, but viewed character may differ for DM
     currentCharacterName = character.name;
     currentFirebaseSlug = sanitizeCharacterName(character.name) || null;
     
-    // Save logged-in character to localStorage
+    // Save logged-in account to localStorage
     localStorage.setItem(STORAGE_KEYS.loggedInCharacter, username);
     
     const loginBtn = document.getElementById('loginBtn');
@@ -887,17 +860,9 @@ async function attemptLogin() {
     hasHydratedCharacter = false;
     
     if (character.accessLevel === 'dm') {
-        // DM: view selected sheet from dropdown (player or NPC)
-        if (!dmTargetName) {
-            showNotification('❗ Logged in as DM, but no character selected from the list.', 'error');
-        } else {
-            currentCharacterName = dmTargetName;
-            currentFirebaseSlug = sanitizeCharacterName(dmTargetName) || null;
-            await loadCharacterFromFirebase(dmTargetName);
-            await loadBankFromFirebase(dmTargetName);
-            setupFirebaseRealtimeSync(dmTargetName);
-            showNotification(`📖 Viewing sheet for ${dmTargetName} (DM mode).`);
-        }
+        // DM: immediately open switcher to pick which character to view
+        loginBtn.textContent = `👤 ${character.name} (DM)`;
+        openDmSwitcher();
     } else {
         // Normal player login
         await loadCharacterFromFirebase(character.name);
@@ -935,6 +900,87 @@ function maybeShowDmCharacterPicker() {
         option.textContent = displayName;
         select.appendChild(option);
     });
+}
+
+// DM switcher modal: no password, just pick character or logout
+function openDmSwitcher() {
+    const modal = document.getElementById('loginModal');
+    if (!modal) return;
+
+    let html = '<h2>🎭 DM Character Switcher</h2>';
+    html += '<div class="login-form">';
+    html += '<p>Select a character to view/edit, or logout.</p>';
+    html += '<label for="dmSwitchSelect">Active character:</label>';
+    html += '<select id="dmSwitchSelect">';
+    html += '<option value="">-- Select character --</option>';
+
+    Object.keys(characterDatabase).forEach(key => {
+        const entry = characterDatabase[key];
+        if (!entry || entry.accessLevel === 'dm') return;
+        const displayName = entry.name || key;
+        html += `<option value="${displayName}">${displayName}</option>`;
+    });
+
+    html += '</select>';
+    html += '<div class="login-actions">';
+    html += '<button id="dmSwitchBtn" class="btn-primary">Switch</button>';
+    html += '<button id="dmLogoutBtn" class="btn-secondary">Logout</button>';
+    html += '</div>';
+    html += '</div>';
+
+    document.getElementById('loginModalContent').innerHTML = html;
+    modal.classList.remove('hidden');
+
+    const select = document.getElementById('dmSwitchSelect');
+    const switchBtn = document.getElementById('dmSwitchBtn');
+    const logoutBtn = document.getElementById('dmLogoutBtn');
+
+    if (switchBtn && select) {
+        switchBtn.addEventListener('click', async () => {
+            const name = select.value;
+            if (!name) {
+                showNotification('❗ Select a character to view.', 'error');
+                return;
+            }
+            // Persist viewed character for DM across pages
+            localStorage.setItem(STORAGE_KEYS.dmViewedCharacter, name);
+            currentCharacterName = name;
+            currentFirebaseSlug = sanitizeCharacterName(name) || null;
+            clearLastRemoteStamp();
+            hasHydratedCharacter = false;
+            await loadCharacterFromFirebase(name);
+            await loadBankFromFirebase(name);
+            setupFirebaseRealtimeSync(name);
+            showNotification(`📖 Viewing sheet for ${name} (DM mode).`);
+            modal.classList.add('hidden');
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            const loginBtn = document.getElementById('loginBtn');
+            if (firebaseListener) {
+                firebaseListener.off();
+            }
+            if (firebaseBankListener) {
+                firebaseBankListener.off();
+            }
+            firebaseListener = null;
+            firebaseBankListener = null;
+            localStorage.removeItem(STORAGE_KEYS.loggedInCharacter);
+            localStorage.removeItem(STORAGE_KEYS.dmViewedCharacter);
+            currentCharacterName = null;
+            currentFirebaseSlug = null;
+            clearLastRemoteStamp();
+            if (loginBtn) {
+                loginBtn.textContent = '👤 Login';
+                loginBtn.classList.remove('logged-in');
+            }
+            loadCharacterData();
+            showNotification('👋 Logged out');
+            modal.classList.add('hidden');
+        });
+    }
 }
 
 function closeLoginModal() {
